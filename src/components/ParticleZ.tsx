@@ -10,133 +10,165 @@ interface Particle {
   vx: number;
   vy: number;
   size: number;
-  opacity: number;
 }
 
-interface ParticleZProps {
-  className?: string;
-}
-
-export function ParticleZ({ className = "" }: ParticleZProps) {
+export function ParticleZ({ className = "" }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<Particle[]>([]);
-  const mouseRef = useRef({ x: 0, y: 0, isHovering: false });
+  const mouseRef = useRef({ x: 0, y: 0, isNear: false });
   const animationRef = useRef<number>(0);
   const lastAutoTimeRef = useRef<number>(Date.now());
-  const isDispersingRef = useRef<boolean>(false);
+  const isDispersedRef = useRef<boolean>(false);
+  const initializedRef = useRef<boolean>(false);
 
-  const getTextPoints = useCallback((width: number, height: number): { x: number; y: number }[] => {
+  const getZPoints = useCallback((w: number, h: number): { x: number; y: number }[] => {
     const points: { x: number; y: number }[] = [];
-    const scale = Math.min(width / 400, height / 500) * 0.8;
-    const offsetX = width * 0.15;
-    const offsetY = height * 0.2;
+    const scale = Math.min(w, h) * 0.35;
+    const cx = w * 0.4;
+    const cy = h * 0.5;
 
-    // 创建 Z 的路径
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d")!;
-    canvas.width = width;
-    canvas.height = height;
+    // Z 的笔画路径 - 密集采样
+    const density = 8;
+    
+    // 上横线
+    for (let i = 0; i < 12; i++) {
+      const t = i / 11;
+      points.push({
+        x: cx - scale * 0.5 + t * scale,
+        y: cy - scale * 0.4
+      });
+      // 增加密度
+      for (let j = 0; j < 3; j++) {
+        points.push({
+          x: cx - scale * 0.5 + t * scale + (Math.random() - 0.5) * 8,
+          y: cy - scale * 0.4 + (Math.random() - 0.5) * 8
+        });
+      }
+    }
 
-    ctx.font = `bold ${Math.min(width, height) * 0.6}px Arial, sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("Z", width / 2, height / 2);
+    // 斜线
+    for (let i = 0; i < 14; i++) {
+      const t = i / 13;
+      points.push({
+        x: cx - scale * 0.5 + t * scale,
+        y: cy - scale * 0.4 + t * scale * 0.8
+      });
+      for (let j = 0; j < 3; j++) {
+        points.push({
+          x: cx - scale * 0.5 + t * scale + (Math.random() - 0.5) * 8,
+          y: cy - scale * 0.4 + t * scale * 0.8 + (Math.random() - 0.5) * 8
+        });
+      }
+    }
 
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const gap = 12;
-
-    for (let x = 0; x < width; x += gap) {
-      for (let y = 0; y < height; y += gap) {
-        const alpha = imageData.data[(y * width + x) * 4 + 3];
-        if (alpha > 128) {
-          points.push({ x: x - offsetX, y: y - offsetY });
-        }
+    // 下横线
+    for (let i = 0; i < 12; i++) {
+      const t = i / 11;
+      points.push({
+        x: cx - scale * 0.5 + t * scale,
+        y: cy + scale * 0.4
+      });
+      for (let j = 0; j < 3; j++) {
+        points.push({
+          x: cx - scale * 0.5 + t * scale + (Math.random() - 0.5) * 8,
+          y: cy + scale * 0.4 + (Math.random() - 0.5) * 8
+        });
       }
     }
 
     return points;
   }, []);
 
-  const initParticles = useCallback(() => {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
-
-    const rect = container.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-
-    const points = getTextPoints(rect.width, rect.height);
-    particlesRef.current = points.map((point, i) => ({
-      x: Math.random() * rect.width,
-      y: Math.random() * rect.height,
-      targetX: point.x,
-      targetY: point.y,
-      vx: 0,
-      vy: 0,
-      size: 2 + Math.random() * 2,
-      opacity: 0.6 + Math.random() * 0.4,
-    }));
-  }, [getTextPoints]);
-
-  const disperseParticles = useCallback(() => {
+  const disperse = useCallback(() => {
     const container = containerRef.current;
     if (!container) return;
     const rect = container.getBoundingClientRect();
-
+    
     particlesRef.current.forEach(p => {
       p.targetX = Math.random() * rect.width;
       p.targetY = Math.random() * rect.height;
     });
-    isDispersingRef.current = true;
+    isDispersedRef.current = true;
   }, []);
 
-  const gatherParticles = useCallback(() => {
+  const gather = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const points = getTextPoints(rect.width, rect.height);
-
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+    
+    const rect = container.getBoundingClientRect();
+    const points = getZPoints(rect.width, rect.height);
+    
     particlesRef.current.forEach((p, i) => {
       if (points[i]) {
         p.targetX = points[i].x;
         p.targetY = points[i].y;
       }
     });
-    isDispersingRef.current = false;
+    isDispersedRef.current = false;
     lastAutoTimeRef.current = Date.now();
-  }, [getTextPoints]);
+  }, [getZPoints]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    initParticles();
-
-    const handleResize = () => {
+    const init = () => {
       const rect = container.getBoundingClientRect();
       canvas.width = rect.width;
       canvas.height = rect.height;
-      gatherParticles();
+
+      const points = getZPoints(rect.width, rect.height);
+      particlesRef.current = points.map(() => ({
+        x: Math.random() * rect.width,
+        y: Math.random() * rect.height,
+        targetX: 0,
+        targetY: 0,
+        vx: 0,
+        vy: 0,
+        size: 4 + Math.random() * 4
+      }));
+
+      // 初始聚集
+      setTimeout(gather, 100);
+      initializedRef.current = true;
+    };
+
+    if (!initializedRef.current) {
+      init();
+    }
+
+    const handleResize = () => {
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      gather();
     };
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       mouseRef.current.x = e.clientX - rect.left;
       mouseRef.current.y = e.clientY - rect.top;
+      
+      // 检测是否靠近中心区域
+      const cx = rect.width * 0.4;
+      const cy = rect.height * 0.5;
+      const dist = Math.sqrt(
+        Math.pow(mouseRef.current.x - cx, 2) + 
+        Math.pow(mouseRef.current.y - cy, 2)
+      );
+      mouseRef.current.isNear = dist < rect.width * 0.4;
     };
 
     const handleMouseEnter = () => {
-      mouseRef.current.isHovering = true;
-      disperseParticles();
+      disperse();
     };
 
     const handleMouseLeave = () => {
-      mouseRef.current.isHovering = false;
-      gatherParticles();
+      gather();
     };
 
     container.addEventListener("mousemove", handleMouseMove);
@@ -149,51 +181,46 @@ export function ParticleZ({ className = "" }: ParticleZProps) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const mouse = mouseRef.current;
-      const easing = isDispersingRef.current ? 0.02 : 0.08;
+      const isDispersed = isDispersedRef.current;
+      const easing = isDispersed ? 0.03 : 0.06;
 
       particlesRef.current.forEach(p => {
-        // 鼠标排斥力
+        // 鼠标排斥
         const dx = p.x - mouse.x;
         const dy = p.y - mouse.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const maxDist = 150;
-
-        if (dist < maxDist && mouse.isHovering) {
-          const force = (maxDist - dist) / maxDist * 2;
+        
+        if (dist < 120 && mouse.isNear) {
+          const force = (120 - dist) / 120 * 3;
           p.vx += (dx / dist) * force;
           p.vy += (dy / dist) * force;
         }
 
-        // 向目标移动
-        const targetDx = p.targetX - p.x;
-        const targetDy = p.targetY - p.y;
-        p.vx += targetDx * easing;
-        p.vy += targetDy * targetDy * 0.001 + targetDy * easing;
+        // 回到目标
+        p.vx += (p.targetX - p.x) * easing;
+        p.vy += (p.targetY - p.y) * easing;
 
         // 阻尼
-        p.vx *= 0.9;
-        p.vy *= 0.9;
+        p.vx *= 0.85;
+        p.vy *= 0.85;
 
         p.x += p.vx;
         p.y += p.vy;
 
-        // 绘制粒子
+        // 绘制 - 更大的粒子，更亮
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+        ctx.fillStyle = `rgba(255, 255, 255, ${0.7 + (isDispersed ? 0 : 0.3)})`;
         ctx.fill();
       });
 
-      // 自动分散/聚集 - 每7秒
+      // 7秒自动循环
       const now = Date.now();
-      if (!mouse.isHovering && now - lastAutoTimeRef.current > 7000) {
-        if (!isDispersingRef.current) {
-          disperseParticles();
-          // 分散2秒后聚集
+      if (!mouse.isNear && now - lastAutoTimeRef.current > 7000) {
+        if (!isDispersedRef.current) {
+          disperse();
           setTimeout(() => {
-            if (!mouseRef.current.isHovering) {
-              gatherParticles();
-            }
+            if (!mouseRef.current.isNear) gather();
           }, 2000);
         }
       }
@@ -210,10 +237,10 @@ export function ParticleZ({ className = "" }: ParticleZProps) {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationRef.current);
     };
-  }, [initParticles, disperseParticles, gatherParticles]);
+  }, [getZPoints, disperse, gather]);
 
   return (
-    <div ref={containerRef} className={`absolute inset-0 z-10 ${className}`}>
+    <div ref={containerRef} className={`absolute inset-0 ${className}`}>
       <canvas ref={canvasRef} className="w-full h-full" />
     </div>
   );
