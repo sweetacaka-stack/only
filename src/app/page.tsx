@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
 
-// 作品数据
 const works = [
   { id: 1, title: "MONOGRAPH", category: "Brand Identity", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" },
   { id: 2, title: "AURA", category: "Visual Design", image: "https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=2670&auto=format&fit=crop" },
@@ -23,20 +22,15 @@ export default function HomePage() {
   const contentsRef = useRef<(HTMLDivElement | null)[]>([]);
   const dotsRef = useRef<(HTMLDivElement | null)[]>([]);
   const indicatorRef = useRef<HTMLDivElement>(null);
-  const coverRef = useRef<HTMLDivElement>(null);
-  const detailsEvenRef = useRef<HTMLDivElement>(null);
-  const detailsOddRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
   const orderRef = useRef<number[]>([0, 1, 2, 3, 4, 5]);
-  const detailsEvenState = useRef<boolean>(true);
-  const gsapCtxRef = useRef<gsap.Context | null>(null);
 
-  // 初始加载动画
   useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), 300);
     return () => clearTimeout(timer);
   }, []);
 
-  // GSAP 作品轮播动画
+  // GSAP 卡片轮播
   useEffect(() => {
     if (currentSection !== 1) return;
 
@@ -53,138 +47,94 @@ export default function HomePage() {
 
         const initAnimation = () => {
           const [active, ...rest] = orderRef.current;
-          const detailsActive = detailsEvenState.current ? detailsEvenRef.current : detailsOddRef.current;
-          const detailsInactive = detailsEvenState.current ? detailsOddRef.current : detailsEvenRef.current;
 
-          if (detailsActive) {
-            const catText = detailsActive.querySelector('.category-text');
-            const titleText = detailsActive.querySelector('.title-text');
-            if (catText) catText.textContent = works[active].category;
-            if (titleText) titleText.textContent = works[active].title;
-          }
+          // 第一张卡片全屏
+          gsap.set(cardsRef.current[active], { x: 0, y: 0, width, height, borderRadius: 0, zIndex: 20 });
+          gsap.set(contentsRef.current[active], { x: 60, y: 240, opacity: 0 });
+          gsap.to(contentsRef.current[active], { opacity: 1, duration: 0.5, delay: 0.3 });
 
-          gsap.set(cardsRef.current[active], { x: 0, y: 0, width: width, height: height, borderRadius: 0, zIndex: 20 });
-          gsap.set(contentsRef.current[active], { x: 0, y: 0, opacity: 0 });
+          // 其他卡片排列
+          rest.forEach((i, index) => {
+            gsap.set(cardsRef.current[i], {
+              x: offsetLeft + 400 + index * (cardWidth + gap),
+              y: offsetTop,
+              width: cardWidth,
+              height: cardHeight,
+              zIndex: 30,
+              borderRadius: 8,
+            });
+            gsap.set(contentsRef.current[i], {
+              x: offsetLeft + 400 + index * (cardWidth + gap) + 20,
+              y: offsetTop + cardHeight - 50,
+              zIndex: 40,
+              opacity: 1,
+            });
+          });
 
-          if (detailsActive) gsap.set(detailsActive, { opacity: 0, zIndex: 22, x: -200 });
-          if (detailsInactive) {
-            gsap.set(detailsInactive, { opacity: 0, zIndex: 12 });
-            const inactiveCat = detailsInactive.querySelector('.category-text');
-            const inactiveTitle = detailsInactive.querySelector('.title-text');
-            if (inactiveCat) gsap.set(inactiveCat, { y: 100 });
-            if (inactiveTitle) gsap.set(inactiveTitle, { y: 100 });
-          }
+          // 标题进场
+          gsap.from(titleRef.current, { opacity: 0, y: -20, duration: 0.6, delay: 0.2 });
 
-          gsap.set(indicatorRef.current, { x: -width });
-
+          // 指示点
           dotsRef.current.forEach((dot, i) => {
             gsap.set(dot, { backgroundColor: i === active ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.2)' });
           });
 
-          rest.forEach((i, index) => {
-            gsap.set(cardsRef.current[i], {
-              x: offsetLeft + 400 + index * (cardWidth + gap), y: offsetTop, width: cardWidth, height: cardHeight, zIndex: 30, borderRadius: 8, scale: 1
-            });
-            gsap.set(contentsRef.current[i], {
-              x: offsetLeft + 400 + index * (cardWidth + gap), y: offsetTop + cardHeight - 60, zIndex: 40, opacity: 1
-            });
-          });
-
-          const startDelay = 0.6;
-          gsap.to(coverRef.current, {
-            x: width + 400, delay: 0.5, ease: "sine.inOut", onComplete: () => {
-              setTimeout(() => { if (isActive) runLoop(); }, 500);
-            }
-          });
-
-          rest.forEach((i, index) => {
-            gsap.to(cardsRef.current[i], {
-              x: offsetLeft + index * (cardWidth + gap), zIndex: 30, delay: startDelay + 0.05 * index, ease: "sine.inOut"
-            });
-            gsap.to(contentsRef.current[i], {
-              x: offsetLeft + index * (cardWidth + gap), zIndex: 40, delay: startDelay + 0.05 * index, ease: "sine.inOut"
-            });
-          });
-
-          if (detailsActive) {
-            gsap.to(detailsActive, { opacity: 1, x: 0, ease: "sine.inOut", delay: startDelay });
-            const catText = detailsActive.querySelector('.category-text');
-            const titleText = detailsActive.querySelector('.title-text');
-            if (catText) gsap.to(catText, { y: 0, ease: "sine.inOut", duration: 0.7, delay: startDelay + 0.1 });
-            if (titleText) gsap.to(titleText, { y: 0, ease: "sine.inOut", duration: 0.7, delay: startDelay + 0.15 });
-          }
+          // 启动轮播
+          setTimeout(() => { if (isActive) runLoop(); }, 800);
         };
 
         const step = () => {
           orderRef.current.push(orderRef.current.shift()!);
-          detailsEvenState.current = !detailsEvenState.current;
           const ease = "sine.inOut";
-
-          const detailsActive = detailsEvenState.current ? detailsEvenRef.current : detailsOddRef.current;
-          const detailsInactive = detailsEvenState.current ? detailsOddRef.current : detailsEvenRef.current;
-          const activeWork = works[orderRef.current[0]];
-
-          if (detailsActive) {
-            const catText = detailsActive.querySelector('.category-text');
-            const titleText = detailsActive.querySelector('.title-text');
-            if (catText) catText.textContent = activeWork.category;
-            if (titleText) titleText.textContent = activeWork.title;
-
-            gsap.set(detailsActive, { zIndex: 22 });
-            gsap.to(detailsActive, { opacity: 1, delay: 0.4, ease });
-            if (catText) gsap.to(catText, { y: 0, delay: 0.1, duration: 0.7, ease });
-            if (titleText) gsap.to(titleText, { y: 0, delay: 0.15, duration: 0.7, ease });
-          }
-
-          if (detailsInactive) gsap.set(detailsInactive, { zIndex: 12 });
 
           const [active, ...rest] = orderRef.current;
           const prv = rest[rest.length - 1];
 
-          works.forEach((_, i) => {
-            gsap.to(dotsRef.current[i], { backgroundColor: i === active ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.2)', duration: 0.3 });
+          // 更新指示点
+          dotsRef.current.forEach((dot, i) => {
+            gsap.to(dot, { backgroundColor: i === active ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.2)', duration: 0.3 });
           });
 
+          // 隐藏前一张内容
+          gsap.to(contentsRef.current[prv], { opacity: 0, y: 200, duration: 0.4, ease });
+
+          // 前一张缩小移出
           gsap.set(cardsRef.current[prv], { zIndex: 10 });
+          gsap.to(cardsRef.current[prv], { scale: 0.8, ease, duration: 0.4 });
+
+          // 当前卡片展开
           gsap.set(cardsRef.current[active], { zIndex: 20 });
-          gsap.to(cardsRef.current[prv], { scale: 1.5, ease });
+          gsap.to(cardsRef.current[active], { x: 0, y: 0, width, height, borderRadius: 0, ease, duration: 0.5 });
 
-          gsap.to(contentsRef.current[active], { y: offsetTop + cardHeight - 10, opacity: 0, duration: 0.3, ease });
+          // 显示新内容
+          gsap.set(contentsRef.current[active], { x: 60, y: 240 });
+          gsap.to(contentsRef.current[active], { opacity: 1, y: 240, duration: 0.4, delay: 0.3, ease });
 
-          gsap.to(cardsRef.current[active], {
-            x: 0, y: 0, width: width, height: height, borderRadius: 0, ease,
-            onComplete: () => {
-              const xNew = offsetLeft + (rest.length - 1) * (cardWidth + gap);
-              gsap.set(cardsRef.current[prv], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, zIndex: 30, borderRadius: 8, scale: 1 });
-              gsap.set(contentsRef.current[prv], { x: xNew, y: offsetTop + cardHeight - 60, opacity: 1, zIndex: 40 });
-
-              if (detailsInactive) {
-                gsap.set(detailsInactive, { opacity: 0 });
-                const inactiveCat = detailsInactive.querySelector('.category-text');
-                const inactiveTitle = detailsInactive.querySelector('.title-text');
-                if (inactiveCat) gsap.set(inactiveCat, { y: 100 });
-                if (inactiveTitle) gsap.set(inactiveTitle, { y: 100 });
-              }
-            }
-          });
-
+          // 其他卡片前移
           rest.forEach((i, index) => {
             if (i !== prv) {
               const xNew = offsetLeft + index * (cardWidth + gap);
-              gsap.set(cardsRef.current[i], { zIndex: 30 });
-              gsap.to(cardsRef.current[i], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, ease, delay: 0.1 * (index + 1) });
-              gsap.to(contentsRef.current[i], { x: xNew, y: offsetTop + cardHeight - 60, opacity: 1, zIndex: 40, ease, delay: 0.1 * (index + 1) });
+              gsap.to(cardsRef.current[i], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, ease, duration: 0.5, delay: 0.1 });
+              gsap.to(contentsRef.current[i], { x: xNew + 20, y: offsetTop + cardHeight - 50, opacity: 1, ease, duration: 0.5, delay: 0.1 });
             }
           });
+
+          // 把前一张放到最后
+          setTimeout(() => {
+            const xNew = offsetLeft + (rest.length - 1) * (cardWidth + gap);
+            gsap.set(cardsRef.current[prv], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, zIndex: 30, borderRadius: 8, scale: 1 });
+            gsap.set(contentsRef.current[prv], { x: xNew + 20, y: offsetTop + cardHeight - 50, opacity: 1, zIndex: 40 });
+          }, 600);
         };
 
         const runLoop = async () => {
           if (!isActive) return;
+          
+          gsap.set(indicatorRef.current, { x: -width });
           await new Promise(resolve => gsap.to(indicatorRef.current, { x: 0, duration: 2, ease: "none", onComplete: resolve }));
           if (!isActive) return;
-          await new Promise(resolve => gsap.to(indicatorRef.current, { x: width, duration: 0.8, delay: 0.3, ease: "power2.inOut", onComplete: resolve }));
+          await new Promise(resolve => gsap.to(indicatorRef.current, { x: width, duration: 0.6, delay: 0.3, ease: "power2.inOut", onComplete: resolve }));
           if (!isActive) return;
-          gsap.set(indicatorRef.current, { x: -width });
           step();
           if (isActive) runLoop();
         };
@@ -192,20 +142,18 @@ export default function HomePage() {
         initAnimation();
       }, worksContainerRef);
 
-      gsapCtxRef.current = ctx;
+      return () => {
+        ctx.revert();
+      };
     }, 100);
 
     return () => {
       isActive = false;
       clearTimeout(initDelay);
-      if (gsapCtxRef.current) {
-        gsapCtxRef.current.revert();
-        gsapCtxRef.current = null;
-      }
     };
   }, [currentSection]);
 
-  // 平滑滚动切换
+  // 平滑滚动
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -216,7 +164,6 @@ export default function HomePage() {
     const scrollToSection = (index: number) => {
       if (isScrolling || index < 0 || index > 2) return;
       isScrolling = true;
-      
       gsap.to(container, {
         scrollTop: index * window.innerHeight,
         duration: 0.6,
@@ -231,41 +178,26 @@ export default function HomePage() {
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       clearTimeout(wheelTimeout);
-      
       wheelTimeout = setTimeout(() => {
-        if (e.deltaY > 30) {
-          // 向下滚动
-          scrollToSection(currentSection + 1);
-        } else if (e.deltaY < -30) {
-          // 向上滚动
-          scrollToSection(currentSection - 1);
-        }
+        if (e.deltaY > 30) scrollToSection(currentSection + 1);
+        else if (e.deltaY < -30) scrollToSection(currentSection - 1);
       }, 10);
     };
 
-    // 触摸支持
     let touchStartY = 0;
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-    };
-
+    const handleTouchStart = (e: TouchEvent) => { touchStartY = e.touches[0].clientY; };
     const handleTouchEnd = (e: TouchEvent) => {
-      const touchEndY = e.changedTouches[0].clientY;
-      const diff = touchStartY - touchEndY;
-      
+      const diff = touchStartY - e.changedTouches[0].clientY;
       if (Math.abs(diff) > 50) {
-        if (diff > 0) {
-          scrollToSection(currentSection + 1);
-        } else {
-          scrollToSection(currentSection - 1);
-        }
+        if (diff > 0) scrollToSection(currentSection + 1);
+        else scrollToSection(currentSection - 1);
       }
     };
 
     container.addEventListener("wheel", handleWheel, { passive: false });
     container.addEventListener("touchstart", handleTouchStart, { passive: true });
     container.addEventListener("touchend", handleTouchEnd, { passive: true });
-    
+
     return () => {
       container.removeEventListener("wheel", handleWheel);
       container.removeEventListener("touchstart", handleTouchStart);
@@ -274,8 +206,7 @@ export default function HomePage() {
     };
   }, [currentSection]);
 
-  // 滚动到指定屏（用于导航点击）
-  const scrollToSection = useCallback((index: number) => {
+  const handleNavClick = useCallback((index: number) => {
     if (containerRef.current) {
       gsap.to(containerRef.current, {
         scrollTop: index * window.innerHeight,
@@ -287,7 +218,7 @@ export default function HomePage() {
 
   return (
     <div className="smooth-container" ref={containerRef}>
-      {/* 第一屏：我是谁 */}
+      {/* 第一屏 */}
       <section className="relative h-screen w-full overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
@@ -338,13 +269,15 @@ export default function HomePage() {
 
       {/* 第二屏：作品集 */}
       <section className="relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
-        {/* 顶部进度条 */}
-        <div ref={indicatorRef} className="pointer-events-none fixed left-0 top-0 z-[60] h-[3px] w-full bg-white" style={{ transform: 'translateX(-100%)' }} />
+        {/* 进度条 */}
+        <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: 'translateX(-100%)' }} />
 
-        {/* Title */}
-        <div className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">WORKS</div>
+        {/* 标题 */}
+        <div ref={titleRef} className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">
+          WORKS
+        </div>
 
-        {/* 底部指示器 */}
+        {/* 指示点 */}
         <div className="absolute bottom-8 left-8 z-[50] flex gap-2">
           {works.map((_, i) => (
             <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
@@ -366,38 +299,16 @@ export default function HomePage() {
           <div
             key={`content-${index}`}
             ref={(el) => { contentsRef.current[index] = el; }}
-            className="absolute left-0 top-0 pl-4 text-white"
+            className="absolute left-0 top-0 text-white z-30"
           >
-            <div className="mb-2 h-1 w-6 rounded-full bg-white/80" />
-            <p className="text-xs font-medium tracking-wider text-white/80">{work.category}</p>
-            <p className="text-lg font-bold tracking-wider text-white">{work.title}</p>
+            <div className="h-[3px] w-8 bg-white/60 mb-3" />
+            <p className="text-sm tracking-wider text-white/60">{work.category}</p>
+            <p className="text-4xl lg:text-6xl font-bold tracking-wider mt-1">{work.title}</p>
           </div>
         ))}
-
-        {/* 双面板文字 */}
-        <div ref={detailsEvenRef} className="absolute left-[60px] top-[240px] z-20 pointer-events-none opacity-0">
-          <div className="h-[46px] overflow-hidden">
-            <div className="category-text relative pt-4 text-sm tracking-wider text-white/60 before:absolute before:left-0 before:top-0 before:h-[3px] before:w-6 before:bg-white/60 translate-y-[100px]"></div>
-          </div>
-          <div className="h-[100px] overflow-hidden mt-2">
-            <div className="title-text text-5xl font-bold tracking-wider text-white lg:text-7xl translate-y-[100px]"></div>
-          </div>
-        </div>
-
-        <div ref={detailsOddRef} className="absolute left-[60px] top-[240px] z-20 pointer-events-none opacity-0">
-          <div className="h-[46px] overflow-hidden">
-            <div className="category-text relative pt-4 text-sm tracking-wider text-white/60 before:absolute before:left-0 before:top-0 before:h-[3px] before:w-6 before:bg-white/60 translate-y-[100px]"></div>
-          </div>
-          <div className="h-[100px] overflow-hidden mt-2">
-            <div className="title-text text-5xl font-bold tracking-wider text-white lg:text-7xl translate-y-[100px]"></div>
-          </div>
-        </div>
-
-        {/* 进场遮罩 */}
-        <div ref={coverRef} className="absolute left-0 top-0 z-[100] h-screen w-[150vw] bg-[#1a1a1a]" />
       </section>
 
-      {/* 第三屏：联系方式 */}
+      {/* 第三屏 */}
       <section className="relative h-screen w-full bg-[#0d0d0d] overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="absolute w-[500px] h-[500px] rounded-full bg-white/[0.02] blur-3xl" />
@@ -419,12 +330,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 侧边导航 */}
+      {/* 导航 */}
       <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
         {[0, 1, 2].map((index) => (
           <button
             key={index}
-            onClick={() => scrollToSection(index)}
+            onClick={() => handleNavClick(index)}
             className={cn("w-1.5 h-1.5 rounded-full transition-all duration-300", currentSection === index ? "bg-white/80" : "bg-white/20 hover:bg-white/40")}
           />
         ))}
