@@ -191,7 +191,7 @@ function ZParticleText() {
           if (t.x < centerX) t.x += 1;
           if (t.x > centerX + 300) t.x -= 1;
           if (t.y < centerY) t.y += 1;
-          if (this.y > centerY + 300) t.y -= 1;
+          if (t.y > centerY + 300) t.y -= 1;
         }
       });
 
