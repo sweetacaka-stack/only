@@ -507,7 +507,7 @@ export default function HomePage() {
         {/* 背景图片 */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F%E6%89%8B%E8%A1%A81.png&nonce=b13d4a22-d7d8-4ac0-a9be-3a14a9502740&project_id=7628526330237288488&sign=5e3acaa3f105d4ac7f285d7a4ad98c3b9c3e96ae6753e5913a7886426500f1c2"
+            src="/assets/手表1.png"
             alt="背景"
             className="w-full h-full object-cover brightness-110"
           />
