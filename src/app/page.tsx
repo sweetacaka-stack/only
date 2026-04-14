@@ -1,55 +1,71 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import gsap from "gsap";
 import { cn } from "@/lib/utils";
 
 // 作品数据
 const works = [
   {
     id: 1,
-    title: "品牌重塑",
+    title: "MONOGRAPH",
     category: "Brand Identity",
     gradient: "from-amber-900/40 to-stone-800/60",
+    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop",
   },
   {
     id: 2,
-    title: "包装设计",
-    category: "Package Design",
+    title: "AURA",
+    category: "Visual Design",
     gradient: "from-slate-800/50 to-zinc-900/60",
+    image: "https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=2670&auto=format&fit=crop",
   },
   {
     id: 3,
-    title: "视觉系统",
-    category: "Visual Identity",
+    title: "VOID",
+    category: "Art Direction",
     gradient: "from-neutral-800/40 to-stone-900/60",
+    image: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop",
   },
   {
     id: 4,
-    title: "海报设计",
-    category: "Poster Design",
+    title: "ETHEREAL",
+    category: "Photography",
     gradient: "from-gray-800/50 to-slate-900/60",
+    image: "https://images.unsplash.com/photo-1550684376-efcbd6e3f031?q=80&w=2670&auto=format&fit=crop",
   },
   {
     id: 5,
-    title: "Logo设计",
-    category: "Logo Design",
+    title: "METRIC",
+    category: "Data Visualization",
     gradient: "from-stone-800/40 to-neutral-900/60",
+    image: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=2574&auto=format&fit=crop",
   },
   {
     id: 6,
-    title: "画册设计",
-    category: "Brochure Design",
+    title: "LUMEN",
+    category: "Installation",
     gradient: "from-zinc-800/50 to-stone-900/60",
+    image: "https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=2574&auto=format&fit=crop",
   },
 ];
 
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
-  const [currentWork, setCurrentWork] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const workTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // GSAP 相关 refs
+  const worksContainerRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const contentsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const dotsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const indicatorRef = useRef<HTMLDivElement>(null);
+  const coverRef = useRef<HTMLDivElement>(null);
+  const detailsEvenRef = useRef<HTMLDivElement>(null);
+  const detailsOddRef = useRef<HTMLDivElement>(null);
+  const orderRef = useRef<number[]>([0, 1, 2, 3, 4, 5]);
+  const detailsEvenState = useRef<boolean>(true);
 
   // 初始加载动画
   useEffect(() => {
@@ -57,24 +73,163 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, []);
 
-  // 作品轮播
-  const startWorkTimer = useCallback(() => {
-    if (workTimerRef.current) clearInterval(workTimerRef.current);
-    workTimerRef.current = setInterval(() => {
-      setCurrentWork((prev) => (prev + 1) % works.length);
-    }, 5000);
-  }, []);
-
+  // GSAP 作品轮播动画
   useEffect(() => {
-    if (currentSection === 1) {
-      startWorkTimer();
-    } else {
-      if (workTimerRef.current) clearInterval(workTimerRef.current);
-    }
+    if (currentSection !== 1) return;
+    
+    let isActive = true;
+    const cardWidth = 200;
+    const cardHeight = 300;
+    const gap = 40;
+
+    const ctx = gsap.context(() => {
+      const { innerHeight: height, innerWidth: width } = window;
+      const offsetTop = height - 430;
+      const offsetLeft = width - 830;
+
+      const initAnimation = () => {
+        const [active, ...rest] = orderRef.current;
+        const detailsActive = detailsEvenState.current ? detailsEvenRef.current : detailsOddRef.current;
+        const detailsInactive = detailsEvenState.current ? detailsOddRef.current : detailsEvenRef.current;
+
+        if (detailsActive) {
+          const catText = detailsActive.querySelector('.category-text');
+          const titleText = detailsActive.querySelector('.title-text');
+          if (catText) catText.textContent = works[active].category;
+          if (titleText) titleText.textContent = works[active].title;
+        }
+
+        gsap.set(cardsRef.current[active], { x: 0, y: 0, width: width, height: height, borderRadius: 0, zIndex: 20 });
+        gsap.set(contentsRef.current[active], { x: 0, y: 0, opacity: 0 });
+
+        if (detailsActive) gsap.set(detailsActive, { opacity: 0, zIndex: 22, x: -200 });
+        if (detailsInactive) {
+          gsap.set(detailsInactive, { opacity: 0, zIndex: 12 });
+          gsap.set(detailsInactive.querySelector('.category-text'), { y: 100 });
+          gsap.set(detailsInactive.querySelector('.title-text'), { y: 100 });
+        }
+
+        gsap.set(indicatorRef.current, { x: -width });
+
+        dotsRef.current.forEach((dot, i) => {
+          gsap.set(dot, { backgroundColor: i === active ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.2)' });
+        });
+
+        rest.forEach((i, index) => {
+          gsap.set(cardsRef.current[i], {
+            x: offsetLeft + 400 + index * (cardWidth + gap), y: offsetTop, width: cardWidth, height: cardHeight, zIndex: 30, borderRadius: 8, scale: 1
+          });
+          gsap.set(contentsRef.current[i], {
+            x: offsetLeft + 400 + index * (cardWidth + gap), y: offsetTop + cardHeight - 60, zIndex: 40, opacity: 1
+          });
+        });
+
+        const startDelay = 0.6;
+        gsap.to(coverRef.current, {
+          x: width + 400, delay: 0.5, ease: "sine.inOut", onComplete: () => {
+            setTimeout(() => { if (isActive) runLoop(); }, 500);
+          }
+        });
+
+        rest.forEach((i, index) => {
+          gsap.to(cardsRef.current[i], {
+            x: offsetLeft + index * (cardWidth + gap), zIndex: 30, delay: startDelay + 0.05 * index, ease: "sine.inOut"
+          });
+          gsap.to(contentsRef.current[i], {
+            x: offsetLeft + index * (cardWidth + gap), zIndex: 40, delay: startDelay + 0.05 * index, ease: "sine.inOut"
+          });
+        });
+
+        if (detailsActive) {
+          gsap.to(detailsActive, { opacity: 1, x: 0, ease: "sine.inOut", delay: startDelay });
+          gsap.to(detailsActive.querySelector('.category-text'), { y: 0, ease: "sine.inOut", duration: 0.7, delay: startDelay + 0.1 });
+          gsap.to(detailsActive.querySelector('.title-text'), { y: 0, ease: "sine.inOut", duration: 0.7, delay: startDelay + 0.15 });
+        }
+      };
+
+      const step = () => {
+        return new Promise(resolve => {
+          orderRef.current.push(orderRef.current.shift()!);
+          detailsEvenState.current = !detailsEvenState.current;
+          const ease = "sine.inOut";
+
+          const detailsActive = detailsEvenState.current ? detailsEvenRef.current : detailsOddRef.current;
+          const detailsInactive = detailsEvenState.current ? detailsOddRef.current : detailsEvenRef.current;
+          const activeWork = works[orderRef.current[0]];
+
+          if (detailsActive) {
+            const catText = detailsActive.querySelector('.category-text');
+            const titleText = detailsActive.querySelector('.title-text');
+            if (catText) catText.textContent = activeWork.category;
+            if (titleText) titleText.textContent = activeWork.title;
+
+            gsap.set(detailsActive, { zIndex: 22 });
+            gsap.to(detailsActive, { opacity: 1, delay: 0.4, ease });
+            gsap.to(catText, { y: 0, delay: 0.1, duration: 0.7, ease });
+            gsap.to(titleText, { y: 0, delay: 0.15, duration: 0.7, ease });
+          }
+
+          if (detailsInactive) gsap.set(detailsInactive, { zIndex: 12 });
+
+          const [active, ...rest] = orderRef.current;
+          const prv = rest[rest.length - 1];
+
+          works.forEach((_, i) => {
+            gsap.to(dotsRef.current[i], { backgroundColor: i === active ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.2)', duration: 0.3 });
+          });
+
+          gsap.set(cardsRef.current[prv], { zIndex: 10 });
+          gsap.set(cardsRef.current[active], { zIndex: 20 });
+          gsap.to(cardsRef.current[prv], { scale: 1.5, ease });
+
+          gsap.to(contentsRef.current[active], { y: offsetTop + cardHeight - 10, opacity: 0, duration: 0.3, ease });
+
+          gsap.to(cardsRef.current[active], {
+            x: 0, y: 0, width: width, height: height, borderRadius: 0, ease,
+            onComplete: () => {
+              const xNew = offsetLeft + (rest.length - 1) * (cardWidth + gap);
+              gsap.set(cardsRef.current[prv], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, zIndex: 30, borderRadius: 8, scale: 1 });
+              gsap.set(contentsRef.current[prv], { x: xNew, y: offsetTop + cardHeight - 60, opacity: 1, zIndex: 40 });
+
+              if (detailsInactive) {
+                gsap.set(detailsInactive, { opacity: 0 });
+                gsap.set(detailsInactive.querySelector('.category-text'), { y: 100 });
+                gsap.set(detailsInactive.querySelector('.title-text'), { y: 100 });
+              }
+              resolve(true);
+            }
+          });
+
+          rest.forEach((i, index) => {
+            if (i !== prv) {
+              const xNew = offsetLeft + index * (cardWidth + gap);
+              gsap.set(cardsRef.current[i], { zIndex: 30 });
+              gsap.to(cardsRef.current[i], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, ease, delay: 0.1 * (index + 1) });
+              gsap.to(contentsRef.current[i], { x: xNew, y: offsetTop + cardHeight - 60, opacity: 1, zIndex: 40, ease, delay: 0.1 * (index + 1) });
+            }
+          });
+        });
+      };
+
+      const runLoop = async () => {
+        if (!isActive) return;
+        await new Promise(resolve => gsap.to(indicatorRef.current, { x: 0, duration: 2, ease: "none", onComplete: resolve }));
+        if (!isActive) return;
+        await new Promise(resolve => gsap.to(indicatorRef.current, { x: width, duration: 0.8, delay: 0.3, ease: "power2.inOut", onComplete: resolve }));
+        if (!isActive) return;
+        gsap.set(indicatorRef.current, { x: -width });
+        await step();
+        if (isActive) runLoop();
+      };
+
+      initAnimation();
+    }, worksContainerRef);
+
     return () => {
-      if (workTimerRef.current) clearInterval(workTimerRef.current);
+      isActive = false;
+      ctx.revert();
     };
-  }, [currentSection, startWorkTimer]);
+  }, [currentSection]);
 
   // 滚动吸附
   useEffect(() => {
@@ -107,15 +262,13 @@ export default function HomePage() {
 
   // 键盘导航
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isLightboxOpen) {
-        setIsLightboxOpen(false);
-      }
+    const handleKeyDown = (_e: KeyboardEvent) => {
+      // ESC 键可取消
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isLightboxOpen]);
+  }, []);
 
   return (
     <div className="snap-container" ref={containerRef}>
@@ -199,90 +352,79 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 第二屏：作品集 - 纯作品展示 */}
-      <section className="snap-section relative h-screen w-full bg-[#0d0d0d] overflow-hidden">
-        {/* 轮播区域 */}
-        <div className="relative h-full flex items-center">
-          {/* 左右箭头 */}
-          <button
-            onClick={() =>
-              setCurrentWork((prev) => (prev - 1 + works.length) % works.length)
-            }
-            className="absolute left-4 lg:left-8 z-20 p-2 text-white/30 hover:text-white/60 transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
+      {/* 第二屏：作品集 - GSAP卡片动画 */}
+      <section className="snap-section relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
+        {/* 顶部读取条 */}
+        <div
+          ref={indicatorRef}
+          className="pointer-events-none fixed left-0 top-0 z-[60] h-[3px] w-full bg-white"
+          style={{ transform: 'translateX(-100%)' }}
+        />
 
-          <button
-            onClick={() => setCurrentWork((prev) => (prev + 1) % works.length)}
-            className="absolute right-4 lg:right-8 z-20 p-2 text-white/30 hover:text-white/60 transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+        {/* Title */}
+        <div className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">
+          WORKS
+        </div>
 
-          {/* 作品展示 */}
-          <div className="w-full px-12 lg:px-24 overflow-hidden">
+        {/* 当前指示器 */}
+        <div className="absolute bottom-8 left-8 z-[50] flex gap-2">
+          {works.map((_, i) => (
             <div
-              className="flex transition-transform duration-700 ease-out"
-              style={{ transform: `translateX(-${currentWork * 100}%)` }}
-            >
-              {works.map((work) => (
-                <div
-                  key={work.id}
-                  className="w-full flex-shrink-0 flex items-center justify-center"
-                >
-                  {/* 作品大图 */}
-                  <div
-                    className="w-full max-w-4xl aspect-[16/10] relative rounded-lg overflow-hidden cursor-pointer group"
-                    onClick={() => setIsLightboxOpen(true)}
-                  >
-                    <div className={cn("absolute inset-0 bg-gradient-to-br transition-transform duration-500 group-hover:scale-[1.02]", work.gradient)} />
-                    {/* 装饰元素 */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-32 h-32 border border-white/10 rounded-full" />
-                    </div>
-                    {/* 悬停效果 */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                      <svg className="w-12 h-12 text-white/60 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+              key={i}
+              ref={(el) => { dotsRef.current[i] = el; }}
+              className="h-0.5 w-8 rounded-full bg-white/20"
+            />
+          ))}
+        </div>
 
-          {/* 作品名称 */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center">
-            <span className="text-xs text-white/40 tracking-widest">
-              {works[currentWork].title}
-            </span>
-          </div>
+        {/* 卡片背景 */}
+        {works.map((work, index) => (
+          <div
+            key={`card-${index}`}
+            ref={(el) => { cardsRef.current[index] = el; }}
+            className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]"
+            style={{ backgroundImage: `url(${work.image})` }}
+          />
+        ))}
 
-          {/* 指示器 */}
-          <div className="absolute bottom-8 right-1/2 translate-x-16 flex items-center gap-2">
-            {works.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setCurrentWork(index);
-                  startWorkTimer();
-                }}
-                className={cn(
-                  "h-1 rounded-full transition-all duration-300",
-                  index === currentWork
-                    ? "w-6 bg-white/60"
-                    : "w-1 bg-white/20 hover:bg-white/30"
-                )}
-              />
-            ))}
+        {/* 卡片内容 */}
+        {works.map((work, index) => (
+          <div
+            key={`content-${index}`}
+            ref={(el) => { contentsRef.current[index] = el; }}
+            className="absolute left-0 top-0 pl-4 text-white"
+          >
+            <div className="mb-2 h-1 w-6 rounded-full bg-white/80" />
+            <p className="text-xs font-medium tracking-wider text-white/80">
+              {work.category}
+            </p>
+            <p className="text-lg font-bold tracking-wider text-white">
+              {work.title}
+            </p>
+          </div>
+        ))}
+
+        {/* 双面板交替 */}
+        <div ref={detailsEvenRef} className="absolute left-[60px] top-[240px] z-20 pointer-events-none opacity-0">
+          <div className="h-[46px] overflow-hidden">
+            <div className="category-text relative pt-4 text-sm tracking-wider text-white/60 before:absolute before:left-0 before:top-0 before:h-[3px] before:w-6 before:bg-white/60 translate-y-[100px]"></div>
+          </div>
+          <div className="h-[100px] overflow-hidden mt-2">
+            <div className="title-text text-5xl font-bold tracking-wider text-white lg:text-7xl translate-y-[100px]"></div>
           </div>
         </div>
+
+        <div ref={detailsOddRef} className="absolute left-[60px] top-[240px] z-20 pointer-events-none opacity-0">
+          <div className="h-[46px] overflow-hidden">
+            <div className="category-text relative pt-4 text-sm tracking-wider text-white/60 before:absolute before:left-0 before:top-0 before:h-[3px] before:w-6 before:bg-white/60 translate-y-[100px]"></div>
+          </div>
+          <div className="h-[100px] overflow-hidden mt-2">
+            <div className="title-text text-5xl font-bold tracking-wider text-white lg:text-7xl translate-y-[100px]"></div>
+          </div>
+        </div>
+
+        {/* 进场动画遮罩 */}
+        <div ref={coverRef} className="absolute left-0 top-0 z-[100] h-screen w-[150vw] bg-[#1a1a1a]" />
       </section>
 
       {/* 第三屏：联系方式 - 邮箱微信并排 */}
@@ -334,67 +476,6 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* 灯箱弹窗 */}
-      {isLightboxOpen && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm animate-in fade-in duration-300"
-          onClick={() => setIsLightboxOpen(false)}
-        >
-          {/* 关闭按钮 */}
-          <button
-            className="absolute top-6 right-6 p-2 text-white/60 hover:text-white transition-colors z-10"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsLightboxOpen(false);
-            }}
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
-          {/* 作品大图 */}
-          <div
-            className="max-w-5xl w-full mx-8 aspect-[16/10] relative rounded-lg overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={cn("absolute inset-0 bg-gradient-to-br", works[currentWork].gradient)} />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 h-32 border border-white/10 rounded-full" />
-            </div>
-          </div>
-
-          {/* 作品信息 */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center">
-            <span className="text-xs text-white/60 tracking-widest">{works[currentWork].title}</span>
-          </div>
-
-          {/* 左右切换 */}
-          <button
-            className="absolute left-6 p-3 text-white/40 hover:text-white transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              setCurrentWork((prev) => (prev - 1 + works.length) % works.length);
-            }}
-          >
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <button
-            className="absolute right-6 p-3 text-white/40 hover:text-white transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              setCurrentWork((prev) => (prev + 1) % works.length);
-            }}
-          >
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-      )}
     </div>
   );
 }
