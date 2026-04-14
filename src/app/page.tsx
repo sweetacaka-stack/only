@@ -20,9 +20,7 @@ function WatchHands() {
   const secondRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let lastTime = performance.now();
-    
-    const updateHands = (currentTime: number) => {
+    const updateHands = () => {
       const now = new Date();
       const hours = now.getHours() % 12;
       const minutes = now.getMinutes();
@@ -37,7 +35,6 @@ function WatchHands() {
       if (minuteRef.current) minuteRef.current.style.transform = `rotate(${minuteDeg}deg)`;
       if (secondRef.current) secondRef.current.style.transform = `rotate(${secondDeg}deg)`;
       
-      lastTime = currentTime;
       requestAnimationFrame(updateHands);
     };
 
@@ -55,10 +52,9 @@ function WatchHands() {
   );
 }
 
-// 蚂蚁群粒子效果
+// 蚂蚁群粒子效果 - 形成 Z 字母
 function TurmiteCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const isDrawingRef = useRef(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -68,122 +64,151 @@ function TurmiteCanvas() {
     if (!ctx) return;
 
     let animationId: number;
-    const gridSize = 3;
-    let grid: boolean[][] = [];
-    let turmites: Turmite[] = [];
+    const grid: Record<number, Record<number, number>> = {};
+    let vants: Vant[] = [];
     let width = 0;
     let height = 0;
-    let cols = 0;
-    let rows = 0;
 
-    class Turmite {
+    class Vant {
       x: number;
       y: number;
-      dir: number;
+      orientation: string;
       state: number;
-      brightness: number;
+      color: number;
+      rules: number[][][];
 
-      constructor() {
-        this.x = Math.floor(Math.random() * cols);
-        this.y = Math.floor(Math.random() * rows);
-        this.dir = Math.floor(Math.random() * 4);
-        this.state = Math.floor(Math.random() * 4);
-        this.brightness = 0.2 + Math.random() * 0.5;
+      constructor(x: number, y: number, orientation: string, rules: number[][][]) {
+        this.x = x;
+        this.y = y;
+        this.orientation = orientation;
+        this.state = 0;
+        this.color = 0;
+        this.rules = rules;
       }
+    }
 
-      move() {
-        const cellX = Math.floor(this.x / gridSize);
-        const cellY = Math.floor(this.y / gridSize);
-        
-        if (cellX < 0 || cellX >= cols || cellY < 0 || cellY >= rows) {
-          this.x = Math.floor(Math.random() * width);
-          this.y = Math.floor(Math.random() * height);
-          return;
-        }
+    function randBetween(min: number, max: number): number {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
-        const curr = grid[cellX]?.[cellY] ?? false;
+    function randomRule(): number[] {
+      return [randBetween(0, 1), [1, 2, 4, 8][randBetween(0, 3)], randBetween(0, 1)];
+    }
 
-        // Langton's Ant 规则变体
-        const rules = [
-          // [paint, turn, newState]
-          [!curr, (this.dir + 1) % 4, 0],
-          [curr, (this.dir + 3) % 4, 1],
-          [!curr, this.dir, 2],
-          [curr, (this.dir + 2) % 4, 3],
-        ];
+    function randomRuleset(): number[][][] {
+      return [[randomRule(), randomRule()], [randomRule(), randomRule()]];
+    }
 
-        const rule = rules[this.state % 4];
-        grid[cellX][cellY] = rule[0];
-        this.dir = rule[1];
-        this.state = rule[2];
-
-        // 移动
-        if (this.dir === 0) this.y -= gridSize;
-        else if (this.dir === 1) this.x += gridSize;
-        else if (this.dir === 2) this.y += gridSize;
-        else this.x -= gridSize;
-
-        // 边界检测
-        if (this.x < 0) this.x = width - gridSize;
-        if (this.x >= width) this.x = 0;
-        if (this.y < 0) this.y = height - gridSize;
-        if (this.y >= height) this.y = 0;
-      }
-
-      draw() {
-        const cellX = Math.floor(this.x / gridSize);
-        const cellY = Math.floor(this.y / gridSize);
-        
-        if (grid[cellX]?.[cellY]) {
-          ctx.fillStyle = `rgba(255, 255, 255, ${this.brightness})`;
-          ctx.fillRect(this.x, this.y, gridSize, gridSize);
-        }
+    function findOrientation(dir: number, ori: string): string {
+      if (dir === 1) return ori;
+      else if (dir === 4) {
+        if (ori === "n") return "s";
+        else if (ori === "s") return "n";
+        else if (ori === "e") return "w";
+        else return "e";
+      } else {
+        if (ori === "n") return dir === 2 ? "e" : "w";
+        else if (ori === "e") return dir === 2 ? "s" : "n";
+        else if (ori === "s") return dir === 2 ? "w" : "e";
+        else return dir === 2 ? "n" : "s";
       }
     }
 
     const init = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
-      cols = Math.ceil(width / gridSize);
-      rows = Math.ceil(height / gridSize);
+
+      vants = [];
       
-      grid = Array(cols).fill(null).map(() => Array(rows).fill(false));
-      turmites = [];
-      
-      // 创建多个蚂蚁
-      const numTurmites = Math.min(50, Math.floor((width * height) / 8000));
-      for (let i = 0; i < numTurmites; i++) {
-        turmites.push(new Turmite());
+      // Z 字形参数
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const zSize = Math.min(width, height) * 0.35; // Z 大小
+      const zLeft = centerX - zSize / 2;
+      const zTop = centerY - zSize / 2;
+      const zBottom = centerY + zSize / 2;
+
+      // 规则：直行、涂黑、无状态变化
+      const drawRule: number[][][] = [[[1, 1, 0], [1, 1, 0]], [[1, 1, 0], [1, 1, 0]]];
+
+      // 1. Z 顶部横线 → 向右
+      vants.push(new Vant(zLeft, zTop, "e", drawRule));
+      // 2. Z 斜线 → 右下
+      vants.push(new Vant(zLeft, zTop, "s", drawRule));
+      // 3. Z 底部横线 → 向右
+      vants.push(new Vant(zLeft, zBottom, "e", drawRule));
+
+      // 补充多只蚂蚁加速绘制 Z
+      vants.push(new Vant(zLeft + 50, zTop, "e", drawRule));
+      vants.push(new Vant(zLeft + 50, zBottom, "e", drawRule));
+      vants.push(new Vant(zLeft + 50, zTop, "s", drawRule));
+
+      // 随机蚂蚁
+      for (let i = 0; i <= 3000; i++) {
+        vants.push(
+          new Vant(
+            Math.ceil(Math.random() * width),
+            Math.ceil(Math.random() * height),
+            ["n", "e", "s", "w"][randBetween(0, 3)],
+            randomRuleset()
+          )
+        );
       }
-      
+
       // 初始画布为黑色
-      ctx.fillStyle = "rgba(0, 0, 0, 1)";
+      ctx.fillStyle = "black";
       ctx.fillRect(0, 0, width, height);
-      isDrawingRef.current = false;
     };
 
     const animate = () => {
-      if (!isDrawingRef.current) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.03)";
-        ctx.fillRect(0, 0, width, height);
+      vants.forEach((vant) => {
+        vant.color = grid[vant.x]?.[vant.y] ?? 0;
+
+        const rule = vant.rules[vant.state][vant.color];
+        vant.orientation = findOrientation(rule[1], vant.orientation);
         
-        turmites.forEach(t => {
-          t.move();
-          t.draw();
-        });
-      }
-      
+        // 绘制点
+        ctx.fillStyle = rule[0] === 1 ? "#DDDDDD" : "black";
+        ctx.fillRect(vant.x, vant.y, 1, 1);
+        
+        vant.color = rule[0];
+        vant.state = rule[2];
+
+        // 保存到网格
+        if (!grid[vant.x]) grid[vant.x] = {};
+        grid[vant.x][vant.y] = vant.color;
+
+        // 蚂蚁移动
+        if (vant.orientation === "n") vant.y -= 1;
+        else if (vant.orientation === "s") vant.y += 1;
+        else if (vant.orientation === "e") vant.x += 1;
+        else vant.x -= 1;
+
+        // 边界循环
+        if (vant.x > width) vant.x = 0;
+        if (vant.x < 0) vant.x = width;
+        if (vant.y > height) vant.y = 0;
+        if (vant.y < 0) vant.y = height;
+
+        // 绘制白色点
+        ctx.fillStyle = "white";
+        ctx.fillRect(vant.x, vant.y, 1, 1);
+      });
+
       animationId = requestAnimationFrame(animate);
     };
 
     init();
     animationId = requestAnimationFrame(animate);
 
-    window.addEventListener("resize", init);
+    window.addEventListener("resize", () => {
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, width, height);
+      init();
+    });
 
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", init);
     };
   }, []);
 
@@ -228,7 +253,6 @@ function ParticleBackground() {
       update() {
         this.x += this.vx;
         this.y += this.vy;
-
         if (this.x < 0 || this.x > canvas!.width) this.vx *= -1;
         if (this.y < 0 || this.y > canvas!.height) this.vy *= -1;
       }
@@ -259,7 +283,6 @@ function ParticleBackground() {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-
           if (distance < 150) {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
@@ -272,26 +295,18 @@ function ParticleBackground() {
       }
     };
 
-    const init = () => {
-      resize();
-    };
+    const init = () => { resize(); };
 
     const animate = () => {
       if (!ctx || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      particles.forEach((p) => {
-        p.update();
-        p.draw();
-      });
-
+      particles.forEach((p) => { p.update(); p.draw(); });
       drawLines();
       animationId = requestAnimationFrame(animate);
     };
 
     init();
     animate();
-
     window.addEventListener("resize", init);
 
     return () => {
@@ -368,7 +383,7 @@ export default function HomePage() {
           gsap.from(titleRef.current, { opacity: 0, y: -20, duration: 0.6, delay: 0.2 });
 
           dotsRef.current.forEach((dot, i) => {
-            gsap.set(dot, { backgroundColor: i === active ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.2)' });
+            gsap.set(dot, { backgroundColor: i === active ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0.2)" });
           });
 
           setTimeout(() => { if (isActive) runLoop(); }, 800);
@@ -382,7 +397,7 @@ export default function HomePage() {
           const prv = rest[rest.length - 1];
 
           dotsRef.current.forEach((dot, i) => {
-            gsap.to(dot, { backgroundColor: i === active ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.2)', duration: 0.3 });
+            gsap.to(dot, { backgroundColor: i === active ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0.2)", duration: 0.3 });
           });
 
           gsap.to(contentsRef.current[prv], { opacity: 0, y: 200, duration: 0.4, ease });
@@ -413,11 +428,10 @@ export default function HomePage() {
 
         const runLoop = async () => {
           if (!isActive) return;
-          
           gsap.set(indicatorRef.current, { x: -width });
-          await new Promise(resolve => gsap.to(indicatorRef.current, { x: 0, duration: 2, ease: "none", onComplete: resolve }));
+          await new Promise((resolve) => gsap.to(indicatorRef.current, { x: 0, duration: 2, ease: "none", onComplete: resolve }));
           if (!isActive) return;
-          await new Promise(resolve => gsap.to(indicatorRef.current, { x: width, duration: 0.6, delay: 0.3, ease: "power2.inOut", onComplete: resolve }));
+          await new Promise((resolve) => gsap.to(indicatorRef.current, { x: width, duration: 0.6, delay: 0.3, ease: "power2.inOut", onComplete: resolve }));
           if (!isActive) return;
           step();
           if (isActive) runLoop();
@@ -426,9 +440,7 @@ export default function HomePage() {
         initAnimation();
       }, worksContainerRef);
 
-      return () => {
-        ctx.revert();
-      };
+      return () => { ctx.revert(); };
     }, 100);
 
     return () => {
@@ -455,7 +467,7 @@ export default function HomePage() {
         onComplete: () => {
           setCurrentSection(index);
           isScrolling = false;
-        }
+        },
       });
     };
 
@@ -495,7 +507,7 @@ export default function HomePage() {
       gsap.to(containerRef.current, {
         scrollTop: index * window.innerHeight,
         duration: 0.6,
-        ease: "power2.inOut"
+        ease: "power2.inOut",
       });
     }
   }, []);
@@ -506,40 +518,33 @@ export default function HomePage() {
       <section className="relative h-screen w-full overflow-hidden">
         {/* 背景图片 */}
         <div className="absolute inset-0 z-0">
-          <img
-            src="/assets/手表1.png"
-            alt="背景"
-            className="w-full h-full object-cover brightness-110"
-          />
+          <img src="/assets/手表1.png" alt="背景" className="w-full h-full object-cover brightness-110" />
           <div className="absolute inset-0 bg-black/30" />
         </div>
 
-        {/* 蚂蚁群粒子效果 - 在左侧形成 Z */}
+        {/* 蚂蚁群效果 */}
         <TurmiteCanvas />
 
         {/* 巨型 Z 字母 */}
         <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
-          <h1 className={cn(
-            "text-[20vw] lg:text-[18vw] font-bold leading-none text-white/90 opacity-0 animate-fade-in-up",
-            isLoaded && "opacity-100"
-          )}>
+          <h1 className={cn("text-[20vw] lg:text-[18vw] font-bold leading-none text-white/90 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
             Z
           </h1>
         </div>
 
-        {/* 手表指针 - 右侧 */}
+        {/* 手表指针 */}
         <div className="absolute right-[15%] top-1/2 -translate-y-1/2 w-48 h-48 z-10">
           <WatchHands />
         </div>
 
-        {/* 右上角标注 */}
+        {/* 右上角 */}
         <div className="absolute top-8 right-8 z-20">
           <span className={cn("text-xs tracking-[0.3em] text-white/50 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
             PORTFOLIO 2026
           </span>
         </div>
 
-        {/* 右侧身份文字 */}
+        {/* 右侧身份 */}
         <div className="absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 text-right">
           <div className={cn("flex gap-4 justify-end mb-4 opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}>
             <span className="text-lg lg:text-xl text-white/80" style={{ writingMode: "vertical-rl" }}>视觉</span>
@@ -568,35 +573,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 第二屏：作品集 */}
+      {/* 第二屏 */}
       <section className="relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
-        <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: 'translateX(-100%)' }} />
-
-        <div ref={titleRef} className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">
-          WORKS
-        </div>
-
+        <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: "translateX(-100%)" }} />
+        <div ref={titleRef} className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">WORKS</div>
         <div className="absolute bottom-8 left-8 z-[50] flex gap-2">
           {works.map((_, i) => (
             <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
           ))}
         </div>
-
         {works.map((work, index) => (
-          <div
-            key={`card-${index}`}
-            ref={(el) => { cardsRef.current[index] = el; }}
-            className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]"
-            style={{ backgroundImage: `url(${work.image})` }}
-          />
+          <div key={`card-${index}`} ref={(el) => { cardsRef.current[index] = el; }} className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]" style={{ backgroundImage: `url(${work.image})` }} />
         ))}
-
         {works.map((work, index) => (
-          <div
-            key={`content-${index}`}
-            ref={(el) => { contentsRef.current[index] = el; }}
-            className="absolute left-0 top-0 text-white z-30"
-          >
+          <div key={`content-${index}`} ref={(el) => { contentsRef.current[index] = el; }} className="absolute left-0 top-0 text-white z-30">
             <div className="h-[3px] w-8 bg-white/60 mb-3" />
             <p className="text-sm tracking-wider text-white/60">{work.category}</p>
             <p className="text-4xl lg:text-6xl font-bold tracking-wider mt-1">{work.title}</p>
@@ -604,10 +594,9 @@ export default function HomePage() {
         ))}
       </section>
 
-      {/* 第三屏：粒子背景 */}
+      {/* 第三屏 */}
       <section className="relative h-screen w-full overflow-hidden">
         <ParticleBackground />
-        
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <div className="flex items-center gap-16">
             <a href="mailto:2922717190@qq.com" className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
@@ -630,11 +619,7 @@ export default function HomePage() {
       {/* 导航 */}
       <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
         {[0, 1, 2].map((index) => (
-          <button
-            key={index}
-            onClick={() => handleNavClick(index)}
-            className={cn("w-1.5 h-1.5 rounded-full transition-all duration-300", currentSection === index ? "bg-white/80" : "bg-white/20 hover:bg-white/40")}
-          />
+          <button key={index} onClick={() => handleNavClick(index)} className={cn("w-1.5 h-1.5 rounded-full transition-all duration-300", currentSection === index ? "bg-white/80" : "bg-white/20 hover:bg-white/40")} />
         ))}
       </div>
     </div>
