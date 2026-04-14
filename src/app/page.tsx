@@ -224,9 +224,9 @@ export default function HomePage() {
           <img
             src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F%E6%89%8B%E8%A1%A81.png&nonce=d8dff12e-5078-4eb6-863a-b563f8011d9f&project_id=7628526330237288488&sign=47d78a5d328d8d584b3ad9dbb7e5fbf86972d7c7b46238287196814228f4e55d"
             alt="背景"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover brightness-110"
           />
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
 
         <div className="absolute top-8 right-8 z-10">
