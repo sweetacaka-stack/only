@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
-import { ParticleZ } from "@/components/ParticleZ";
 
 const works = [
   { id: 1, title: "MONOGRAPH", category: "Brand Identity", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" },
@@ -237,7 +236,9 @@ export default function HomePage() {
         </div>
 
         <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
-          <ParticleZ className="w-[50vw] h-[50vh]" />
+          <h1 className={cn("text-[20vw] lg:text-[18vw] font-bold leading-none text-white/90 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
+            Z
+          </h1>
         </div>
 
         <div className="absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-10 text-right">
