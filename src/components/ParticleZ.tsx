@@ -28,51 +28,38 @@ export function ParticleZ({ className = "" }: { className?: string }) {
     const cx = w * 0.5;
     const cy = h * 0.5;
 
-    // Z 的笔画路径 - 密集采样
-    const density = 8;
+    // Z 的笔画路径 - 紧密排列
+    const density = 4;
     
     // 上横线
-    for (let i = 0; i < 12; i++) {
-      const t = i / 11;
-      points.push({
-        x: cx - scale * 0.5 + t * scale,
-        y: cy - scale * 0.4
-      });
-      // 增加密度
-      for (let j = 0; j < 3; j++) {
+    for (let i = 0; i < 20; i++) {
+      const t = i / 19;
+      for (let j = 0; j < 2; j++) {
         points.push({
-          x: cx - scale * 0.5 + t * scale + (Math.random() - 0.5) * 8,
-          y: cy - scale * 0.4 + (Math.random() - 0.5) * 8
+          x: cx - scale * 0.5 + t * scale,
+          y: cy - scale * 0.4 + j * 3
         });
       }
     }
 
     // 斜线
-    for (let i = 0; i < 14; i++) {
-      const t = i / 13;
-      points.push({
-        x: cx - scale * 0.5 + t * scale,
-        y: cy - scale * 0.4 + t * scale * 0.8
-      });
-      for (let j = 0; j < 3; j++) {
+    for (let i = 0; i < 18; i++) {
+      const t = i / 17;
+      for (let j = 0; j < 2; j++) {
         points.push({
-          x: cx - scale * 0.5 + t * scale + (Math.random() - 0.5) * 8,
-          y: cy - scale * 0.4 + t * scale * 0.8 + (Math.random() - 0.5) * 8
+          x: cx - scale * 0.5 + t * scale,
+          y: cy - scale * 0.4 + t * scale * 0.8 + j * 3
         });
       }
     }
 
     // 下横线
-    for (let i = 0; i < 12; i++) {
-      const t = i / 11;
-      points.push({
-        x: cx - scale * 0.5 + t * scale,
-        y: cy + scale * 0.4
-      });
-      for (let j = 0; j < 3; j++) {
+    for (let i = 0; i < 20; i++) {
+      const t = i / 19;
+      for (let j = 0; j < 2; j++) {
         points.push({
-          x: cx - scale * 0.5 + t * scale + (Math.random() - 0.5) * 8,
-          y: cy + scale * 0.4 + (Math.random() - 0.5) * 8
+          x: cx - scale * 0.5 + t * scale,
+          y: cy + scale * 0.4 + j * 3
         });
       }
     }
@@ -128,7 +115,7 @@ export function ParticleZ({ className = "" }: { className?: string }) {
         targetY: 0,
         vx: 0,
         vy: 0,
-        size: 2 + Math.random() * 1
+        size: 1.5 + Math.random()
       }));
 
       // 初始聚集
@@ -207,10 +194,11 @@ export function ParticleZ({ className = "" }: { className?: string }) {
         p.x += p.vx;
         p.y += p.vy;
 
-        // 绘制 - 更大的粒子，更亮
+        // 绘制 - 聚集时实心，散开时透明
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.7 + (isDispersed ? 0 : 0.3)})`;
+        const alpha = isDispersed ? 0.4 : 1;
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
         ctx.fill();
       });
 
