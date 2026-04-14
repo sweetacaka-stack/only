@@ -236,8 +236,8 @@ export default function HomePage() {
           </span>
         </div>
 
-        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10 w-[40vw] h-[40vh]">
-          <ParticleZ className="w-full h-full" />
+        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
+          <ParticleZ className="w-[50vw] h-[50vh]" />
         </div>
 
         <div className="absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-10 text-right">
