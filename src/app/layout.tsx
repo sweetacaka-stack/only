@@ -2,17 +2,16 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "陈默 | Brand Designer",
+  title: "Z | 视觉设计师",
   description:
-    "独立品牌设计师，用克制的手法，让品牌在嘈杂的信息中脱颖而出。",
+    "独立视觉设计师，用设计语言讲述品牌故事。",
   keywords: [
-    "品牌设计",
     "视觉设计",
-    "UI设计",
+    "品牌设计",
     "设计师",
     "作品集",
   ],
-  authors: [{ name: "Chen Mo" }],
+  authors: [{ name: "Z" }],
   icons: {
     icon: "/favicon.ico",
   },
