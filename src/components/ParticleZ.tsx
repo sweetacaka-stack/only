@@ -24,8 +24,8 @@ export function ParticleZ({ className = "" }: { className?: string }) {
 
   const getZPoints = useCallback((w: number, h: number): { x: number; y: number }[] => {
     const points: { x: number; y: number }[] = [];
-    const scale = Math.min(w, h) * 0.35;
-    const cx = w * 0.4;
+    const scale = Math.min(w, h) * 0.45;
+    const cx = w * 0.5;
     const cy = h * 0.5;
 
     // Z 的笔画路径 - 密集采样
@@ -128,7 +128,7 @@ export function ParticleZ({ className = "" }: { className?: string }) {
         targetY: 0,
         vx: 0,
         vy: 0,
-        size: 4 + Math.random() * 4
+        size: 2 + Math.random() * 1
       }));
 
       // 初始聚集
