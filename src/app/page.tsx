@@ -20,66 +20,45 @@ function WatchHands() {
   const secondRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const updateHands = () => {
+    let lastTime = performance.now();
+    
+    const updateHands = (currentTime: number) => {
       const now = new Date();
       const hours = now.getHours() % 12;
       const minutes = now.getMinutes();
       const seconds = now.getSeconds();
       const milliseconds = now.getMilliseconds();
 
-      // 计算角度
-      const secondDeg = (seconds + milliseconds / 1000) * 6; // 每秒6度，平滑旋转
-      const minuteDeg = (minutes + seconds / 60) * 6; // 每分钟6度
-      const hourDeg = (hours + minutes / 60) * 30; // 每小时30度
+      const secondDeg = (seconds + milliseconds / 1000) * 6;
+      const minuteDeg = (minutes + seconds / 60) * 6;
+      const hourDeg = (hours + minutes / 60) * 30;
 
       if (hourRef.current) hourRef.current.style.transform = `rotate(${hourDeg}deg)`;
       if (minuteRef.current) minuteRef.current.style.transform = `rotate(${minuteDeg}deg)`;
       if (secondRef.current) secondRef.current.style.transform = `rotate(${secondDeg}deg)`;
+      
+      lastTime = currentTime;
+      requestAnimationFrame(updateHands);
     };
 
-    // 初始更新
-    updateHands();
-    
-    // 使用 requestAnimationFrame 实现平滑旋转
-    let animationId: number;
-    const animate = () => {
-      updateHands();
-      animationId = requestAnimationFrame(animate);
-    };
-    animationId = requestAnimationFrame(animate);
-
+    const animationId = requestAnimationFrame(updateHands);
     return () => cancelAnimationFrame(animationId);
   }, []);
 
   return (
     <div className="absolute inset-0 flex items-center justify-center">
-      {/* 时针 */}
-      <div
-        ref={hourRef}
-        className="absolute w-1 h-16 bg-white/80 origin-bottom transition-transform duration-100"
-        style={{ transform: 'rotate(0deg)' }}
-      />
-      {/* 分针 */}
-      <div
-        ref={minuteRef}
-        className="absolute w-0.5 h-20 bg-white/60 origin-bottom transition-transform duration-100"
-        style={{ transform: 'rotate(0deg)' }}
-      />
-      {/* 秒针 */}
-      <div
-        ref={secondRef}
-        className="absolute w-px h-24 bg-white/40 origin-bottom transition-transform duration-100"
-        style={{ transform: 'rotate(0deg)' }}
-      />
-      {/* 中心点 */}
+      <div ref={hourRef} className="absolute w-1 h-16 bg-white/80 origin-bottom" />
+      <div ref={minuteRef} className="absolute w-0.5 h-20 bg-white/60 origin-bottom" />
+      <div ref={secondRef} className="absolute w-px h-24 bg-white/40 origin-bottom" />
       <div className="absolute w-2 h-2 rounded-full bg-white/90" />
     </div>
   );
 }
 
-// 粒子构成 Z 字母
-function ZParticleText() {
+// 蚂蚁群粒子效果
+function TurmiteCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isDrawingRef = useRef(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -89,122 +68,122 @@ function ZParticleText() {
     if (!ctx) return;
 
     let animationId: number;
-    let turmites: Turmite[] = [];
-    const gridSize = 4;
+    const gridSize = 3;
     let grid: boolean[][] = [];
+    let turmites: Turmite[] = [];
+    let width = 0;
+    let height = 0;
+    let cols = 0;
+    let rows = 0;
 
     class Turmite {
       x: number;
       y: number;
       dir: number;
       state: number;
-      color: string;
+      brightness: number;
 
-      constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
+      constructor() {
+        this.x = Math.floor(Math.random() * cols);
+        this.y = Math.floor(Math.random() * rows);
         this.dir = Math.floor(Math.random() * 4);
-        this.state = Math.floor(Math.random() * 10);
-        this.color = `rgba(255, 255, 255, ${0.3 + Math.random() * 0.4})`;
+        this.state = Math.floor(Math.random() * 4);
+        this.brightness = 0.2 + Math.random() * 0.5;
       }
 
       move() {
-        const stateTable = [
-          [1, 1, 1, (this.dir + 1) % 4, 0],
-          [0, 1, 0, (this.dir + 3) % 4, 1],
-          [1, 0, 0, this.dir, 0],
-          [0, 0, 1, (this.dir + 2) % 4, 2],
-        ];
-
-        const curr = grid[Math.floor(this.x / gridSize)]?.[Math.floor(this.y / gridSize)] ? 1 : 0;
-        const rule = stateTable[this.state % 4];
-
-        if (curr === 0) {
-          grid[Math.floor(this.x / gridSize)][Math.floor(this.y / gridSize)] = rule[0] === 1;
-        } else {
-          grid[Math.floor(this.x / gridSize)][Math.floor(this.y / gridSize)] = rule[1] === 1;
+        const cellX = Math.floor(this.x / gridSize);
+        const cellY = Math.floor(this.y / gridSize);
+        
+        if (cellX < 0 || cellX >= cols || cellY < 0 || cellY >= rows) {
+          this.x = Math.floor(Math.random() * width);
+          this.y = Math.floor(Math.random() * height);
+          return;
         }
 
-        this.dir = rule[3];
-        if (rule[4] === 0) this.dir = (this.dir + 1) % 4;
-        else if (rule[4] === 1) this.dir = (this.dir + 3) % 4;
-        else if (rule[4] === 2) this.dir = (this.dir + 2) % 4;
+        const curr = grid[cellX]?.[cellY] ?? false;
 
-        this.state = rule[4];
+        // Langton's Ant 规则变体
+        const rules = [
+          // [paint, turn, newState]
+          [!curr, (this.dir + 1) % 4, 0],
+          [curr, (this.dir + 3) % 4, 1],
+          [!curr, this.dir, 2],
+          [curr, (this.dir + 2) % 4, 3],
+        ];
 
+        const rule = rules[this.state % 4];
+        grid[cellX][cellY] = rule[0];
+        this.dir = rule[1];
+        this.state = rule[2];
+
+        // 移动
         if (this.dir === 0) this.y -= gridSize;
         else if (this.dir === 1) this.x += gridSize;
         else if (this.dir === 2) this.y += gridSize;
         else this.x -= gridSize;
 
-        if (this.x < 0) this.x = canvas.width - gridSize;
-        if (this.x > canvas.width) this.x = 0;
-        if (this.y < 0) this.y = canvas.height - gridSize;
-        if (this.y > canvas.height) this.y = 0;
+        // 边界检测
+        if (this.x < 0) this.x = width - gridSize;
+        if (this.x >= width) this.x = 0;
+        if (this.y < 0) this.y = height - gridSize;
+        if (this.y >= height) this.y = 0;
       }
 
       draw() {
-        if (!ctx) return;
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, gridSize, gridSize);
+        const cellX = Math.floor(this.x / gridSize);
+        const cellY = Math.floor(this.y / gridSize);
+        
+        if (grid[cellX]?.[cellY]) {
+          ctx.fillStyle = `rgba(255, 255, 255, ${this.brightness})`;
+          ctx.fillRect(this.x, this.y, gridSize, gridSize);
+        }
       }
     }
 
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    const init = () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      cols = Math.ceil(width / gridSize);
+      rows = Math.ceil(height / gridSize);
       
-      // 初始化网格
-      const cols = Math.ceil(canvas.width / gridSize);
-      const rows = Math.ceil(canvas.height / gridSize);
       grid = Array(cols).fill(null).map(() => Array(rows).fill(false));
-
-      // 初始化蚂蚁
       turmites = [];
-      const numTurmites = Math.min(20, Math.floor((canvas.width * canvas.height) / 20000));
+      
+      // 创建多个蚂蚁
+      const numTurmites = Math.min(50, Math.floor((width * height) / 8000));
       for (let i = 0; i < numTurmites; i++) {
-        turmites.push(new Turmite(
-          Math.random() * canvas.width,
-          Math.random() * canvas.height
-        ));
+        turmites.push(new Turmite());
       }
+      
+      // 初始画布为黑色
+      ctx.fillStyle = "rgba(0, 0, 0, 1)";
+      ctx.fillRect(0, 0, width, height);
+      isDrawingRef.current = false;
     };
 
-    resize();
-
     const animate = () => {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // 只在屏幕中心区域绘制蚂蚁轨迹形成 Z
-      const centerX = canvas.width / 2 - 150;
-      const centerY = canvas.height / 2 - 150;
-
-      turmites.forEach((t) => {
-        t.move();
+      if (!isDrawingRef.current) {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.03)";
+        ctx.fillRect(0, 0, width, height);
         
-        // 限制蚂蚁活动范围在中心区域形成 Z 形状
-        if (t.x > centerX - 50 && t.x < centerX + 400 && t.y > centerY - 50 && t.y < centerY + 400) {
+        turmites.forEach(t => {
+          t.move();
           t.draw();
-        } else {
-          // 让蚂蚁慢慢回到中心区域
-          if (t.x < centerX) t.x += 1;
-          if (t.x > centerX + 300) t.x -= 1;
-          if (t.y < centerY) t.y += 1;
-          if (t.y > centerY + 300) t.y -= 1;
-        }
-      });
-
+        });
+      }
+      
       animationId = requestAnimationFrame(animate);
     };
 
-    animate();
+    init();
+    animationId = requestAnimationFrame(animate);
 
-    window.addEventListener("resize", resize);
+    window.addEventListener("resize", init);
 
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", init);
     };
   }, []);
 
@@ -212,11 +191,12 @@ function ZParticleText() {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ zIndex: 5 }}
     />
   );
 }
 
-// 粒子背景组件
+// 粒子背景
 function ParticleBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -251,11 +231,6 @@ function ParticleBackground() {
 
         if (this.x < 0 || this.x > canvas!.width) this.vx *= -1;
         if (this.y < 0 || this.y > canvas!.height) this.vy *= -1;
-
-        if (this.x < 0) this.x = 0;
-        if (this.x > canvas!.width) this.x = canvas!.width;
-        if (this.y < 0) this.y = 0;
-        if (this.y > canvas!.height) this.y = canvas!.height;
       }
 
       draw() {
@@ -527,7 +502,7 @@ export default function HomePage() {
 
   return (
     <div className="smooth-container" ref={containerRef}>
-      {/* 第一屏：粒子 Z + 手表 */}
+      {/* 第一屏 */}
       <section className="relative h-screen w-full overflow-hidden">
         {/* 背景图片 */}
         <div className="absolute inset-0 z-0">
@@ -539,10 +514,20 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-black/30" />
         </div>
 
-        {/* 粒子构成 Z */}
-        <ZParticleText />
+        {/* 蚂蚁群粒子效果 - 在左侧形成 Z */}
+        <TurmiteCanvas />
 
-        {/* 手表指针 */}
+        {/* 巨型 Z 字母 */}
+        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
+          <h1 className={cn(
+            "text-[20vw] lg:text-[18vw] font-bold leading-none text-white/90 opacity-0 animate-fade-in-up",
+            isLoaded && "opacity-100"
+          )}>
+            Z
+          </h1>
+        </div>
+
+        {/* 手表指针 - 右侧 */}
         <div className="absolute right-[15%] top-1/2 -translate-y-1/2 w-48 h-48 z-10">
           <WatchHands />
         </div>
