@@ -13,6 +13,125 @@ const works = [
   { id: 6, title: "LUMEN", category: "Installation", image: "https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=2574&auto=format&fit=crop" },
 ];
 
+// 粒子组件
+function ParticleBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationId: number;
+    let particles: Particle[] = [];
+
+    class Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+
+      constructor() {
+        this.x = Math.random() * canvas!.width;
+        this.y = Math.random() * canvas!.height;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.size = Math.random() * 2 + 1;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > canvas!.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas!.height) this.vy *= -1;
+
+        // 边界反弹
+        if (this.x < 0) this.x = 0;
+        if (this.x > canvas!.width) this.x = canvas!.width;
+        if (this.y < 0) this.y = 0;
+        if (this.y > canvas!.height) this.y = canvas!.height;
+      }
+
+      draw() {
+        if (!ctx) return;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+        ctx.fill();
+      }
+    }
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    const init = () => {
+      resize();
+      particles = [];
+      const numParticles = Math.floor((canvas.width * canvas.height) / 15000);
+      for (let i = 0; i < Math.min(numParticles, 100); i++) {
+        particles.push(new Particle());
+      }
+    };
+
+    const drawLines = () => {
+      if (!ctx) return;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 150) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 * (1 - distance / 150)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+    };
+
+    const animate = () => {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((p) => {
+        p.update();
+        p.draw();
+      });
+
+      drawLines();
+      animationId = requestAnimationFrame(animate);
+    };
+
+    init();
+    animate();
+
+    window.addEventListener("resize", init);
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener("resize", init);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full"
+      style={{ background: "#0d0d0d" }}
+    />
+  );
+}
+
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -48,12 +167,10 @@ export default function HomePage() {
         const initAnimation = () => {
           const [active, ...rest] = orderRef.current;
 
-          // 第一张卡片全屏
           gsap.set(cardsRef.current[active], { x: 0, y: 0, width, height, borderRadius: 0, zIndex: 20 });
           gsap.set(contentsRef.current[active], { x: 60, y: 240, opacity: 0 });
           gsap.to(contentsRef.current[active], { opacity: 1, duration: 0.5, delay: 0.3 });
 
-          // 其他卡片排列
           rest.forEach((i, index) => {
             gsap.set(cardsRef.current[i], {
               x: offsetLeft + 400 + index * (cardWidth + gap),
@@ -71,15 +188,12 @@ export default function HomePage() {
             });
           });
 
-          // 标题进场
           gsap.from(titleRef.current, { opacity: 0, y: -20, duration: 0.6, delay: 0.2 });
 
-          // 指示点
           dotsRef.current.forEach((dot, i) => {
             gsap.set(dot, { backgroundColor: i === active ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.2)' });
           });
 
-          // 启动轮播
           setTimeout(() => { if (isActive) runLoop(); }, 800);
         };
 
@@ -90,27 +204,21 @@ export default function HomePage() {
           const [active, ...rest] = orderRef.current;
           const prv = rest[rest.length - 1];
 
-          // 更新指示点
           dotsRef.current.forEach((dot, i) => {
             gsap.to(dot, { backgroundColor: i === active ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.2)', duration: 0.3 });
           });
 
-          // 隐藏前一张内容
           gsap.to(contentsRef.current[prv], { opacity: 0, y: 200, duration: 0.4, ease });
 
-          // 前一张缩小移出
           gsap.set(cardsRef.current[prv], { zIndex: 10 });
           gsap.to(cardsRef.current[prv], { scale: 0.8, ease, duration: 0.4 });
 
-          // 当前卡片展开
           gsap.set(cardsRef.current[active], { zIndex: 20 });
           gsap.to(cardsRef.current[active], { x: 0, y: 0, width, height, borderRadius: 0, ease, duration: 0.5 });
 
-          // 显示新内容
           gsap.set(contentsRef.current[active], { x: 60, y: 240 });
           gsap.to(contentsRef.current[active], { opacity: 1, y: 240, duration: 0.4, delay: 0.3, ease });
 
-          // 其他卡片前移
           rest.forEach((i, index) => {
             if (i !== prv) {
               const xNew = offsetLeft + index * (cardWidth + gap);
@@ -119,7 +227,6 @@ export default function HomePage() {
             }
           });
 
-          // 把前一张放到最后
           setTimeout(() => {
             const xNew = offsetLeft + (rest.length - 1) * (cardWidth + gap);
             gsap.set(cardsRef.current[prv], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, zIndex: 30, borderRadius: 8, scale: 1 });
@@ -269,22 +376,18 @@ export default function HomePage() {
 
       {/* 第二屏：作品集 */}
       <section className="relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
-        {/* 进度条 */}
         <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: 'translateX(-100%)' }} />
 
-        {/* 标题 */}
         <div ref={titleRef} className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">
           WORKS
         </div>
 
-        {/* 指示点 */}
         <div className="absolute bottom-8 left-8 z-[50] flex gap-2">
           {works.map((_, i) => (
             <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
           ))}
         </div>
 
-        {/* 卡片 */}
         {works.map((work, index) => (
           <div
             key={`card-${index}`}
@@ -294,7 +397,6 @@ export default function HomePage() {
           />
         ))}
 
-        {/* 卡片内容 */}
         {works.map((work, index) => (
           <div
             key={`content-${index}`}
@@ -308,11 +410,12 @@ export default function HomePage() {
         ))}
       </section>
 
-      {/* 第三屏 */}
-      <section className="relative h-screen w-full bg-[#0d0d0d] overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="absolute w-[500px] h-[500px] rounded-full bg-white/[0.02] blur-3xl" />
-          <div className="relative z-10 flex items-center gap-16">
+      {/* 第三屏：粒子背景 */}
+      <section className="relative h-screen w-full overflow-hidden">
+        <ParticleBackground />
+        
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <div className="flex items-center gap-16">
             <a href="mailto:2922717190@qq.com" className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
