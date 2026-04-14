@@ -16,86 +16,142 @@ const works = [
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [activeWork, setActiveWork] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const worksContainerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const previewRef = useRef<HTMLDivElement>(null);
+  const contentsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const dotsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const indicatorRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const orderRef = useRef<number[]>([0, 1, 2, 3, 4, 5]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), 300);
     return () => clearTimeout(timer);
   }, []);
 
-  // 点击放大作品
-  const handleCardClick = useCallback((index: number) => {
-    const card = cardsRef.current[index];
-    if (!card || !previewRef.current) return;
-
-    setActiveWork(index);
-
-    // 获取卡片位置
-    const rect = card.getBoundingClientRect();
-    const preview = previewRef.current;
-
-    // 设置预览图和显示
-    preview.style.backgroundImage = `url(${works[index].image})`;
-
-    // 初始状态：卡片当前位置
-    gsap.set(preview, {
-      position: 'fixed',
-      left: rect.left,
-      top: rect.top,
-      width: rect.width,
-      height: rect.height,
-      borderRadius: 8,
-      zIndex: 100,
-      opacity: 0,
-    });
-
-    // 先显示再动画
-    gsap.set(preview, { opacity: 1, pointerEvents: 'auto' });
-
-    // 动画放大到全屏
-    gsap.to(preview, {
-      left: 0,
-      top: 0,
-      width: '100%',
-      height: '100%',
-      borderRadius: 0,
-      duration: 0.5,
-      ease: 'power2.inOut',
-    });
-  }, []);
-
-  // 关闭预览
-  const handleClosePreview = useCallback(() => {
-    if (previewRef.current) {
-      gsap.to(previewRef.current, {
-        opacity: 0,
-        duration: 0.3,
-        ease: 'power2.out',
-        onComplete: () => {
-          setActiveWork(null);
-          if (previewRef.current) {
-            previewRef.current.style.backgroundImage = '';
-            gsap.set(previewRef.current, { pointerEvents: 'none' });
-          }
-        }
-      });
-    }
-  }, []);
-
-  // ESC关闭
+  // GSAP 卡片轮播
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && activeWork !== null) {
-        handleClosePreview();
-      }
+    if (currentSection !== 1) return;
+
+    let isActive = true;
+    const cardWidth = 200;
+    const cardHeight = 300;
+    const gap = 40;
+
+    const initDelay = setTimeout(() => {
+      const ctx = gsap.context(() => {
+        const { innerHeight: height, innerWidth: width } = window;
+        const offsetTop = height - 430;
+        const offsetLeft = width - 830;
+
+        const initAnimation = () => {
+          const [active, ...rest] = orderRef.current;
+
+          // 第一张卡片全屏
+          gsap.set(cardsRef.current[active], { x: 0, y: 0, width, height, borderRadius: 0, zIndex: 20 });
+          gsap.set(contentsRef.current[active], { x: 60, y: 240, opacity: 0 });
+          gsap.to(contentsRef.current[active], { opacity: 1, duration: 0.5, delay: 0.3 });
+
+          // 其他卡片排列
+          rest.forEach((i, index) => {
+            gsap.set(cardsRef.current[i], {
+              x: offsetLeft + 400 + index * (cardWidth + gap),
+              y: offsetTop,
+              width: cardWidth,
+              height: cardHeight,
+              zIndex: 30,
+              borderRadius: 8,
+            });
+            gsap.set(contentsRef.current[i], {
+              x: offsetLeft + 400 + index * (cardWidth + gap) + 20,
+              y: offsetTop + cardHeight - 50,
+              zIndex: 40,
+              opacity: 1,
+            });
+          });
+
+          // 标题进场
+          gsap.from(titleRef.current, { opacity: 0, y: -20, duration: 0.6, delay: 0.2 });
+
+          // 指示点
+          dotsRef.current.forEach((dot, i) => {
+            gsap.set(dot, { backgroundColor: i === active ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.2)' });
+          });
+
+          // 启动轮播
+          setTimeout(() => { if (isActive) runLoop(); }, 800);
+        };
+
+        const step = () => {
+          orderRef.current.push(orderRef.current.shift()!);
+          const ease = "sine.inOut";
+
+          const [active, ...rest] = orderRef.current;
+          const prv = rest[rest.length - 1];
+
+          // 更新指示点
+          dotsRef.current.forEach((dot, i) => {
+            gsap.to(dot, { backgroundColor: i === active ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.2)', duration: 0.3 });
+          });
+
+          // 隐藏前一张内容
+          gsap.to(contentsRef.current[prv], { opacity: 0, y: 200, duration: 0.4, ease });
+
+          // 前一张缩小移出
+          gsap.set(cardsRef.current[prv], { zIndex: 10 });
+          gsap.to(cardsRef.current[prv], { scale: 0.8, ease, duration: 0.4 });
+
+          // 当前卡片展开
+          gsap.set(cardsRef.current[active], { zIndex: 20 });
+          gsap.to(cardsRef.current[active], { x: 0, y: 0, width, height, borderRadius: 0, ease, duration: 0.5 });
+
+          // 显示新内容
+          gsap.set(contentsRef.current[active], { x: 60, y: 240 });
+          gsap.to(contentsRef.current[active], { opacity: 1, y: 240, duration: 0.4, delay: 0.3, ease });
+
+          // 其他卡片前移
+          rest.forEach((i, index) => {
+            if (i !== prv) {
+              const xNew = offsetLeft + index * (cardWidth + gap);
+              gsap.to(cardsRef.current[i], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, ease, duration: 0.5, delay: 0.1 });
+              gsap.to(contentsRef.current[i], { x: xNew + 20, y: offsetTop + cardHeight - 50, opacity: 1, ease, duration: 0.5, delay: 0.1 });
+            }
+          });
+
+          // 把前一张放到最后
+          setTimeout(() => {
+            const xNew = offsetLeft + (rest.length - 1) * (cardWidth + gap);
+            gsap.set(cardsRef.current[prv], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, zIndex: 30, borderRadius: 8, scale: 1 });
+            gsap.set(contentsRef.current[prv], { x: xNew + 20, y: offsetTop + cardHeight - 50, opacity: 1, zIndex: 40 });
+          }, 600);
+        };
+
+        const runLoop = async () => {
+          if (!isActive) return;
+          
+          gsap.set(indicatorRef.current, { x: -width });
+          await new Promise(resolve => gsap.to(indicatorRef.current, { x: 0, duration: 2, ease: "none", onComplete: resolve }));
+          if (!isActive) return;
+          await new Promise(resolve => gsap.to(indicatorRef.current, { x: width, duration: 0.6, delay: 0.3, ease: "power2.inOut", onComplete: resolve }));
+          if (!isActive) return;
+          step();
+          if (isActive) runLoop();
+        };
+
+        initAnimation();
+      }, worksContainerRef);
+
+      return () => {
+        ctx.revert();
+      };
+    }, 100);
+
+    return () => {
+      isActive = false;
+      clearTimeout(initDelay);
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeWork, handleClosePreview]);
+  }, [currentSection]);
 
   // 平滑滚动
   useEffect(() => {
@@ -213,46 +269,43 @@ export default function HomePage() {
 
       {/* 第二屏：作品集 */}
       <section className="relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
+        {/* 进度条 */}
+        <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: 'translateX(-100%)' }} />
+
         {/* 标题 */}
-        <div className="absolute left-8 top-8 z-30 text-xs tracking-[0.3em] text-white/40">
+        <div ref={titleRef} className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">
           WORKS
         </div>
 
-        {/* 卡片网格 */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="grid grid-cols-3 gap-6 px-8">
-            {works.map((work, index) => (
-              <div
-                key={work.id}
-                ref={(el) => { cardsRef.current[index] = el; }}
-                onClick={() => handleCardClick(index)}
-                className="relative w-[200px] h-[280px] bg-cover bg-center rounded-lg cursor-pointer overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
-                style={{ backgroundImage: `url(${work.image})` }}
-              >
-                {/* 悬停遮罩 */}
-                <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-all duration-300 flex items-end p-4">
-                  <div className="opacity-0 hover:opacity-100 transition-opacity duration-300">
-                    <div className="h-[2px] w-6 bg-white/60 mb-2" />
-                    <p className="text-xs text-white/60">{work.category}</p>
-                    <p className="text-lg font-bold text-white">{work.title}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+        {/* 指示点 */}
+        <div className="absolute bottom-8 left-8 z-[50] flex gap-2">
+          {works.map((_, i) => (
+            <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
+          ))}
+        </div>
+
+        {/* 卡片 */}
+        {works.map((work, index) => (
+          <div
+            key={`card-${index}`}
+            ref={(el) => { cardsRef.current[index] = el; }}
+            className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]"
+            style={{ backgroundImage: `url(${work.image})` }}
+          />
+        ))}
+
+        {/* 卡片内容 */}
+        {works.map((work, index) => (
+          <div
+            key={`content-${index}`}
+            ref={(el) => { contentsRef.current[index] = el; }}
+            className="absolute left-0 top-0 text-white z-30"
+          >
+            <div className="h-[3px] w-8 bg-white/60 mb-3" />
+            <p className="text-sm tracking-wider text-white/60">{work.category}</p>
+            <p className="text-4xl lg:text-6xl font-bold tracking-wider mt-1">{work.title}</p>
           </div>
-        </div>
-
-        {/* 点击提示 */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-xs text-white/30">
-          CLICK TO VIEW
-        </div>
-
-        {/* 全屏预览 */}
-        <div
-          ref={previewRef}
-          className="fixed bg-cover bg-center cursor-pointer opacity-0 pointer-events-none"
-          onClick={handleClosePreview}
-        />
+        ))}
       </section>
 
       {/* 第三屏 */}
