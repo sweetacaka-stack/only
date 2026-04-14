@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright (c) 2026 Jeminw (https://codepen.io/Jeminw/pen/yrEvdE)
+Copyright (c) 2026 Miriam Nadler (https://codepen.io/mknadler/pen/gwdYEg)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

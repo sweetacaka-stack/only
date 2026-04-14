@@ -13,7 +13,210 @@ const works = [
   { id: 6, title: "LUMEN", category: "Installation", image: "https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=2574&auto=format&fit=crop" },
 ];
 
-// 粒子组件
+// 手表指针组件
+function WatchHands() {
+  const hourRef = useRef<HTMLDivElement>(null);
+  const minuteRef = useRef<HTMLDivElement>(null);
+  const secondRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updateHands = () => {
+      const now = new Date();
+      const hours = now.getHours() % 12;
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+      const milliseconds = now.getMilliseconds();
+
+      // 计算角度
+      const secondDeg = (seconds + milliseconds / 1000) * 6; // 每秒6度，平滑旋转
+      const minuteDeg = (minutes + seconds / 60) * 6; // 每分钟6度
+      const hourDeg = (hours + minutes / 60) * 30; // 每小时30度
+
+      if (hourRef.current) hourRef.current.style.transform = `rotate(${hourDeg}deg)`;
+      if (minuteRef.current) minuteRef.current.style.transform = `rotate(${minuteDeg}deg)`;
+      if (secondRef.current) secondRef.current.style.transform = `rotate(${secondDeg}deg)`;
+    };
+
+    // 初始更新
+    updateHands();
+    
+    // 使用 requestAnimationFrame 实现平滑旋转
+    let animationId: number;
+    const animate = () => {
+      updateHands();
+      animationId = requestAnimationFrame(animate);
+    };
+    animationId = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationId);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center">
+      {/* 时针 */}
+      <div
+        ref={hourRef}
+        className="absolute w-1 h-16 bg-white/80 origin-bottom transition-transform duration-100"
+        style={{ transform: 'rotate(0deg)' }}
+      />
+      {/* 分针 */}
+      <div
+        ref={minuteRef}
+        className="absolute w-0.5 h-20 bg-white/60 origin-bottom transition-transform duration-100"
+        style={{ transform: 'rotate(0deg)' }}
+      />
+      {/* 秒针 */}
+      <div
+        ref={secondRef}
+        className="absolute w-px h-24 bg-white/40 origin-bottom transition-transform duration-100"
+        style={{ transform: 'rotate(0deg)' }}
+      />
+      {/* 中心点 */}
+      <div className="absolute w-2 h-2 rounded-full bg-white/90" />
+    </div>
+  );
+}
+
+// 粒子构成 Z 字母
+function ZParticleText() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationId: number;
+    let turmites: Turmite[] = [];
+    const gridSize = 4;
+    let grid: boolean[][] = [];
+
+    class Turmite {
+      x: number;
+      y: number;
+      dir: number;
+      state: number;
+      color: string;
+
+      constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+        this.dir = Math.floor(Math.random() * 4);
+        this.state = Math.floor(Math.random() * 10);
+        this.color = `rgba(255, 255, 255, ${0.3 + Math.random() * 0.4})`;
+      }
+
+      move() {
+        const stateTable = [
+          [1, 1, 1, (this.dir + 1) % 4, 0],
+          [0, 1, 0, (this.dir + 3) % 4, 1],
+          [1, 0, 0, this.dir, 0],
+          [0, 0, 1, (this.dir + 2) % 4, 2],
+        ];
+
+        const curr = grid[Math.floor(this.x / gridSize)]?.[Math.floor(this.y / gridSize)] ? 1 : 0;
+        const rule = stateTable[this.state % 4];
+
+        if (curr === 0) {
+          grid[Math.floor(this.x / gridSize)][Math.floor(this.y / gridSize)] = rule[0] === 1;
+        } else {
+          grid[Math.floor(this.x / gridSize)][Math.floor(this.y / gridSize)] = rule[1] === 1;
+        }
+
+        this.dir = rule[3];
+        if (rule[4] === 0) this.dir = (this.dir + 1) % 4;
+        else if (rule[4] === 1) this.dir = (this.dir + 3) % 4;
+        else if (rule[4] === 2) this.dir = (this.dir + 2) % 4;
+
+        this.state = rule[4];
+
+        if (this.dir === 0) this.y -= gridSize;
+        else if (this.dir === 1) this.x += gridSize;
+        else if (this.dir === 2) this.y += gridSize;
+        else this.x -= gridSize;
+
+        if (this.x < 0) this.x = canvas.width - gridSize;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < 0) this.y = canvas.height - gridSize;
+        if (this.y > canvas.height) this.y = 0;
+      }
+
+      draw() {
+        if (!ctx) return;
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, gridSize, gridSize);
+      }
+    }
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      // 初始化网格
+      const cols = Math.ceil(canvas.width / gridSize);
+      const rows = Math.ceil(canvas.height / gridSize);
+      grid = Array(cols).fill(null).map(() => Array(rows).fill(false));
+
+      // 初始化蚂蚁
+      turmites = [];
+      const numTurmites = Math.min(20, Math.floor((canvas.width * canvas.height) / 20000));
+      for (let i = 0; i < numTurmites; i++) {
+        turmites.push(new Turmite(
+          Math.random() * canvas.width,
+          Math.random() * canvas.height
+        ));
+      }
+    };
+
+    resize();
+
+    const animate = () => {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 只在屏幕中心区域绘制蚂蚁轨迹形成 Z
+      const centerX = canvas.width / 2 - 150;
+      const centerY = canvas.height / 2 - 150;
+
+      turmites.forEach((t) => {
+        t.move();
+        
+        // 限制蚂蚁活动范围在中心区域形成 Z 形状
+        if (t.x > centerX - 50 && t.x < centerX + 400 && t.y > centerY - 50 && t.y < centerY + 400) {
+          t.draw();
+        } else {
+          // 让蚂蚁慢慢回到中心区域
+          if (t.x < centerX) t.x += 1;
+          if (t.x > centerX + 300) t.x -= 1;
+          if (t.y < centerY) t.y += 1;
+          if (this.y > centerY + 300) t.y -= 1;
+        }
+      });
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    window.addEventListener("resize", resize);
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+    />
+  );
+}
+
+// 粒子背景组件
 function ParticleBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -49,7 +252,6 @@ function ParticleBackground() {
         if (this.x < 0 || this.x > canvas!.width) this.vx *= -1;
         if (this.y < 0 || this.y > canvas!.height) this.vy *= -1;
 
-        // 边界反弹
         if (this.x < 0) this.x = 0;
         if (this.x > canvas!.width) this.x = canvas!.width;
         if (this.y < 0) this.y = 0;
@@ -68,13 +270,9 @@ function ParticleBackground() {
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-    };
-
-    const init = () => {
-      resize();
       particles = [];
       const numParticles = Math.floor((canvas.width * canvas.height) / 15000);
-      for (let i = 0; i < Math.min(numParticles, 100); i++) {
+      for (let i = 0; i < Math.min(numParticles, 80); i++) {
         particles.push(new Particle());
       }
     };
@@ -91,12 +289,16 @@ function ParticleBackground() {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 * (1 - distance / 150)})`;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.12 * (1 - distance / 150)})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         }
       }
+    };
+
+    const init = () => {
+      resize();
     };
 
     const animate = () => {
@@ -325,8 +527,9 @@ export default function HomePage() {
 
   return (
     <div className="smooth-container" ref={containerRef}>
-      {/* 第一屏 */}
+      {/* 第一屏：粒子 Z + 手表 */}
       <section className="relative h-screen w-full overflow-hidden">
+        {/* 背景图片 */}
         <div className="absolute inset-0 z-0">
           <img
             src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F%E6%89%8B%E8%A1%A81.png&nonce=d8dff12e-5078-4eb6-863a-b563f8011d9f&project_id=7628526330237288488&sign=47d78a5d328d8d584b3ad9dbb7e5fbf86972d7c7b46238287196814228f4e55d"
@@ -336,19 +539,23 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-black/30" />
         </div>
 
-        <div className="absolute top-8 right-8 z-10">
+        {/* 粒子构成 Z */}
+        <ZParticleText />
+
+        {/* 手表指针 */}
+        <div className="absolute right-[15%] top-1/2 -translate-y-1/2 w-48 h-48 z-10">
+          <WatchHands />
+        </div>
+
+        {/* 右上角标注 */}
+        <div className="absolute top-8 right-8 z-20">
           <span className={cn("text-xs tracking-[0.3em] text-white/50 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
             PORTFOLIO 2026
           </span>
         </div>
 
-        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
-          <h1 className={cn("text-[20vw] lg:text-[18vw] font-bold leading-none text-white/90 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
-            Z
-          </h1>
-        </div>
-
-        <div className="absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-10 text-right">
+        {/* 右侧身份文字 */}
+        <div className="absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 text-right">
           <div className={cn("flex gap-4 justify-end mb-4 opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}>
             <span className="text-lg lg:text-xl text-white/80" style={{ writingMode: "vertical-rl" }}>视觉</span>
             <span className="text-lg lg:text-xl text-white/80" style={{ writingMode: "vertical-rl" }}>设计师</span>
@@ -358,13 +565,15 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="absolute bottom-12 right-8 lg:right-16 z-10 text-right max-w-sm">
+        {/* 右下角理念 */}
+        <div className="absolute bottom-12 right-8 lg:right-16 z-20 text-right max-w-sm">
           <p className={cn("text-xs lg:text-sm text-white/40 leading-relaxed opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
             用黑白灰秩序讲述视觉故事
           </p>
         </div>
 
-        <div className={cn("absolute bottom-8 left-1/2 -translate-x-1/2 z-10 opacity-0 animate-fade-in-up delay-700", isLoaded && "opacity-100")}>
+        {/* 滚动提示 */}
+        <div className={cn("absolute bottom-8 left-1/2 -translate-x-1/2 z-20 opacity-0 animate-fade-in-up delay-700", isLoaded && "opacity-100")}>
           <div className="flex flex-col items-center gap-2 text-white/30 text-xs">
             <span>SCROLL</span>
             <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
