@@ -143,21 +143,17 @@ function TurmiteCanvas() {
       vants.push(new Vant(zLeft + 50, zBottom, "e", drawRule));
       vants.push(new Vant(zLeft + 50, zTop, "s", drawRule));
 
-      // 随机蚂蚁
+      // 随机蚂蚁只在Z字母区域内活动
       for (let i = 0; i <= 3000; i++) {
+        const randX = zLeft + Math.random() * zSize;
+        const randY = zTop + Math.random() * zSize;
         vants.push(
-          new Vant(
-            Math.ceil(Math.random() * width),
-            Math.ceil(Math.random() * height),
-            ["n", "e", "s", "w"][randBetween(0, 3)],
-            randomRuleset()
-          )
+          new Vant(randX, randY, ["n", "e", "s", "w"][randBetween(0, 3)], randomRuleset())
         );
       }
 
-      // 初始画布为黑色
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, width, height);
+      // 初始画布为透明
+      ctx.clearRect(0, 0, width, height);
     };
 
     const animate = () => {
