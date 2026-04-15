@@ -342,7 +342,7 @@ function ZLetterCanvas() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d", { alpha: false });
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     // 固定尺寸
@@ -350,6 +350,10 @@ function ZLetterCanvas() {
     const H = 800;
     canvas.width = W;
     canvas.height = H;
+
+    // 填充透明背景
+    ctx.fillStyle = "rgba(0, 0, 0, 1)";
+    ctx.fillRect(0, 0, W, H);
 
     // 1. 建立硬边缘 Z 遮罩
     const mC = document.createElement("canvas");
@@ -792,19 +796,19 @@ export default function HomePage() {
     <div className="smooth-container" ref={containerRef}>
       {/* 第一屏 */}
       <section className="relative h-screen w-full overflow-hidden">
-        {/* 手表背景图片 */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center">
+        {/* 手表背景图片 - 满屏显示 */}
+        <div className="absolute inset-0 z-0">
           <img
             src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F%E6%89%8B%E8%A1%A81.png&nonce=afabf5e0-2696-490a-9a79-6719fdf7089c&project_id=7628526330237288488&sign=ac6637b0dce6aa62ecbd7e53986b5d72c772bd7b4f6b9764023547763eb0f030"
             alt="背景"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-black/50" />
         </div>
 
-        {/* 电子流 Z 字母 + 红色边框容器 */}
+        {/* 电子流 Z 字母 + 青橙色细边框 */}
         <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
-          <div className="relative w-[20vw] lg:w-[16vw] aspect-[1/1.5] border border-orange-500/40 p-2">
+          <div className="relative w-[20vw] lg:w-[16vw] aspect-[1/1.5] border border-cyan-400/30 p-2">
             <ZLetterCanvas />
           </div>
         </div>
