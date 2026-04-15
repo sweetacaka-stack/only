@@ -781,7 +781,7 @@ export default function HomePage() {
 
         {/* 粒子化 Z 字母 */}
         <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
-          <div className="relative w-[20vw] lg:w-[16vw] aspect-[1/1.5] bg-black">
+          <div className="relative w-[20vw] lg:w-[16vw] aspect-[1/1.5]">
             <ZLetterCanvas />
           </div>
         </div>
