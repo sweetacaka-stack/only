@@ -403,36 +403,62 @@ function TurmiteCanvas() {
 
       vants = [];
       
-      // Z 字形参数
+      // Z 字形参数 - 居中放置
       const centerX = width / 2;
       const centerY = height / 2;
-      const zSize = Math.min(width, height) * 0.35; // Z 大小
+      const zSize = Math.min(width, height) * 0.5; // Z 大小占屏幕50%
       const zLeft = centerX - zSize / 2;
       const zTop = centerY - zSize / 2;
+      const zRight = centerX + zSize / 2;
       const zBottom = centerY + zSize / 2;
+      const strokeWidth = zSize * 0.06; // 笔画粗细
 
-      // 规则：直行、涂黑、无状态变化
+      // 规则：直行、涂白、无状态变化
       const drawRule: number[][][] = [[[1, 1, 0], [1, 1, 0]], [[1, 1, 0], [1, 1, 0]]];
 
-      // 1. Z 顶部横线 → 向右
-      vants.push(new Vant(zLeft, zTop, "e", drawRule));
-      // 2. Z 斜线 → 右下
-      vants.push(new Vant(zLeft, zTop, "s", drawRule));
-      // 3. Z 底部横线 → 向右
-      vants.push(new Vant(zLeft, zBottom, "e", drawRule));
+      // 蚂蚁只在Z字母的笔画范围内活动
+      // Z 顶部横线
+      for (let x = zLeft; x < zRight; x += 2) {
+        for (let w = 0; w < strokeWidth; w += 1) {
+          vants.push(new Vant(x, zTop + w, "e", drawRule));
+        }
+      }
+      
+      // Z 斜线 (从左上到右下)
+      for (let i = 0; i < zSize; i += 2) {
+        for (let w = 0; w < strokeWidth; w += 1) {
+          vants.push(new Vant(zLeft + i, zTop + i + w, "s", drawRule));
+        }
+      }
+      
+      // Z 底部横线
+      for (let x = zLeft; x < zRight; x += 2) {
+        for (let w = 0; w < strokeWidth; w += 1) {
+          vants.push(new Vant(x, zBottom - strokeWidth + w, "e", drawRule));
+        }
+      }
 
-      // 补充多只蚂蚁加速绘制 Z
-      vants.push(new Vant(zLeft + 50, zTop, "e", drawRule));
-      vants.push(new Vant(zLeft + 50, zBottom, "e", drawRule));
-      vants.push(new Vant(zLeft + 50, zTop, "s", drawRule));
-
-      // 随机蚂蚁只在Z字母区域内活动
-      for (let i = 0; i <= 3000; i++) {
-        const randX = zLeft + Math.random() * zSize;
-        const randY = zTop + Math.random() * zSize;
-        vants.push(
-          new Vant(randX, randY, ["n", "e", "s", "w"][randBetween(0, 3)], randomRuleset())
-        );
+      // 添加更多蚂蚁填充Z字母区域加速绘制
+      for (let i = 0; i < 2000; i++) {
+        // 顶部横线区域
+        if (Math.random() < 0.33) {
+          const x = zLeft + Math.random() * zSize;
+          const y = zTop + Math.random() * strokeWidth;
+          vants.push(new Vant(x, y, "e", drawRule));
+        }
+        // 斜线区域
+        else if (Math.random() < 0.66) {
+          const t = Math.random();
+          const x = zLeft + t * zSize;
+          const y = zTop + t * zSize + (Math.random() - 0.5) * strokeWidth;
+          vants.push(new Vant(x, y, "s", drawRule));
+        }
+        // 底部横线区域
+        else {
+          const x = zLeft + Math.random() * zSize;
+          const y = zBottom - strokeWidth + Math.random() * strokeWidth;
+          vants.push(new Vant(x, y, "e", drawRule));
+        }
       }
 
       // 初始画布为透明
@@ -446,9 +472,11 @@ function TurmiteCanvas() {
         const rule = vant.rules[vant.state][vant.color];
         vant.orientation = findOrientation(rule[1], vant.orientation);
         
-        // 绘制点
-        ctx.fillStyle = rule[0] === 1 ? "#DDDDDD" : "black";
-        ctx.fillRect(vant.x, vant.y, 1, 1);
+        // 绘制点 - 只绘制白色点
+        ctx.fillStyle = rule[0] === 1 ? "#FFFFFF" : "transparent";
+        if (rule[0] === 1) {
+          ctx.fillRect(vant.x, vant.y, 1, 1);
+        }
         
         vant.color = rule[0];
         vant.state = rule[2];
@@ -793,50 +821,71 @@ export default function HomePage() {
 
   return (
     <div className="smooth-container" ref={containerRef}>
-      {/* 第一屏 */}
+      {/* 第一屏 - 参考图设计 */}
       <section className="relative h-screen w-full overflow-hidden">
-        {/* 背景图片 */}
-        <div className="absolute inset-0 z-0">
-          <img src="/assets/手表1.png" alt="背景" className="w-full h-full object-cover brightness-110" />
-          <div className="absolute inset-0 bg-black/30" />
+        {/* 渐变背景 */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#1a1a1a] via-[#0d0d0d] to-[#1a1a1a]" />
+        
+        {/* 手表背景图 - 居中 */}
+        <div className="absolute inset-0 z-[1] flex items-center justify-center">
+          <img 
+            src="/assets/watch-ref.png" 
+            alt="手表背景" 
+            className="w-auto h-auto max-w-full max-h-full object-contain"
+            style={{ maxWidth: '80vw', maxHeight: '80vh' }}
+          />
         </div>
 
-        {/* 蚂蚁群效果 - 独立形成 Z 字母 */}
+        {/* 蚂蚁群效果 - Z 字母居中 */}
         <TurmiteCanvas />
 
-        {/* 手表指针 */}
-        <div className="absolute right-[15%] top-1/2 -translate-y-1/2 w-48 h-48 z-10">
-          <WatchHands />
-        </div>
-
-        {/* 右上角 */}
-        <div className="absolute top-8 right-8 z-20">
-          <span className={cn("text-xs tracking-[0.3em] text-white/50 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
-            PORTFOLIO 2026
-          </span>
-        </div>
-
-        {/* 右侧身份 */}
-        <div className="absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 text-right">
-          <div className={cn("flex gap-4 justify-end mb-4 opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}>
-            <span className="text-lg lg:text-xl text-white/80" style={{ writingMode: "vertical-rl" }}>视觉</span>
-            <span className="text-lg lg:text-xl text-white/80" style={{ writingMode: "vertical-rl" }}>设计师</span>
+        {/* 磨砂玻璃效果 - 右侧信息区 */}
+        <div className="absolute right-0 top-0 h-full w-[35%] z-20">
+          <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl" />
+          <div className="absolute inset-0 border-l border-white/[0.05]" />
+          
+          {/* 右上角时间 */}
+          <div className="absolute top-8 right-8">
+            <span className={cn("text-xs tracking-[0.3em] text-white/30 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
+              PORTFOLIO 2026
+            </span>
           </div>
-          <p className={cn("text-sm tracking-[0.3em] text-white/60 opacity-0 animate-fade-in-up delay-300", isLoaded && "opacity-100")}>
-            VISUAL DESIGNER
-          </p>
+          
+          {/* 右侧身份信息 */}
+          <div className="absolute right-8 top-1/2 -translate-y-1/2 z-30">
+            <div className={cn("opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}>
+              <div className="flex gap-4 justify-end mb-6">
+                <span className="text-2xl text-white/70" style={{ writingMode: "vertical-rl" }}>视觉</span>
+                <span className="text-2xl text-white/70" style={{ writingMode: "vertical-rl" }}>设计师</span>
+              </div>
+              <p className="text-sm tracking-[0.3em] text-white/40 text-right">
+                VISUAL DESIGNER
+              </p>
+            </div>
+          </div>
+
+          {/* 右下角理念 */}
+          <div className="absolute bottom-20 right-8 z-30 text-right max-w-xs">
+            <p className={cn("text-xs text-white/30 leading-relaxed opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
+              用黑白灰秩序<br />讲述视觉故事
+            </p>
+          </div>
+
+          {/* 手表指针 */}
+          <div className="absolute right-[15%] bottom-[25%] w-32 h-32 z-30">
+            <WatchHands />
+          </div>
         </div>
 
-        {/* 右下角理念 */}
-        <div className="absolute bottom-12 right-8 lg:right-16 z-20 text-right max-w-sm">
-          <p className={cn("text-xs lg:text-sm text-white/40 leading-relaxed opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
-            用黑白灰秩序讲述视觉故事
-          </p>
+        {/* 左侧装饰线条 */}
+        <div className="absolute left-0 top-0 h-full w-px z-20">
+          <div className="w-full h-1/3 bg-gradient-to-b from-white/20 via-transparent to-transparent" />
+          <div className="w-full h-1/3 bg-gradient-to-b from-transparent via-transparent to-white/20" />
         </div>
 
         {/* 滚动提示 */}
-        <div className={cn("absolute bottom-8 left-1/2 -translate-x-1/2 z-20 opacity-0 animate-fade-in-up delay-700", isLoaded && "opacity-100")}>
-          <div className="flex flex-col items-center gap-2 text-white/30 text-xs">
+        <div className={cn("absolute bottom-8 left-1/2 -translate-x-1/2 z-30 opacity-0 animate-fade-in-up delay-700", isLoaded && "opacity-100")}>
+          <div className="flex flex-col items-center gap-2 text-white/20 text-xs">
             <span>SCROLL</span>
             <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -845,7 +894,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 第二屏 */}
+      {/* 第二屏 - 图片自适应窗口 */}
       <section className="relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
         <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: "translateX(-100%)" }} />
         <div ref={titleRef} className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">WORKS</div>
@@ -855,7 +904,16 @@ export default function HomePage() {
           ))}
         </div>
         {works.map((work, index) => (
-          <div key={`card-${index}`} ref={(el) => { cardsRef.current[index] = el; }} className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]" style={{ backgroundImage: `url(${work.image})` }} />
+          <div 
+            key={`card-${index}`} 
+            ref={(el) => { cardsRef.current[index] = el; }} 
+            className="absolute left-0 top-0 bg-cover bg-center"
+            style={{ 
+              backgroundImage: `url(${work.image})`,
+              backgroundSize: 'contain',
+              backgroundPosition: 'center'
+            }} 
+          />
         ))}
         {works.map((work, index) => (
           <div key={`content-${index}`} ref={(el) => { contentsRef.current[index] = el; }} className="absolute left-0 top-0 text-white z-30">
