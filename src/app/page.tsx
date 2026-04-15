@@ -99,31 +99,51 @@ function CozeChat({ botId, apiKey }: CozeChatProps) {
         const chunk = decoder.decode(value);
         const lines = chunk.split("\n");
 
+        let isCompleted = false;
+        let finalContent = "";
+
         for (const line of lines) {
           if (line.startsWith("event:")) {
             const eventType = line.slice(6).trim();
+            // 检查是否完成
+            if (eventType === "conversation.message.completed") {
+              isCompleted = true;
+            }
             continue;
           }
           if (line.startsWith("data:")) {
             try {
               const data = JSON.parse(line.slice(5));
-              // Coze API 流式返回，内容在 reasoning_content 字段
-              if (data.reasoning_content || data.content) {
-                assistantMessage += data.reasoning_content || data.content;
+              // 流式输出时从 content 字段读取（不是 reasoning_content）
+              if (data.content && data.role === "assistant") {
+                // 累积 content 内容
+                assistantMessage += data.content;
                 setMessages(prev => prev.map(msg =>
                   msg.id === assistantMsgId
                     ? { ...msg, content: assistantMessage }
                     : msg
                 ));
               }
-              // 检查是否完成
-              if (data.status === "completed") {
-                break;
+              // 保存最终的完整内容
+              if (isCompleted && data.content && data.type === "answer") {
+                finalContent = data.content;
               }
             } catch (e) {
               // 忽略解析错误
             }
           }
+        }
+
+        if (isCompleted) {
+          // 用完整内容替换
+          if (finalContent) {
+            setMessages(prev => prev.map(msg =>
+              msg.id === assistantMsgId
+                ? { ...msg, content: finalContent }
+                : msg
+            ));
+          }
+          break;
         }
       }
     } catch (error) {
