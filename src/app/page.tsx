@@ -334,6 +334,165 @@ function WatchHands() {
   );
 }
 
+// 电子流 Z 字母组件
+function ZLetterCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // 尺寸设置
+    const width = canvas.offsetWidth;
+    const height = canvas.offsetHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    const W = width;
+    const H = height;
+
+    // 兰顿蚂蚁参数
+    const DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]]; // 右、下、左、上
+    const grid: number[] = new Array(W * H).fill(0);
+
+    // Z 字母路径点（粗线条路径）
+    const strokeWidth = Math.max(W, H) * 0.08;
+    const margin = strokeWidth / 2;
+
+    // 绘制 Z 字母路径
+    function drawZPath(ctx: CanvasRenderingContext2D) {
+      ctx.lineWidth = strokeWidth;
+      ctx.lineCap = "square";
+      ctx.lineJoin = "miter";
+      ctx.strokeStyle = "#333";
+      ctx.beginPath();
+      // 顶部横线
+      ctx.moveTo(margin, margin);
+      ctx.lineTo(W - margin, margin);
+      // 斜线
+      ctx.lineTo(margin, H - margin);
+      // 底部横线
+      ctx.lineTo(W - margin, H - margin);
+      ctx.stroke();
+    }
+
+    // 检测点是否在 Z 字母内部
+    function isInside(x: number, y: number): boolean {
+      const m = strokeWidth / 2 + 2;
+      // 顶部横条区域
+      if (y >= m && y <= margin * 2 + m) return x >= m && x <= W - m;
+      // 底部横条区域
+      if (y >= H - margin * 2 - m && y <= H - m) return x >= m && x <= W - m;
+      // 斜线区域（简化判断）
+      const slopeStart = margin * 2 + m;
+      const slopeEnd = H - margin * 2 - m;
+      if (y > slopeStart && y < slopeEnd) {
+        const progress = (y - slopeStart) / (slopeEnd - slopeStart);
+        const leftBound = m + (W - 2 * m) * progress;
+        const rightBound = W - m - (W - 2 * m) * progress;
+        return x >= leftBound - m && x <= rightBound + m;
+      }
+      return false;
+    }
+
+    // 初始化蚂蚁
+    let ants: { x: number; y: number; oldX: number; oldY: number; dir: number; hue: number }[] = [];
+    for (let i = 0; i < 80; i++) {
+      let rx, ry;
+      let attempts = 0;
+      do {
+        rx = Math.random() * W;
+        ry = Math.random() * H;
+        attempts++;
+      } while (!isInside(rx, ry) && attempts < 100);
+
+      if (isInside(rx, ry)) {
+        ants.push({
+          x: rx, y: ry,
+          oldX: rx, oldY: ry,
+          dir: Math.floor(Math.random() * 4),
+          hue: 185 + Math.random() * 30
+        });
+      }
+    }
+
+    function step(time: number) {
+      // 呼吸周期
+      const cycle = 4000;
+      const progress = (time % cycle) / cycle;
+      const intensity = Math.max(0, Math.pow(Math.sin(progress * Math.PI), 1.5) * 1.2 - 0.2);
+
+      // 极低透明度背景，产生回路线条感
+      ctx.fillStyle = "rgba(0, 0, 0, 0.02)";
+      ctx.fillRect(0, 0, W, H);
+
+      // 先绘制 Z 字母背景
+      drawZPath(ctx);
+
+      ctx.lineWidth = 1.5;
+      ctx.lineJoin = "miter";
+
+      for (let a of ants) {
+        let x = Math.floor(a.x), y = Math.floor(a.y);
+        if (x < 0 || x >= W || y < 0 || y >= H) continue;
+        
+        let idx = y * W + x;
+        let state = grid[idx];
+        
+        // 兰顿蚂蚁转向
+        a.dir = (a.dir + (state === 0 ? 1 : 3)) % 4;
+        grid[idx] = 1 - state;
+
+        a.oldX = a.x;
+        a.oldY = a.y;
+
+        // 步进
+        let nx = a.x + DIRS[a.dir][0] * 2;
+        let ny = a.y + DIRS[a.dir][1] * 2;
+
+        if (isInside(nx, ny)) {
+          a.x = nx;
+          a.y = ny;
+        } else {
+          a.dir = (a.dir + 2) % 4;
+        }
+
+        // 绘制电子流线条
+        if (intensity > 0.01) {
+          ctx.beginPath();
+          ctx.strokeStyle = `hsla(${a.hue}, 100%, 70%, ${intensity})`;
+          ctx.moveTo(a.oldX, a.oldY);
+          ctx.lineTo(a.x, a.y);
+          ctx.stroke();
+
+          // 节点装饰
+          if (Math.random() > 0.995) {
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(a.x - 1, a.y - 1, 2, 2);
+          }
+        }
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    requestAnimationFrame(step);
+
+    return () => {};
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="w-full h-full"
+      style={{ width: "100%", height: "100%" }}
+    />
+  );
+}
+
 // 粒子背景
 function ParticleBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -639,11 +798,9 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-black/30" />
         </div>
 
-        {/* 巨型 Z 字母 */}
-        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
-          <h1 className={cn("text-[20vw] lg:text-[18vw] font-bold leading-none text-white/90 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
-            Z
-          </h1>
+        {/* 电子流 Z 字母 */}
+        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10 w-[25vw] lg:w-[20vw] aspect-[1/1.5]">
+          <ZLetterCanvas />
         </div>
 
         {/* 手表指针 */}
