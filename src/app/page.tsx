@@ -793,9 +793,9 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-black/50" />
         </div>
 
-        {/* 电子流 Z 字母 + 青橙色细边框 */}
+        {/* 粒子化 Z 字母 */}
         <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
-          <div className="relative w-[20vw] lg:w-[16vw] aspect-[1/1.5] border border-cyan-400/30 p-2">
+          <div className="relative w-[20vw] lg:w-[16vw] aspect-[1/1.5]">
             <ZLetterCanvas />
           </div>
         </div>
