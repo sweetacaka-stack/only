@@ -287,12 +287,13 @@ function CozeChat({ botId, apiKey }: CozeChatProps) {
 }
 
 const works = [
-  { id: 1, title: "MONOGRAPH", category: "Brand Identity", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" },
-  { id: 2, title: "AURA", category: "Visual Design", image: "https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=2670&auto=format&fit=crop" },
-  { id: 3, title: "VOID", category: "Art Direction", image: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop" },
-  { id: 4, title: "ETHEREAL", category: "Photography", image: "https://images.unsplash.com/photo-1550684376-efcbd6e3f031?q=80&w=2670&auto=format&fit=crop" },
-  { id: 5, title: "METRIC", category: "Data Visualization", image: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=2574&auto=format&fit=crop" },
-  { id: 6, title: "LUMEN", category: "Installation", image: "https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=2574&auto=format&fit=crop" },
+  { id: 1, title: "MONOGRAPH", category: "品牌视觉", image: "/assets/works/work1.png" },
+  { id: 2, title: "AURA", category: "创意设计", image: "/assets/works/work2.png" },
+  { id: 3, title: "VOID", category: "艺术装置", image: "/assets/works/work3.png" },
+  { id: 4, title: "ETHEREAL", category: "品牌视觉", image: "/assets/works/work4.png" },
+  { id: 5, title: "METRIC", category: "创意海报", image: "/assets/works/work5.png" },
+  { id: 6, title: "LUMEN", category: "创意设计", image: "/assets/works/work6.png" },
+  { id: 7, title: "NOVA", category: "品牌视觉", image: "/assets/works/work7.png" },
 ];
 
 // 手表指针组件
@@ -800,15 +801,8 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-black/30" />
         </div>
 
-        {/* 蚂蚁群效果 */}
+        {/* 蚂蚁群效果 - 独立形成 Z 字母 */}
         <TurmiteCanvas />
-
-        {/* 巨型 Z 字母 */}
-        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
-          <h1 className={cn("text-[20vw] lg:text-[18vw] font-bold leading-none text-white/90 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
-            Z
-          </h1>
-        </div>
 
         {/* 手表指针 */}
         <div className="absolute right-[15%] top-1/2 -translate-y-1/2 w-48 h-48 z-10">
