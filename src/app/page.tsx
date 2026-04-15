@@ -334,7 +334,7 @@ function WatchHands() {
   );
 }
 
-// 电子流 Z 字母组件 - 使用遮罩方式
+// 电子流 Z 字母组件 - 粒子化效果
 function ZLetterCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -351,11 +351,11 @@ function ZLetterCanvas() {
     canvas.width = W;
     canvas.height = H;
 
-    // 填充透明背景
+    // 填充黑色背景
     ctx.fillStyle = "rgba(0, 0, 0, 1)";
     ctx.fillRect(0, 0, W, H);
 
-    // 1. 建立硬边缘 Z 遮罩
+    // 建立 Z 字母遮罩
     const mC = document.createElement("canvas");
     mC.width = W;
     mC.height = H;
@@ -376,14 +376,6 @@ function ZLetterCanvas() {
     mctx.stroke();
 
     const maskData = mctx.getImageData(0, 0, W, H).data;
-    const grid = new Uint8Array(W * H);
-
-    const DIRS = [
-      [0, -2],
-      [2, 0],
-      [0, 2],
-      [-2, 0],
-    ];
 
     function isInside(x: number, y: number): boolean {
       const ix = Math.floor(x);
@@ -392,29 +384,35 @@ function ZLetterCanvas() {
       return maskData[(iy * W + ix) * 4] > 200;
     }
 
-    // 2. 初始化 110 条电子流
-    const ants: {
+    // 粒子系统
+    const particles: {
       x: number;
       y: number;
-      oldX: number;
-      oldY: number;
-      dir: number;
+      vx: number;
+      vy: number;
+      life: number;
+      maxLife: number;
       hue: number;
+      size: number;
     }[] = [];
-    for (let i = 0; i < 110; i++) {
+
+    // 初始化粒子
+    for (let i = 0; i < 200; i++) {
       let rx: number, ry: number;
       do {
         rx = 200 + Math.random() * 400;
         ry = 200 + Math.random() * 400;
       } while (!isInside(rx, ry));
 
-      ants.push({
+      particles.push({
         x: rx,
         y: ry,
-        oldX: rx,
-        oldY: ry,
-        dir: Math.floor(Math.random() * 4),
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        life: Math.random() * 60,
+        maxLife: 40 + Math.random() * 40,
         hue: 180 + Math.random() * 40,
+        size: 1 + Math.random() * 2,
       });
     }
 
@@ -422,63 +420,52 @@ function ZLetterCanvas() {
       // 4秒呼吸周期
       const cycle = 4000;
       const progress = (time % cycle) / cycle;
-      const intensity = Math.max(
-        0,
-        Math.pow(Math.sin(progress * Math.PI), 1.5) * 1.2 - 0.2
-      );
+      const intensity = Math.max(0, Math.pow(Math.sin(progress * Math.PI), 1.5) * 1.2 - 0.2);
 
-      // 背景淡化，模拟电子拖尾
-      ctx.fillStyle = `rgba(0, 0, 0, ${0.04 + (1 - intensity) * 0.08})`;
+      // 极低透明度背景
+      ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
       ctx.fillRect(0, 0, W, H);
 
-      // 极慢速度：每帧计算4步
-      const iterations = 4;
-      ctx.lineWidth = 1.5;
+      // 更新和绘制粒子
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life++;
 
-      for (let n = 0; n < iterations; n++) {
-        for (const a of ants) {
-          let x = Math.floor(a.x);
-          let y = Math.floor(a.y);
-          const idx = y * W + x;
+        // 重置超出范围或生命结束的粒子
+        if (!isInside(p.x, p.y) || p.life > p.maxLife) {
+          let rx: number, ry: number;
+          let attempts = 0;
+          do {
+            rx = 200 + Math.random() * 400;
+            ry = 200 + Math.random() * 400;
+            attempts++;
+          } while (!isInside(rx, ry) && attempts < 100);
 
-          const state = grid[idx];
-          a.dir = (a.dir + (state === 0 ? 1 : 3)) % 4;
-          grid[idx] = 1 - state;
-
-          a.oldX = a.x;
-          a.oldY = a.y;
-
-          const nx = a.x + DIRS[a.dir][0];
-          const ny = a.y + DIRS[a.dir][1];
-
-          if (isInside(nx, ny)) {
-            a.x = nx;
-            a.y = ny;
-          } else {
-            a.dir = (a.dir + 2) % 4;
-          }
-
-          // 绘制回路
-          if (intensity > 0.01) {
-            ctx.beginPath();
-            ctx.strokeStyle = `hsla(${a.hue}, 100%, 60%, ${intensity})`;
-            ctx.moveTo(a.oldX, a.oldY);
-            ctx.lineTo(a.x, a.y);
-            ctx.stroke();
-
-            // 节点装饰
-            if (Math.random() > 0.99) {
-              ctx.fillStyle = `hsla(${a.hue}, 100%, 85%, ${intensity})`;
-              ctx.fillRect(a.x - 1.5, a.y - 1.5, 3, 3);
-            }
+          if (isInside(rx, ry)) {
+            p.x = rx;
+            p.y = ry;
+            p.life = 0;
+            p.maxLife = 40 + Math.random() * 40;
+            p.size = 1 + Math.random() * 2;
           }
         }
-      }
 
-      // 微弱轮廓维持
-      ctx.globalAlpha = 0.02;
-      ctx.drawImage(mC, 0, 0);
-      ctx.globalAlpha = 1;
+        // 绘制粒子点
+        if (intensity > 0.1) {
+          const alpha = intensity * (1 - p.life / p.maxLife) * 0.8;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${p.hue}, 100%, 65%, ${alpha})`;
+          ctx.fill();
+
+          // 发光效果
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${p.hue}, 100%, 80%, ${alpha * 0.3})`;
+          ctx.fill();
+        }
+      }
 
       requestAnimationFrame(step);
     }
