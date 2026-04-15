@@ -287,13 +287,12 @@ function CozeChat({ botId, apiKey }: CozeChatProps) {
 }
 
 const works = [
-  { id: 1, title: "MONOGRAPH", category: "品牌视觉", image: "/assets/works/work1.png" },
-  { id: 2, title: "AURA", category: "创意设计", image: "/assets/works/work2.png" },
-  { id: 3, title: "VOID", category: "艺术装置", image: "/assets/works/work3.png" },
-  { id: 4, title: "ETHEREAL", category: "品牌视觉", image: "/assets/works/work4.png" },
-  { id: 5, title: "METRIC", category: "创意海报", image: "/assets/works/work5.png" },
-  { id: 6, title: "LUMEN", category: "创意设计", image: "/assets/works/work6.png" },
-  { id: 7, title: "NOVA", category: "品牌视觉", image: "/assets/works/work7.png" },
+  { id: 1, title: "MONOGRAPH", category: "Brand Identity", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" },
+  { id: 2, title: "AURA", category: "Visual Design", image: "https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=2670&auto=format&fit=crop" },
+  { id: 3, title: "VOID", category: "Art Direction", image: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop" },
+  { id: 4, title: "ETHEREAL", category: "Photography", image: "https://images.unsplash.com/photo-1550684376-efcbd6e3f031?q=80&w=2670&auto=format&fit=crop" },
+  { id: 5, title: "METRIC", category: "Data Visualization", image: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=2574&auto=format&fit=crop" },
+  { id: 6, title: "LUMEN", category: "Installation", image: "https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=2574&auto=format&fit=crop" },
 ];
 
 // 手表指针组件
@@ -397,153 +396,81 @@ function TurmiteCanvas() {
       }
     }
 
-    // 预先绘制完整的 Z 字母到离屏画布
-    function drawZLetter(ctx: CanvasRenderingContext2D, width: number, height: number) {
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const zSize = Math.min(width, height) * 0.35; // Z 大小占屏幕35%
-      const zLeft = centerX - zSize / 2;
-      const zTop = centerY - zSize / 2;
-      const zRight = centerX + zSize / 2;
-      const zBottom = centerY + zSize / 2;
-      const strokeWidth = zSize * 0.08; // 笔画粗细
-
-      ctx.fillStyle = "white";
-
-      // Z 顶部横线
-      for (let x = zLeft; x < zRight; x++) {
-        for (let w = 0; w < strokeWidth; w++) {
-          ctx.fillRect(x, zTop + w, 1, 1);
-        }
-      }
-
-      // Z 斜线 (从左上到右下)
-      for (let i = 0; i < zSize; i++) {
-        for (let w = 0; w < strokeWidth; w++) {
-          ctx.fillRect(zLeft + i, zTop + i + w, 1, 1);
-        }
-      }
-
-      // Z 底部横线
-      for (let x = zLeft; x < zRight; x++) {
-        for (let w = 0; w < strokeWidth; w++) {
-          ctx.fillRect(x, zBottom - strokeWidth + w, 1, 1);
-        }
-      }
-    }
-
-    // 判断点是否在Z字母轮廓范围内
-    function isInZRegion(x: number, y: number, width: number, height: number): boolean {
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const zSize = Math.min(width, height) * 0.35;
-      const zLeft = centerX - zSize / 2;
-      const zTop = centerY - zSize / 2;
-      const zRight = centerX + zSize / 2;
-      const zBottom = centerY + zSize / 2;
-      const strokeWidth = zSize * 0.08;
-
-      // 检查是否在顶部横线区域
-      if (x >= zLeft && x <= zRight && y >= zTop && y <= zTop + strokeWidth) {
-        return true;
-      }
-      // 检查是否在底部横线区域
-      if (x >= zLeft && x <= zRight && y >= zBottom - strokeWidth && y <= zBottom) {
-        return true;
-      }
-      // 检查是否在斜线区域
-      const relX = x - zLeft;
-      const relY = y - zTop;
-      if (relX >= 0 && relX <= zSize && relY >= 0 && relY <= zSize) {
-        // 斜线宽度计算
-        const expectedY = relX;
-        if (Math.abs(relY - expectedY) <= strokeWidth) {
-          return true;
-        }
-      }
-      return false;
-    }
-
     const init = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
 
       vants = [];
+      
+      // Z 字形参数
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const zSize = Math.min(width, height) * 0.35; // Z 大小
+      const zLeft = centerX - zSize / 2;
+      const zTop = centerY - zSize / 2;
+      const zBottom = centerY + zSize / 2;
 
-      // 规则：随机规则
-      function randomRuleset(): number[][][] {
-        return [[randomRule(), randomRule()], [randomRule(), randomRule()]];
+      // 规则：直行、涂黑、无状态变化
+      const drawRule: number[][][] = [[[1, 1, 0], [1, 1, 0]], [[1, 1, 0], [1, 1, 0]]];
+
+      // 1. Z 顶部横线 → 向右
+      vants.push(new Vant(zLeft, zTop, "e", drawRule));
+      // 2. Z 斜线 → 右下
+      vants.push(new Vant(zLeft, zTop, "s", drawRule));
+      // 3. Z 底部横线 → 向右
+      vants.push(new Vant(zLeft, zBottom, "e", drawRule));
+
+      // 补充多只蚂蚁加速绘制 Z
+      vants.push(new Vant(zLeft + 50, zTop, "e", drawRule));
+      vants.push(new Vant(zLeft + 50, zBottom, "e", drawRule));
+      vants.push(new Vant(zLeft + 50, zTop, "s", drawRule));
+
+      // 随机蚂蚁只在Z字母区域内活动
+      for (let i = 0; i <= 3000; i++) {
+        const randX = zLeft + Math.random() * zSize;
+        const randY = zTop + Math.random() * zSize;
+        vants.push(
+          new Vant(randX, randY, ["n", "e", "s", "w"][randBetween(0, 3)], randomRuleset())
+        );
       }
 
-      // 蚂蚁只在Z字母轮廓范围内活动
-      for (let i = 0; i < 500; i++) {
-        // 随机找一个在Z字母范围内的点
-        let randX: number, randY: number;
-        let attempts = 0;
-        do {
-          const centerX = width / 2;
-          const centerY = height / 2;
-          const zSize = Math.min(width, height) * 0.35;
-          randX = (centerX - zSize / 2) + Math.random() * zSize;
-          randY = (centerY - zSize / 2) + Math.random() * zSize;
-          attempts++;
-        } while (!isInZRegion(randX, randY, width, height) && attempts < 100);
-
-        if (attempts < 100) {
-          vants.push(new Vant(randX, randY, ["n", "e", "s", "w"][randBetween(0, 3)], randomRuleset()));
-        }
-      }
-
-      // 初始画布：先绘制完整的Z字母
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, width, height);
-      drawZLetter(ctx, width, height);
+      // 初始画布为透明
+      ctx.clearRect(0, 0, width, height);
     };
 
     const animate = () => {
       vants.forEach((vant) => {
+        vant.color = grid[vant.x]?.[vant.y] ?? 0;
+
+        const rule = vant.rules[vant.state][vant.color];
+        vant.orientation = findOrientation(rule[1], vant.orientation);
+        
+        // 绘制点
+        ctx.fillStyle = rule[0] === 1 ? "#DDDDDD" : "black";
+        ctx.fillRect(vant.x, vant.y, 1, 1);
+        
+        vant.color = rule[0];
+        vant.state = rule[2];
+
+        // 保存到网格
+        if (!grid[vant.x]) grid[vant.x] = {};
+        grid[vant.x][vant.y] = vant.color;
+
         // 蚂蚁移动
         if (vant.orientation === "n") vant.y -= 1;
         else if (vant.orientation === "s") vant.y += 1;
         else if (vant.orientation === "e") vant.x += 1;
-        else if (vant.orientation === "w") vant.x -= 1;
+        else vant.x -= 1;
 
-        // 检查是否在Z字母范围内，如果超出边界则反弹
-        if (!isInZRegion(vant.x, vant.y, width, height)) {
-          // 反转方向
-          if (vant.orientation === "n") vant.orientation = "s";
-          else if (vant.orientation === "s") vant.orientation = "n";
-          else if (vant.orientation === "e") vant.orientation = "w";
-          else if (vant.orientation === "w") vant.orientation = "e";
-          
-          // 重新移动到边界内
-          if (vant.orientation === "n") vant.y -= 1;
-          else if (vant.orientation === "s") vant.y += 1;
-          else if (vant.orientation === "e") vant.x += 1;
-          else if (vant.orientation === "w") vant.x -= 1;
-          
-          // 如果还在界外，重新随机位置
-          if (!isInZRegion(vant.x, vant.y, width, height)) {
-            let attempts = 0;
-            do {
-              const centerX = width / 2;
-              const centerY = height / 2;
-              const zSize = Math.min(width, height) * 0.35;
-              vant.x = (centerX - zSize / 2) + Math.random() * zSize;
-              vant.y = (centerY - zSize / 2) + Math.random() * zSize;
-              attempts++;
-            } while (!isInZRegion(vant.x, vant.y, width, height) && attempts < 50);
-          }
-        }
+        // 边界循环
+        if (vant.x > width) vant.x = 0;
+        if (vant.x < 0) vant.x = width;
+        if (vant.y > height) vant.y = 0;
+        if (vant.y < 0) vant.y = height;
 
-        // 随机改变方向（模拟游走）
-        if (Math.random() < 0.05) {
-          vant.orientation = ["n", "e", "s", "w"][randBetween(0, 3)];
-        }
-
-        // 绘制白色点（留下痕迹）
-        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-        ctx.fillRect(Math.floor(vant.x), Math.floor(vant.y), 2, 2);
+        // 绘制白色点
+        ctx.fillStyle = "white";
+        ctx.fillRect(vant.x, vant.y, 1, 1);
       });
 
       animationId = requestAnimationFrame(animate);
@@ -865,56 +792,57 @@ export default function HomePage() {
 
   return (
     <div className="smooth-container" ref={containerRef}>
-      {/* 第一屏 - 手表满屏背景 + Z字母粒子效果 */}
+      {/* 第一屏 */}
       <section className="relative h-screen w-full overflow-hidden">
-        {/* 手表背景 - 满屏覆盖，居中 */}
+        {/* 背景图片 */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/assets/watch-ref.png" 
-            alt="手表背景" 
-            className="w-full h-full object-cover"
-          />
-          {/* 深色遮罩 */}
-          <div className="absolute inset-0 bg-black/50" />
+          <img src="/assets/手表1.png" alt="背景" className="w-full h-full object-cover brightness-110" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
 
-        {/* 蚂蚁群粒子效果 - Z 字母居中，仅在字母范围内 */}
+        {/* 蚂蚁群效果 */}
         <TurmiteCanvas />
 
-        {/* 顶部信息 */}
-        <div className="absolute top-8 left-8 z-20">
-          <div className="text-xs tracking-[0.2em] text-white/40 mb-2">品牌视觉</div>
-          <div className="text-2xl font-bold tracking-wider text-white/80">WORKS</div>
+        {/* 巨型 Z 字母 */}
+        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
+          <h1 className={cn("text-[20vw] lg:text-[18vw] font-bold leading-none text-white/90 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
+            Z
+          </h1>
+        </div>
+
+        {/* 手表指针 */}
+        <div className="absolute right-[15%] top-1/2 -translate-y-1/2 w-48 h-48 z-10">
+          <WatchHands />
         </div>
 
         {/* 右上角 */}
         <div className="absolute top-8 right-8 z-20">
-          <span className={cn("text-xs tracking-[0.2em] text-white/30 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
+          <span className={cn("text-xs tracking-[0.3em] text-white/50 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
             PORTFOLIO 2026
           </span>
         </div>
 
-        {/* 左下角 - 身份信息 */}
-        <div className="absolute bottom-12 left-8 z-20">
-          <div className={cn("opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}>
-            <div className="text-sm tracking-[0.3em] text-white/50 mb-1">VISUAL DESIGNER</div>
-            <div className="flex gap-2">
-              <span className="text-xl text-white/70" style={{ writingMode: "vertical-rl" }}>视觉</span>
-              <span className="text-xl text-white/70" style={{ writingMode: "vertical-rl" }}>设计师</span>
-            </div>
+        {/* 右侧身份 */}
+        <div className="absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 text-right">
+          <div className={cn("flex gap-4 justify-end mb-4 opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}>
+            <span className="text-lg lg:text-xl text-white/80" style={{ writingMode: "vertical-rl" }}>视觉</span>
+            <span className="text-lg lg:text-xl text-white/80" style={{ writingMode: "vertical-rl" }}>设计师</span>
           </div>
+          <p className={cn("text-sm tracking-[0.3em] text-white/60 opacity-0 animate-fade-in-up delay-300", isLoaded && "opacity-100")}>
+            VISUAL DESIGNER
+          </p>
         </div>
 
         {/* 右下角理念 */}
-        <div className="absolute bottom-12 right-8 z-20 text-right">
-          <p className={cn("text-xs text-white/30 leading-relaxed opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
-            用黑白灰秩序<br />讲述视觉故事
+        <div className="absolute bottom-12 right-8 lg:right-16 z-20 text-right max-w-sm">
+          <p className={cn("text-xs lg:text-sm text-white/40 leading-relaxed opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
+            用黑白灰秩序讲述视觉故事
           </p>
         </div>
 
         {/* 滚动提示 */}
         <div className={cn("absolute bottom-8 left-1/2 -translate-x-1/2 z-20 opacity-0 animate-fade-in-up delay-700", isLoaded && "opacity-100")}>
-          <div className="flex flex-col items-center gap-2 text-white/20 text-xs">
+          <div className="flex flex-col items-center gap-2 text-white/30 text-xs">
             <span>SCROLL</span>
             <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -923,26 +851,25 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 第二屏 - 仅保留标题和导航，删除作品卡片 */}
+      {/* 第二屏 */}
       <section className="relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
-        {/* 渐变背景 */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#0d0d0d] to-[#1a1a1a] z-0" />
-        
         <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: "translateX(-100%)" }} />
-        
-        {/* 居中的 WORKS 标题 */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-          <div ref={titleRef} className="text-xs tracking-[0.3em] text-white/30 mb-4">品牌视觉</div>
-          <h2 className="text-6xl lg:text-8xl font-bold tracking-wider text-white/90">WORKS</h2>
-          <p className="text-sm tracking-[0.2em] text-white/40 mt-6">即将呈现更多精彩作品</p>
-        </div>
-
-        {/* 底部指示器 */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[50] flex gap-2">
+        <div ref={titleRef} className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">WORKS</div>
+        <div className="absolute bottom-8 left-8 z-[50] flex gap-2">
           {works.map((_, i) => (
             <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
           ))}
         </div>
+        {works.map((work, index) => (
+          <div key={`card-${index}`} ref={(el) => { cardsRef.current[index] = el; }} className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]" style={{ backgroundImage: `url(${work.image})` }} />
+        ))}
+        {works.map((work, index) => (
+          <div key={`content-${index}`} ref={(el) => { contentsRef.current[index] = el; }} className="absolute left-0 top-0 text-white z-30">
+            <div className="h-[3px] w-8 bg-white/60 mb-3" />
+            <p className="text-sm tracking-wider text-white/60">{work.category}</p>
+            <p className="text-4xl lg:text-6xl font-bold tracking-wider mt-1">{work.title}</p>
+          </div>
+        ))}
       </section>
 
       {/* 第三屏 */}
