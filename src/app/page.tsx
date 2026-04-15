@@ -382,7 +382,7 @@ function ZLetterCanvas() {
     }
 
     // 2. 电子流系统
-    const ants = Array.from({ length: 110 }, () => {
+    const ants = Array.from({ length: 350 }, () => {
       let rx: number, ry: number;
       do {
         rx = 200 + Math.random() * 400;
@@ -395,7 +395,7 @@ function ZLetterCanvas() {
         oldX: rx,
         oldY: ry,
         dir: Math.floor(Math.random() * 4),
-        hue: 185 + Math.random() * 30,
+        hue: 180 + Math.random() * 40,
       };
     });
 
@@ -408,15 +408,15 @@ function ZLetterCanvas() {
 
       // 透明背景下的"拖尾"实现
       ctx.globalCompositeOperation = "destination-out";
-      ctx.fillStyle = `rgba(255, 255, 255, ${0.05 + (1 - intensity) * 0.1})`;
+      ctx.fillStyle = `rgba(255, 255, 255, ${0.08 + (1 - intensity) * 0.15})`;
       ctx.fillRect(0, 0, W, H);
 
       // 切回正常绘制模式
       ctx.globalCompositeOperation = "source-over";
 
-      // 极慢速度：每帧只跑 1 次迭代
-      const iterations = 1;
-      ctx.lineWidth = 1.2;
+      // 增加迭代次数让线条更密集
+      const iterations = 3;
+      ctx.lineWidth = 1.5;
 
       for (let n = 0; n < iterations; n++) {
         for (const a of ants) {
