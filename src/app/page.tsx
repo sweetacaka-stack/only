@@ -54,7 +54,8 @@ function CozeChat({ botId, apiKey }: CozeChatProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("https://api.coze.cn/v3/chat", {
+      // 第一步：创建对话会话
+      const createResponse = await fetch("https://api.coze.cn/v3/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -64,7 +65,7 @@ function CozeChat({ botId, apiKey }: CozeChatProps) {
           bot_id: botId,
           user_id: "web_user",
           stream: true,
-          auto_save_history: false,
+          auto_save_history: true,
           additional_messages: [
             {
               role: "user",
@@ -75,12 +76,16 @@ function CozeChat({ botId, apiKey }: CozeChatProps) {
         })
       });
 
-      if (!response.ok) throw new Error("API 请求失败");
+      if (!createResponse.ok) {
+        const errorText = await createResponse.text();
+        throw new Error(`API 请求失败: ${errorText}`);
+      }
 
-      const reader = response.body?.getReader();
+      const reader = createResponse.body?.getReader();
       const decoder = new TextDecoder();
       let assistantMessage = "";
       const assistantMsgId = (Date.now() + 1).toString();
+      let messageComplete = false;
 
       // 添加空的 assistant 消息
       setMessages(prev => [...prev, {
@@ -89,30 +94,49 @@ function CozeChat({ botId, apiKey }: CozeChatProps) {
         content: ""
       }]);
 
-      while (reader) {
+      while (reader && !messageComplete) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
+        const chunk = decoder.decode(value, { stream: true });
         const lines = chunk.split("\n");
 
         for (const line of lines) {
+          if (!line.trim()) continue;
+          
+          // Coze 流式响应格式：event: xxx\ndata: {...}
           if (line.startsWith("data:")) {
             try {
               const data = JSON.parse(line.slice(5));
-              if (data.data?.content) {
-                assistantMessage += data.data.content;
+              
+              // 处理 delta 格式 - 内容在 delta.content 中
+              if (data.delta?.content) {
+                assistantMessage += data.delta.content;
                 setMessages(prev => prev.map(msg =>
                   msg.id === assistantMsgId
                     ? { ...msg, content: assistantMessage }
                     : msg
                 ));
               }
+              
+              // 检测消息结束
+              if (line.includes('"type":"finish"') || data.type === "finish") {
+                messageComplete = true;
+              }
             } catch (e) {
               // 忽略解析错误
             }
           }
         }
+      }
+
+      // 如果没有收到任何内容，添加默认回复
+      if (!assistantMessage.trim()) {
+        setMessages(prev => prev.map(msg =>
+          msg.id === assistantMsgId
+            ? { ...msg, content: "我已收到你的消息，正在思考..." }
+            : msg
+        ));
       }
     } catch (error) {
       console.error("发送消息失败:", error);
