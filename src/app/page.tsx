@@ -794,7 +794,7 @@ export default function HomePage() {
 
   return (
     <div className="smooth-container" ref={containerRef}>
-      {/* 第一屏 - 极简版：只有电子流 Z 字母 */}
+      {/* 第一屏 */}
       <section className="relative h-screen w-full overflow-hidden">
         {/* 手表背景图片 - 满屏显示 */}
         <div className="absolute inset-0 z-0">
@@ -807,9 +807,49 @@ export default function HomePage() {
         </div>
 
         {/* 电子流 Z 字母 + 青橙色细边框 */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-          <div className="relative w-[30vw] lg:w-[24vw] aspect-[1/1.5] border border-cyan-400/30 p-2">
+        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
+          <div className="relative w-[20vw] lg:w-[16vw] aspect-[1/1.5] border border-cyan-400/30 p-2">
             <ZLetterCanvas />
+          </div>
+        </div>
+
+        {/* 手表指针 */}
+        <div className="absolute right-[15%] top-1/2 -translate-y-1/2 w-48 h-48 z-10">
+          <WatchHands />
+        </div>
+
+        {/* 右上角 */}
+        <div className="absolute top-8 right-8 z-20">
+          <span className={cn("text-xs tracking-[0.3em] text-white/50 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
+            PORTFOLIO 2026
+          </span>
+        </div>
+
+        {/* 右侧身份 */}
+        <div className="absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 text-right">
+          <div className={cn("flex gap-4 justify-end mb-4 opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}>
+            <span className="text-lg lg:text-xl text-white/80" style={{ writingMode: "vertical-rl" }}>视觉</span>
+            <span className="text-lg lg:text-xl text-white/80" style={{ writingMode: "vertical-rl" }}>设计师</span>
+          </div>
+          <p className={cn("text-sm tracking-[0.3em] text-white/60 opacity-0 animate-fade-in-up delay-300", isLoaded && "opacity-100")}>
+            VISUAL DESIGNER
+          </p>
+        </div>
+
+        {/* 右下角理念 */}
+        <div className="absolute bottom-12 right-8 lg:right-16 z-20 text-right max-w-sm">
+          <p className={cn("text-xs lg:text-sm text-white/40 leading-relaxed opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
+            用黑白灰秩序讲述视觉故事
+          </p>
+        </div>
+
+        {/* 滚动提示 */}
+        <div className={cn("absolute bottom-8 left-1/2 -translate-x-1/2 z-20 opacity-0 animate-fade-in-up delay-700", isLoaded && "opacity-100")}>
+          <div className="flex flex-col items-center gap-2 text-white/30 text-xs">
+            <span>SCROLL</span>
+            <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
           </div>
         </div>
       </section>
