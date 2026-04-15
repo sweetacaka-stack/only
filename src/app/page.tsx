@@ -287,12 +287,12 @@ function CozeChat({ botId, apiKey }: CozeChatProps) {
 }
 
 const works = [
-  { id: 1, title: "MONOGRAPH", category: "Brand Identity", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0a582b534cae1df4174469b487e2c56667967c20fafeea97abc00a586baee02a.png&nonce=f1dd96c0-5e1f-4537-b813-05cce5cfdce8&project_id=7628526330237288488&sign=49691334a132177ca4ffe4dcc1e2149d12ab7bba90e275b6feb3a95b94981b4e" },
-  { id: 2, title: "AURA", category: "Visual Design", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0fc3ec76c63e9c9019bbbafd74fe55acf75d5fa1428fd911391a856c9a707f4b.png&nonce=31b1f11a-d26b-4457-af09-d53fd1655f5b&project_id=7628526330237288488&sign=0deb2f05745913ea6af906b62603e4b2e9064a119abb72aa8200817eac9e7210" },
-  { id: 3, title: "VOID", category: "Art Direction", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F4cbf9d2d2d36c6f2c2c702885afd68f8ecd66b61884f1c935083d05334cf8b62.png&nonce=031f025d-f83a-4117-88d9-3b4e6cb5978f&project_id=7628526330237288488&sign=ca22263cd83a4e7da40238c252b65949fbbb891b04adad37199b8a1babf0a044" },
-  { id: 4, title: "ETHEREAL", category: "Photography", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F169c2123358334785d6f02aa2e94444426dafea11a22abc037aea6477fd349fc.png&nonce=071f678d-9a54-4ccf-891b-4408d5a3dc80&project_id=7628526330237288488&sign=5e33a5db9fa756f9dfe67df5bd671b31d0f7cbe08b2d72b08bfa160a8cc193cc" },
-  { id: 5, title: "METRIC", category: "Data Visualization", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F118676e7546be4bb7580f2c31f56aca42cee7193ef7a86ec3049b656b81ea846.png&nonce=822e0f72-170a-4b79-a17f-57e0711f70f3&project_id=7628526330237288488&sign=151b7b52bc91f46959413f387facb2c0478e317f344dff0e37c5136c63b60cc6" },
-  { id: 6, title: "LUMEN", category: "Installation", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2Fsp260415_151645.png&nonce=7becf274-4113-435f-b748-991f2c883ac7&project_id=7628526330237288488&sign=9b60c1e9be7ef8a79fae6de00ddaebda73595655aaae72a9476e555f699da77b" },
+  { id: 1, title: "MONOGRAPH", category: "Brand Identity", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2Fb2c17deea19eb100c6291198bb9c92c69235b8092dbe59ccf23c693987dc3e85.png&nonce=e6cdf224-c486-40f0-91c9-bbc87cb4feee&project_id=7628526330237288488&sign=5765c39e540e757ad689716ee1e01a67ed3f8a437cbd3c774a2d18d79734a1b8" },
+  { id: 2, title: "AURA", category: "Visual Design", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0a582b534cae1df4174469b487e2c56667967c20fafeea97abc00a586baee02a.png&nonce=0111348a-bb7a-47bf-a5b4-e8e722f19205&project_id=7628526330237288488&sign=514041380476eab1bb10da905f415fa3a349bf0e55b78766c05badd8534d2b04" },
+  { id: 3, title: "VOID", category: "Art Direction", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0fc3ec76c63e9c9019bbbafd74fe55acf75d5fa1428fd911391a856c9a707f4b.png&nonce=b289ae8d-88ed-4cc0-8ca9-eb6feeabfe2e&project_id=7628526330237288488&sign=2e8ee79250d9c94eb1d1286469cf68f076a8e89fbd169a89b9befe326e6b8af6" },
+  { id: 4, title: "ETHEREAL", category: "Photography", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F3f3bea175ebb1d23a37de7c4805d9d998f5659cd1a272e4601e2ec740b78a904.png&nonce=d6769453-a409-4ba4-bfe0-7d0f65e4ad01&project_id=7628526330237288488&sign=1a2b34db9d831af35a99a7c95ff5602259fa5d394646eed6794a218f46d5cbc0" },
+  { id: 5, title: "METRIC", category: "Data Visualization", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F4cbf9d2d2d36c6f2c2c702885afd68f8ecd66b61884f1c935083d05334cf8b62.png&nonce=ac78c54c-8d7a-4924-9f24-2d6af074ea4d&project_id=7628526330237288488&sign=733958909a9dbe6b6f1d243684c2389bd6bb6337e15da5c768f88055b363e8e7" },
+  { id: 6, title: "LUMEN", category: "Installation", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2Fsp260415_151645.png&nonce=2b8adfc5-c944-4174-9e22-a1c97de1000e&project_id=7628526330237288488&sign=615824e13095af5cf418d8c43e4961888e0c0467f81453775e97b815dec6bd20" },
 ];
 
 // 手表指针组件
@@ -440,23 +440,126 @@ function ParticleBackground() {
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const worksContainerRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const contentsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const dotsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const indicatorRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const orderRef = useRef<number[]>([0, 1, 2, 3, 4, 5]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), 300);
     return () => clearTimeout(timer);
   }, []);
 
-  // 全屏轮播
+  // GSAP 卡片轮播
   useEffect(() => {
     if (currentSection !== 1) return;
 
-    const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % works.length);
-    }, 4000);
+    let isActive = true;
+    const cardWidth = 200;
+    const cardHeight = 300;
+    const gap = 40;
 
-    return () => clearInterval(interval);
+    const initDelay = setTimeout(() => {
+      const ctx = gsap.context(() => {
+        const { innerHeight: height, innerWidth: width } = window;
+        const offsetTop = height - 430;
+        const offsetLeft = width - 830;
+
+        const initAnimation = () => {
+          const [active, ...rest] = orderRef.current;
+
+          gsap.set(cardsRef.current[active], { x: 0, y: 0, width, height, borderRadius: 0, zIndex: 20 });
+          gsap.set(contentsRef.current[active], { x: 60, y: 240, opacity: 0 });
+          gsap.to(contentsRef.current[active], { opacity: 1, duration: 0.5, delay: 0.3 });
+
+          rest.forEach((i, index) => {
+            gsap.set(cardsRef.current[i], {
+              x: offsetLeft + 400 + index * (cardWidth + gap),
+              y: offsetTop,
+              width: cardWidth,
+              height: cardHeight,
+              zIndex: 30,
+              borderRadius: 8,
+            });
+            gsap.set(contentsRef.current[i], {
+              x: offsetLeft + 400 + index * (cardWidth + gap) + 20,
+              y: offsetTop + cardHeight - 50,
+              zIndex: 40,
+              opacity: 1,
+            });
+          });
+
+          gsap.from(titleRef.current, { opacity: 0, y: -20, duration: 0.6, delay: 0.2 });
+
+          dotsRef.current.forEach((dot, i) => {
+            gsap.set(dot, { backgroundColor: i === active ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0.2)" });
+          });
+
+          setTimeout(() => { if (isActive) runLoop(); }, 800);
+        };
+
+        const step = () => {
+          orderRef.current.push(orderRef.current.shift()!);
+          const ease = "sine.inOut";
+
+          const [active, ...rest] = orderRef.current;
+          const prv = rest[rest.length - 1];
+
+          dotsRef.current.forEach((dot, i) => {
+            gsap.to(dot, { backgroundColor: i === active ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0.2)", duration: 0.3 });
+          });
+
+          gsap.to(contentsRef.current[prv], { opacity: 0, y: 200, duration: 0.4, ease });
+
+          gsap.set(cardsRef.current[prv], { zIndex: 10 });
+          gsap.to(cardsRef.current[prv], { scale: 0.8, ease, duration: 0.4 });
+
+          gsap.set(cardsRef.current[active], { zIndex: 20 });
+          gsap.to(cardsRef.current[active], { x: 0, y: 0, width, height, borderRadius: 0, ease, duration: 0.5 });
+
+          gsap.set(contentsRef.current[active], { x: 60, y: 240 });
+          gsap.to(contentsRef.current[active], { opacity: 1, y: 240, duration: 0.4, delay: 0.3, ease });
+
+          rest.forEach((i, index) => {
+            if (i !== prv) {
+              const xNew = offsetLeft + index * (cardWidth + gap);
+              gsap.to(cardsRef.current[i], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, ease, duration: 0.5, delay: 0.1 });
+              gsap.to(contentsRef.current[i], { x: xNew + 20, y: offsetTop + cardHeight - 50, opacity: 1, ease, duration: 0.5, delay: 0.1 });
+            }
+          });
+
+          setTimeout(() => {
+            const xNew = offsetLeft + (rest.length - 1) * (cardWidth + gap);
+            gsap.set(cardsRef.current[prv], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, zIndex: 30, borderRadius: 8, scale: 1 });
+            gsap.set(contentsRef.current[prv], { x: xNew + 20, y: offsetTop + cardHeight - 50, opacity: 1, zIndex: 40 });
+          }, 600);
+        };
+
+        const runLoop = async () => {
+          if (!isActive) return;
+          gsap.set(indicatorRef.current, { x: -width });
+          await new Promise((resolve) => gsap.to(indicatorRef.current, { x: 0, duration: 2, ease: "none", onComplete: resolve }));
+          if (!isActive) return;
+          await new Promise((resolve) => gsap.to(indicatorRef.current, { x: width, duration: 0.6, delay: 0.3, ease: "power2.inOut", onComplete: resolve }));
+          if (!isActive) return;
+          step();
+          if (isActive) runLoop();
+        };
+
+        initAnimation();
+      }, worksContainerRef);
+
+      return () => { ctx.revert(); };
+    }, 100);
+
+    return () => {
+      isActive = false;
+      clearTimeout(initDelay);
+    };
   }, [currentSection]);
 
   // 平滑滚动
@@ -529,11 +632,11 @@ export default function HomePage() {
         {/* 背景图片 */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0a582b534cae1df4174469b487e2c56667967c20fafeea97abc00a586baee02a.png&nonce=f1dd96c0-5e1f-4537-b813-05cce5cfdce8&project_id=7628526330237288488&sign=49691334a132177ca4ffe4dcc1e2149d12ab7bba90e275b6feb3a95b94981b4e"
+            src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F%E6%89%8B%E8%A1%A81.png&nonce=afabf5e0-2696-490a-9a79-6719fdf7089c&project_id=7628526330237288488&sign=ac6637b0dce6aa62ecbd7e53986b5d72c772bd7b4f6b9764023547763eb0f030"
             alt="背景"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
 
         {/* 巨型 Z 字母 */}
@@ -585,51 +688,24 @@ export default function HomePage() {
       </section>
 
       {/* 第二屏 */}
-      <section className="relative h-screen w-full overflow-hidden">
-        {/* 全屏轮播图片 */}
-        {works.map((work, index) => (
-          <div
-            key={`slide-${index}`}
-            className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
-            style={{
-              opacity: currentSlide === index ? 1 : 0,
-              zIndex: currentSlide === index ? 10 : 0
-            }}
-          >
-            <img
-              src={work.image}
-              alt={work.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black/30" />
-          </div>
-        ))}
-
-        {/* 内容层 */}
-        <div className="absolute inset-0 z-20 flex items-center justify-center">
-          <div className="text-center text-white">
-            <div className="h-[3px] w-12 bg-white/60 mx-auto mb-4" />
-            <p className="text-sm tracking-[0.3em] text-white/60 mb-2">{works[currentSlide].category}</p>
-            <p className="text-5xl lg:text-7xl font-bold tracking-wider">{works[currentSlide].title}</p>
-          </div>
-        </div>
-
-        {/* 标题 */}
-        <div className="absolute left-8 top-8 z-30 text-xs tracking-[0.3em] text-white/40">WORKS</div>
-
-        {/* 底部指示器 */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-3">
+      <section className="relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
+        <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: "translateX(-100%)" }} />
+        <div ref={titleRef} className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">WORKS</div>
+        <div className="absolute bottom-8 left-8 z-[50] flex gap-2">
           {works.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentSlide(i)}
-              className={cn(
-                "h-0.5 rounded-full transition-all duration-300",
-                currentSlide === i ? "w-12 bg-white/80" : "w-8 bg-white/30 hover:bg-white/50"
-              )}
-            />
+            <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
           ))}
         </div>
+        {works.map((work, index) => (
+          <div key={`card-${index}`} ref={(el) => { cardsRef.current[index] = el; }} className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]" style={{ backgroundImage: `url(${work.image})` }} />
+        ))}
+        {works.map((work, index) => (
+          <div key={`content-${index}`} ref={(el) => { contentsRef.current[index] = el; }} className="absolute left-0 top-0 text-white z-30">
+            <div className="h-[3px] w-8 bg-white/60 mb-3" />
+            <p className="text-sm tracking-wider text-white/60">{work.category}</p>
+            <p className="text-4xl lg:text-6xl font-bold tracking-wider mt-1">{work.title}</p>
+          </div>
+        ))}
       </section>
 
       {/* 第三屏 */}
