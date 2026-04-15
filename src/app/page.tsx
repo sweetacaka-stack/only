@@ -792,13 +792,22 @@ export default function HomePage() {
     <div className="smooth-container" ref={containerRef}>
       {/* 第一屏 */}
       <section className="relative h-screen w-full overflow-hidden">
-        {/* 电子流 Z 字母背景 */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
-          <ZLetterCanvas />
+        {/* 手表背景图片 */}
+        <div className="absolute inset-0 z-0 flex items-center justify-center">
+          <img
+            src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F%E6%89%8B%E8%A1%A81.png&nonce=afabf5e0-2696-490a-9a79-6719fdf7089c&project_id=7628526330237288488&sign=ac6637b0dce6aa62ecbd7e53986b5d72c772bd7b4f6b9764023547763eb0f030"
+            alt="背景"
+            className="w-full h-full object-contain"
+          />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
 
-        {/* 半透明遮罩 */}
-        <div className="absolute inset-0 z-[1] bg-black/20" />
+        {/* 电子流 Z 字母 + 红色边框容器 */}
+        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
+          <div className="relative w-[20vw] lg:w-[16vw] aspect-[1/1.5] border border-orange-500/40 p-2">
+            <ZLetterCanvas />
+          </div>
+        </div>
 
         {/* 手表指针 */}
         <div className="absolute right-[15%] top-1/2 -translate-y-1/2 w-48 h-48 z-10">
