@@ -351,9 +351,8 @@ function ZLetterCanvas() {
     canvas.width = W;
     canvas.height = H;
 
-    // 填充黑色背景
-    ctx.fillStyle = "rgba(0, 0, 0, 1)";
-    ctx.fillRect(0, 0, W, H);
+    // 透明背景（不填充黑色）
+    ctx.clearRect(0, 0, W, H);
 
     // 建立 Z 字母遮罩
     const mC = document.createElement("canvas");
@@ -422,8 +421,8 @@ function ZLetterCanvas() {
       const progress = (time % cycle) / cycle;
       const intensity = Math.max(0, Math.pow(Math.sin(progress * Math.PI), 1.5) * 1.2 - 0.2);
 
-      // 极低透明度背景
-      ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      // 极低透明度背景（模拟拖尾）
+      ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
       ctx.fillRect(0, 0, W, H);
 
       // 更新和绘制粒子
