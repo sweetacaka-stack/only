@@ -287,12 +287,12 @@ function CozeChat({ botId, apiKey }: CozeChatProps) {
 }
 
 const works = [
-  { id: 1, title: "MONOGRAPH", category: "Brand Identity", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" },
-  { id: 2, title: "AURA", category: "Visual Design", image: "https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=2670&auto=format&fit=crop" },
-  { id: 3, title: "VOID", category: "Art Direction", image: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop" },
-  { id: 4, title: "ETHEREAL", category: "Photography", image: "https://images.unsplash.com/photo-1550684376-efcbd6e3f031?q=80&w=2670&auto=format&fit=crop" },
-  { id: 5, title: "METRIC", category: "Data Visualization", image: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=2574&auto=format&fit=crop" },
-  { id: 6, title: "LUMEN", category: "Installation", image: "https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=2574&auto=format&fit=crop" },
+  { id: 1, title: "MONOGRAPH", category: "Brand Identity", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0a582b534cae1df4174469b487e2c56667967c20fafeea97abc00a586baee02a.png&nonce=f1dd96c0-5e1f-4537-b813-05cce5cfdce8&project_id=7628526330237288488&sign=49691334a132177ca4ffe4dcc1e2149d12ab7bba90e275b6feb3a95b94981b4e" },
+  { id: 2, title: "AURA", category: "Visual Design", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0fc3ec76c63e9c9019bbbafd74fe55acf75d5fa1428fd911391a856c9a707f4b.png&nonce=31b1f11a-d26b-4457-af09-d53fd1655f5b&project_id=7628526330237288488&sign=0deb2f05745913ea6af906b62603e4b2e9064a119abb72aa8200817eac9e7210" },
+  { id: 3, title: "VOID", category: "Art Direction", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F4cbf9d2d2d36c6f2c2c702885afd68f8ecd66b61884f1c935083d05334cf8b62.png&nonce=031f025d-f83a-4117-88d9-3b4e6cb5978f&project_id=7628526330237288488&sign=ca22263cd83a4e7da40238c252b65949fbbb891b04adad37199b8a1babf0a044" },
+  { id: 4, title: "ETHEREAL", category: "Photography", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F169c2123358334785d6f02aa2e94444426dafea11a22abc037aea6477fd349fc.png&nonce=071f678d-9a54-4ccf-891b-4408d5a3dc80&project_id=7628526330237288488&sign=5e33a5db9fa756f9dfe67df5bd671b31d0f7cbe08b2d72b08bfa160a8cc193cc" },
+  { id: 5, title: "METRIC", category: "Data Visualization", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F118676e7546be4bb7580f2c31f56aca42cee7193ef7a86ec3049b656b81ea846.png&nonce=822e0f72-170a-4b79-a17f-57e0711f70f3&project_id=7628526330237288488&sign=151b7b52bc91f46959413f387facb2c0478e317f344dff0e37c5136c63b60cc6" },
+  { id: 6, title: "LUMEN", category: "Installation", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2Fsp260415_151645.png&nonce=7becf274-4113-435f-b748-991f2c883ac7&project_id=7628526330237288488&sign=9b60c1e9be7ef8a79fae6de00ddaebda73595655aaae72a9476e555f699da77b" },
 ];
 
 // 手表指针组件
@@ -331,171 +331,6 @@ function WatchHands() {
       <div ref={secondRef} className="absolute w-px h-24 bg-white/40 origin-bottom" />
       <div className="absolute w-2 h-2 rounded-full bg-white/90" />
     </div>
-  );
-}
-
-// 蚂蚁群粒子效果 - 形成 Z 字母
-function TurmiteCanvas() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animationId: number;
-    const grid: Record<number, Record<number, number>> = {};
-    let vants: Vant[] = [];
-    let width = 0;
-    let height = 0;
-
-    class Vant {
-      x: number;
-      y: number;
-      orientation: string;
-      state: number;
-      color: number;
-      rules: number[][][];
-
-      constructor(x: number, y: number, orientation: string, rules: number[][][]) {
-        this.x = x;
-        this.y = y;
-        this.orientation = orientation;
-        this.state = 0;
-        this.color = 0;
-        this.rules = rules;
-      }
-    }
-
-    function randBetween(min: number, max: number): number {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function randomRule(): number[] {
-      return [randBetween(0, 1), [1, 2, 4, 8][randBetween(0, 3)], randBetween(0, 1)];
-    }
-
-    function randomRuleset(): number[][][] {
-      return [[randomRule(), randomRule()], [randomRule(), randomRule()]];
-    }
-
-    function findOrientation(dir: number, ori: string): string {
-      if (dir === 1) return ori;
-      else if (dir === 4) {
-        if (ori === "n") return "s";
-        else if (ori === "s") return "n";
-        else if (ori === "e") return "w";
-        else return "e";
-      } else {
-        if (ori === "n") return dir === 2 ? "e" : "w";
-        else if (ori === "e") return dir === 2 ? "s" : "n";
-        else if (ori === "s") return dir === 2 ? "w" : "e";
-        else return dir === 2 ? "n" : "s";
-      }
-    }
-
-    const init = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-
-      vants = [];
-      
-      // Z 字形参数
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const zSize = Math.min(width, height) * 0.35; // Z 大小
-      const zLeft = centerX - zSize / 2;
-      const zTop = centerY - zSize / 2;
-      const zBottom = centerY + zSize / 2;
-
-      // 规则：直行、涂黑、无状态变化
-      const drawRule: number[][][] = [[[1, 1, 0], [1, 1, 0]], [[1, 1, 0], [1, 1, 0]]];
-
-      // 1. Z 顶部横线 → 向右
-      vants.push(new Vant(zLeft, zTop, "e", drawRule));
-      // 2. Z 斜线 → 右下
-      vants.push(new Vant(zLeft, zTop, "s", drawRule));
-      // 3. Z 底部横线 → 向右
-      vants.push(new Vant(zLeft, zBottom, "e", drawRule));
-
-      // 补充多只蚂蚁加速绘制 Z
-      vants.push(new Vant(zLeft + 50, zTop, "e", drawRule));
-      vants.push(new Vant(zLeft + 50, zBottom, "e", drawRule));
-      vants.push(new Vant(zLeft + 50, zTop, "s", drawRule));
-
-      // 随机蚂蚁只在Z字母区域内活动
-      for (let i = 0; i <= 3000; i++) {
-        const randX = zLeft + Math.random() * zSize;
-        const randY = zTop + Math.random() * zSize;
-        vants.push(
-          new Vant(randX, randY, ["n", "e", "s", "w"][randBetween(0, 3)], randomRuleset())
-        );
-      }
-
-      // 初始画布为透明
-      ctx.clearRect(0, 0, width, height);
-    };
-
-    const animate = () => {
-      vants.forEach((vant) => {
-        vant.color = grid[vant.x]?.[vant.y] ?? 0;
-
-        const rule = vant.rules[vant.state][vant.color];
-        vant.orientation = findOrientation(rule[1], vant.orientation);
-        
-        // 绘制点
-        ctx.fillStyle = rule[0] === 1 ? "#DDDDDD" : "black";
-        ctx.fillRect(vant.x, vant.y, 1, 1);
-        
-        vant.color = rule[0];
-        vant.state = rule[2];
-
-        // 保存到网格
-        if (!grid[vant.x]) grid[vant.x] = {};
-        grid[vant.x][vant.y] = vant.color;
-
-        // 蚂蚁移动
-        if (vant.orientation === "n") vant.y -= 1;
-        else if (vant.orientation === "s") vant.y += 1;
-        else if (vant.orientation === "e") vant.x += 1;
-        else vant.x -= 1;
-
-        // 边界循环
-        if (vant.x > width) vant.x = 0;
-        if (vant.x < 0) vant.x = width;
-        if (vant.y > height) vant.y = 0;
-        if (vant.y < 0) vant.y = height;
-
-        // 绘制白色点
-        ctx.fillStyle = "white";
-        ctx.fillRect(vant.x, vant.y, 1, 1);
-      });
-
-      animationId = requestAnimationFrame(animate);
-    };
-
-    init();
-    animationId = requestAnimationFrame(animate);
-
-    window.addEventListener("resize", () => {
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, width, height);
-      init();
-    });
-
-    return () => {
-      cancelAnimationFrame(animationId);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ zIndex: 5 }}
-    />
   );
 }
 
@@ -605,126 +440,23 @@ function ParticleBackground() {
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const worksContainerRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const contentsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const dotsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const indicatorRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const orderRef = useRef<number[]>([0, 1, 2, 3, 4, 5]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), 300);
     return () => clearTimeout(timer);
   }, []);
 
-  // GSAP 卡片轮播
+  // 全屏轮播
   useEffect(() => {
     if (currentSection !== 1) return;
 
-    let isActive = true;
-    const cardWidth = 200;
-    const cardHeight = 300;
-    const gap = 40;
+    const interval = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % works.length);
+    }, 4000);
 
-    const initDelay = setTimeout(() => {
-      const ctx = gsap.context(() => {
-        const { innerHeight: height, innerWidth: width } = window;
-        const offsetTop = height - 430;
-        const offsetLeft = width - 830;
-
-        const initAnimation = () => {
-          const [active, ...rest] = orderRef.current;
-
-          gsap.set(cardsRef.current[active], { x: 0, y: 0, width, height, borderRadius: 0, zIndex: 20 });
-          gsap.set(contentsRef.current[active], { x: 60, y: 240, opacity: 0 });
-          gsap.to(contentsRef.current[active], { opacity: 1, duration: 0.5, delay: 0.3 });
-
-          rest.forEach((i, index) => {
-            gsap.set(cardsRef.current[i], {
-              x: offsetLeft + 400 + index * (cardWidth + gap),
-              y: offsetTop,
-              width: cardWidth,
-              height: cardHeight,
-              zIndex: 30,
-              borderRadius: 8,
-            });
-            gsap.set(contentsRef.current[i], {
-              x: offsetLeft + 400 + index * (cardWidth + gap) + 20,
-              y: offsetTop + cardHeight - 50,
-              zIndex: 40,
-              opacity: 1,
-            });
-          });
-
-          gsap.from(titleRef.current, { opacity: 0, y: -20, duration: 0.6, delay: 0.2 });
-
-          dotsRef.current.forEach((dot, i) => {
-            gsap.set(dot, { backgroundColor: i === active ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0.2)" });
-          });
-
-          setTimeout(() => { if (isActive) runLoop(); }, 800);
-        };
-
-        const step = () => {
-          orderRef.current.push(orderRef.current.shift()!);
-          const ease = "sine.inOut";
-
-          const [active, ...rest] = orderRef.current;
-          const prv = rest[rest.length - 1];
-
-          dotsRef.current.forEach((dot, i) => {
-            gsap.to(dot, { backgroundColor: i === active ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0.2)", duration: 0.3 });
-          });
-
-          gsap.to(contentsRef.current[prv], { opacity: 0, y: 200, duration: 0.4, ease });
-
-          gsap.set(cardsRef.current[prv], { zIndex: 10 });
-          gsap.to(cardsRef.current[prv], { scale: 0.8, ease, duration: 0.4 });
-
-          gsap.set(cardsRef.current[active], { zIndex: 20 });
-          gsap.to(cardsRef.current[active], { x: 0, y: 0, width, height, borderRadius: 0, ease, duration: 0.5 });
-
-          gsap.set(contentsRef.current[active], { x: 60, y: 240 });
-          gsap.to(contentsRef.current[active], { opacity: 1, y: 240, duration: 0.4, delay: 0.3, ease });
-
-          rest.forEach((i, index) => {
-            if (i !== prv) {
-              const xNew = offsetLeft + index * (cardWidth + gap);
-              gsap.to(cardsRef.current[i], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, ease, duration: 0.5, delay: 0.1 });
-              gsap.to(contentsRef.current[i], { x: xNew + 20, y: offsetTop + cardHeight - 50, opacity: 1, ease, duration: 0.5, delay: 0.1 });
-            }
-          });
-
-          setTimeout(() => {
-            const xNew = offsetLeft + (rest.length - 1) * (cardWidth + gap);
-            gsap.set(cardsRef.current[prv], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, zIndex: 30, borderRadius: 8, scale: 1 });
-            gsap.set(contentsRef.current[prv], { x: xNew + 20, y: offsetTop + cardHeight - 50, opacity: 1, zIndex: 40 });
-          }, 600);
-        };
-
-        const runLoop = async () => {
-          if (!isActive) return;
-          gsap.set(indicatorRef.current, { x: -width });
-          await new Promise((resolve) => gsap.to(indicatorRef.current, { x: 0, duration: 2, ease: "none", onComplete: resolve }));
-          if (!isActive) return;
-          await new Promise((resolve) => gsap.to(indicatorRef.current, { x: width, duration: 0.6, delay: 0.3, ease: "power2.inOut", onComplete: resolve }));
-          if (!isActive) return;
-          step();
-          if (isActive) runLoop();
-        };
-
-        initAnimation();
-      }, worksContainerRef);
-
-      return () => { ctx.revert(); };
-    }, 100);
-
-    return () => {
-      isActive = false;
-      clearTimeout(initDelay);
-    };
+    return () => clearInterval(interval);
   }, [currentSection]);
 
   // 平滑滚动
@@ -796,12 +528,13 @@ export default function HomePage() {
       <section className="relative h-screen w-full overflow-hidden">
         {/* 背景图片 */}
         <div className="absolute inset-0 z-0">
-          <img src="/assets/手表1.png" alt="背景" className="w-full h-full object-cover brightness-110" />
-          <div className="absolute inset-0 bg-black/30" />
+          <img
+            src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0a582b534cae1df4174469b487e2c56667967c20fafeea97abc00a586baee02a.png&nonce=f1dd96c0-5e1f-4537-b813-05cce5cfdce8&project_id=7628526330237288488&sign=49691334a132177ca4ffe4dcc1e2149d12ab7bba90e275b6feb3a95b94981b4e"
+            alt="背景"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
-
-        {/* 蚂蚁群效果 */}
-        <TurmiteCanvas />
 
         {/* 巨型 Z 字母 */}
         <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
@@ -852,24 +585,51 @@ export default function HomePage() {
       </section>
 
       {/* 第二屏 */}
-      <section className="relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
-        <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: "translateX(-100%)" }} />
-        <div ref={titleRef} className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">WORKS</div>
-        <div className="absolute bottom-8 left-8 z-[50] flex gap-2">
-          {works.map((_, i) => (
-            <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
-          ))}
-        </div>
+      <section className="relative h-screen w-full overflow-hidden">
+        {/* 全屏轮播图片 */}
         {works.map((work, index) => (
-          <div key={`card-${index}`} ref={(el) => { cardsRef.current[index] = el; }} className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]" style={{ backgroundImage: `url(${work.image})` }} />
-        ))}
-        {works.map((work, index) => (
-          <div key={`content-${index}`} ref={(el) => { contentsRef.current[index] = el; }} className="absolute left-0 top-0 text-white z-30">
-            <div className="h-[3px] w-8 bg-white/60 mb-3" />
-            <p className="text-sm tracking-wider text-white/60">{work.category}</p>
-            <p className="text-4xl lg:text-6xl font-bold tracking-wider mt-1">{work.title}</p>
+          <div
+            key={`slide-${index}`}
+            className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+            style={{
+              opacity: currentSlide === index ? 1 : 0,
+              zIndex: currentSlide === index ? 10 : 0
+            }}
+          >
+            <img
+              src={work.image}
+              alt={work.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/30" />
           </div>
         ))}
+
+        {/* 内容层 */}
+        <div className="absolute inset-0 z-20 flex items-center justify-center">
+          <div className="text-center text-white">
+            <div className="h-[3px] w-12 bg-white/60 mx-auto mb-4" />
+            <p className="text-sm tracking-[0.3em] text-white/60 mb-2">{works[currentSlide].category}</p>
+            <p className="text-5xl lg:text-7xl font-bold tracking-wider">{works[currentSlide].title}</p>
+          </div>
+        </div>
+
+        {/* 标题 */}
+        <div className="absolute left-8 top-8 z-30 text-xs tracking-[0.3em] text-white/40">WORKS</div>
+
+        {/* 底部指示器 */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-3">
+          {works.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentSlide(i)}
+              className={cn(
+                "h-0.5 rounded-full transition-all duration-300",
+                currentSlide === i ? "w-12 bg-white/80" : "w-8 bg-white/30 hover:bg-white/50"
+              )}
+            />
+          ))}
+        </div>
       </section>
 
       {/* 第三屏 */}
