@@ -75,7 +75,10 @@ function CozeChat({ botId, apiKey }: CozeChatProps) {
         })
       });
 
-      if (!response.ok) throw new Error("API 请求失败");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.msg || "API 请求失败");
+      }
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -97,16 +100,25 @@ function CozeChat({ botId, apiKey }: CozeChatProps) {
         const lines = chunk.split("\n");
 
         for (const line of lines) {
+          if (line.startsWith("event:")) {
+            const eventType = line.slice(6).trim();
+            continue;
+          }
           if (line.startsWith("data:")) {
             try {
               const data = JSON.parse(line.slice(5));
-              if (data.data?.content) {
-                assistantMessage += data.data.content;
+              // Coze API 流式返回，内容在 reasoning_content 字段
+              if (data.reasoning_content || data.content) {
+                assistantMessage += data.reasoning_content || data.content;
                 setMessages(prev => prev.map(msg =>
                   msg.id === assistantMsgId
                     ? { ...msg, content: assistantMessage }
                     : msg
                 ));
+              }
+              // 检查是否完成
+              if (data.status === "completed") {
+                break;
               }
             } catch (e) {
               // 忽略解析错误
@@ -119,7 +131,7 @@ function CozeChat({ botId, apiKey }: CozeChatProps) {
       setMessages(prev => [...prev, {
         id: (Date.now() + 2).toString(),
         role: "assistant",
-        content: "抱歉，发生了错误，请稍后再试。"
+        content: `抱歉，发生了错误：${error instanceof Error ? error.message : "请稍后再试"}`
       }]);
     } finally {
       setIsLoading(false);
