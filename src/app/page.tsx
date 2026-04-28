@@ -455,9 +455,9 @@ export default function HomePage() {
               <div className="mt-3 text-[10px] lg:text-[11px] text-white/40 space-y-1">
                 <p>contact number:</p><p>{personalInfo.phone}</p>
                 <p>e-mail:</p><p>{personalInfo.email}</p>
-                <div className="flex items-center justify-end gap-2">
-                  <span>wechat:</span>
-                  <img src={personalInfo.wechatQRCode} alt="微信二维码" className="w-12 lg:w-14 rounded border border-white/20" />
+                <div className="flex flex-col items-end">
+                  <p>wechat:</p>
+                  <img src={personalInfo.wechatQRCode} alt="微信二维码" className="w-12 lg:w-14 rounded border border-white/20 mt-1" />
                 </div>
               </div>
             </div>
