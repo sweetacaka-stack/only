@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-export default function ZLetterCanvas() {
+export default function Number2026Canvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -13,11 +13,11 @@ export default function ZLetterCanvas() {
     if (!ctx) return;
 
     const W = 800;
-    const H = 800;
+    const H = 600;
     canvas.width = W;
     canvas.height = H;
 
-    // Z 字母遮罩
+    // 2026 数字遮罩
     const mC = document.createElement("canvas");
     mC.width = W;
     mC.height = H;
@@ -27,14 +27,43 @@ export default function ZLetterCanvas() {
     mctx.fillStyle = "black";
     mctx.fillRect(0, 0, W, H);
     mctx.strokeStyle = "white";
-    mctx.lineWidth = 65;
+    mctx.lineWidth = 50;
     mctx.lineCap = "square";
     mctx.lineJoin = "miter";
+
+    // 绘制 2
     mctx.beginPath();
-    mctx.moveTo(200, 200);
-    mctx.lineTo(600, 200);
-    mctx.lineTo(200, 600);
-    mctx.lineTo(600, 600);
+    mctx.moveTo(80, 150);
+    mctx.lineTo(180, 150);
+    mctx.arc(130, 190, 40, -Math.PI * 0.5, Math.PI, false);
+    mctx.lineTo(80, 450);
+    mctx.stroke();
+
+    // 绘制 0
+    mctx.beginPath();
+    mctx.moveTo(260, 150);
+    mctx.lineTo(260, 450);
+    mctx.moveTo(320, 150);
+    mctx.lineTo(320, 450);
+    mctx.moveTo(260, 150);
+    mctx.arc(290, 300, 150, -Math.PI * 0.5, Math.PI * 0.5, false);
+    mctx.stroke();
+
+    // 绘制 2
+    mctx.beginPath();
+    mctx.moveTo(400, 150);
+    mctx.lineTo(500, 150);
+    mctx.arc(450, 190, 40, -Math.PI * 0.5, Math.PI, false);
+    mctx.lineTo(400, 450);
+    mctx.stroke();
+
+    // 绘制 6
+    mctx.beginPath();
+    mctx.moveTo(620, 150);
+    mctx.lineTo(620, 300);
+    mctx.arc(560, 300, 80, 0, Math.PI * 1.2, false);
+    mctx.lineTo(560, 450);
+    mctx.lineTo(620, 450);
     mctx.stroke();
 
     const maskData = mctx.getImageData(0, 0, W, H).data;
@@ -52,8 +81,8 @@ export default function ZLetterCanvas() {
     const ants = Array.from({ length: 350 }, () => {
       let rx: number, ry: number;
       do {
-        rx = 200 + Math.random() * 400;
-        ry = 200 + Math.random() * 400;
+        rx = 50 + Math.random() * 700;
+        ry = 100 + Math.random() * 400;
       } while (!isInside(rx, ry));
 
       return {
