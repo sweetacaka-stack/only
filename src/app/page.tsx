@@ -379,7 +379,7 @@ export default function HomePage() {
             alt="背景"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
 
         {/* 背景装饰 */}
