@@ -289,19 +289,6 @@ export default function HomePage() {
             <span className="absolute top-8 right-0 text-white/60 text-2xl">*</span>
           </div>
 
-          {/* 右侧个人信息 */}
-          <div className={cn("absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 text-right opacity-0 animate-fade-in-up delay-300", isLoaded && "opacity-100")}>
-            <div>
-              <p className="text-2xl lg:text-3xl font-light tracking-wide text-white/90" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>Qin. Tian</p>
-              <p className="text-lg lg:text-xl text-white/60" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>Yang</p>
-              <div className="mt-3 text-[10px] lg:text-[11px] text-white/40 space-y-1">
-                <p>contact number:</p><p>15697697001</p>
-                <p>e-mail:</p><p>2922717190@qq.com</p>
-                <p>wechat:</p><p>2922717190@qq.com</p>
-              </div>
-            </div>
-          </div>
-
           {/* 手表指针 */}
           <div className="absolute right-[20%] lg:right-[25%] top-1/2 -translate-y-1/2 w-32 lg:w-48 z-10">
             <WatchHands />
