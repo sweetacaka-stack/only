@@ -776,44 +776,134 @@ export default function HomePage() {
             alt="背景"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 bg-black/60" />
         </div>
 
-        {/* 粒子化 Z 字母 */}
-        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-10">
-          <div className="relative w-[20vw] lg:w-[16vw] aspect-[1/1.5]">
-            <ZLetterCanvas />
+        {/* 背景装饰 - 圆形边框 */}
+        <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
+          <div className="absolute -top-28 -right-28 w-[460px] h-[460px] border border-white/10 rounded-full"></div>
+          <div className="absolute top-1/3 -left-36 w-[580px] h-[580px] border border-white/10 rounded-full"></div>
+          <div className="absolute bottom-0 right-20 w-[320px] h-[320px] border border-white/10 rounded-full"></div>
+          {/* 网格背景 */}
+          <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid" width="96" height="96" patternUnits="userSpaceOnUse">
+                <path d="M96 0 L0 0 0 96" fill="none" stroke="white" strokeWidth="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+        </div>
+
+        {/* 左侧菜单导航 */}
+        <nav className={cn("absolute left-0 top-0 h-full w-44 z-20 flex flex-col px-4 py-6 border-r border-white/10 bg-black/30 backdrop-blur-sm opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
+          <div className="space-y-0 mt-16">
+            {[
+              { id: '01', label: '品牌', sublabel: 'BRAND' },
+              { id: '02', label: '包装', sublabel: 'PACKING' },
+              { id: '03', label: '标志字体', sublabel: 'LOGO&FONT' },
+              { id: '04', label: '版式视觉', sublabel: 'FORMAT' },
+            ].map((item) => (
+              <button key={item.id} className="w-full text-left py-3 border-t border-white/10 first:border-t-0 hover:bg-white/5 transition-colors group">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-white/40 text-xs mr-3.5">{item.id}</span>
+                    <span className="text-base text-white/80">{item.label}</span>
+                  </div>
+                </div>
+                <p className="text-[11px] text-white/30 mt-1 ml-8">{item.sublabel}</p>
+              </button>
+            ))}
+          </div>
+          {/* 左下角装饰 */}
+          <div className="mt-auto">
+            <div className="border border-white/10 w-full aspect-square flex items-center justify-center">
+              <div className="w-1/2 h-1/2 border border-white/10 rounded-full"></div>
+            </div>
+          </div>
+        </nav>
+
+        {/* 主内容区域 */}
+        <div className="relative z-10 h-full flex flex-col lg:flex-row">
+
+          {/* 电子流 Z 字母 - 居中左侧 */}
+          <div className="absolute left-44 lg:left-56 top-1/2 -translate-y-1/2">
+            <div className="w-[18vw] lg:w-[14vw] aspect-[1/1.5]">
+              <ZLetterCanvas />
+            </div>
+          </div>
+
+          {/* 中间年份大标题 */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+            <h1
+              className={cn("text-[80px] sm:text-[100px] lg:text-[140px] font-bold tracking-tighter leading-none opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}
+              style={{
+                fontFamily: 'serif',
+                fontStyle: 'italic',
+                textShadow: '0 0 30px rgba(255,255,255,0.25), 2px 2px 0 rgba(255,255,255,0.4)',
+                background: 'linear-gradient(180deg, #ffffff 0%, #888888 50%, #aaaaaa 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                letterSpacing: '-0.05em'
+              }}
+            >
+              2026
+            </h1>
+            <span className="absolute top-8 right-0 text-white/60 text-2xl">*</span>
+          </div>
+
+          {/* 右侧个人信息 */}
+          <div className={cn("absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 text-right opacity-0 animate-fade-in-up delay-300", isLoaded && "opacity-100")}>
+            <div>
+              <p className="text-2xl lg:text-3xl font-light tracking-wide text-white/90" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>Qin. Tian</p>
+              <p className="text-lg lg:text-xl text-white/60" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>Yang</p>
+              <div className="mt-3 text-[10px] lg:text-[11px] text-white/40 space-y-1">
+                <p>contact number:</p><p>15697697001</p>
+                <p>e-mail:</p><p>2922717190@qq.com</p>
+                <p>wechat:</p><p>2922717190@qq.com</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 手表指针 - 右中 */}
+          <div className="absolute right-[20%] lg:right-[25%] top-1/2 -translate-y-1/2 w-32 lg:w-48 z-10">
+            <WatchHands />
+          </div>
+
+        </div>
+
+        {/* 底部 PORTFOLIO */}
+        <div className={cn("absolute bottom-0 left-0 right-0 z-20 border-t border-white/10 px-6 lg:px-8 py-4 opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
+          <div className="flex items-end justify-between">
+            <div className="relative">
+              <h2
+                className="text-[36px] sm:text-[48px] lg:text-[64px] font-bold leading-none tracking-tighter"
+                style={{
+                  fontFamily: 'serif',
+                  fontStyle: 'italic',
+                  background: 'linear-gradient(180deg, #ffffff 0%, #666666 40%, #888888 70%, #555555 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  textShadow: '0 0 30px rgba(255,255,255,0.2)',
+                  letterSpacing: '-0.08em'
+                }}
+              >
+                PORTFOLIO
+              </h2>
+              <span className="absolute top-4 left-[140px] sm:left-[180px] lg:left-[240px] text-white/60 text-xl">*</span>
+            </div>
+            <div className="text-right mb-1">
+              <p className="text-xs lg:text-sm text-white/60">品牌&视觉设计师</p>
+              <p className="text-[11px] text-white/40">BRAND VISION</p>
+            </div>
           </div>
         </div>
 
-        {/* 手表指针 */}
-        <div className="absolute right-[15%] top-1/2 -translate-y-1/2 w-48 h-48 z-10">
-          <WatchHands />
-        </div>
-
-        {/* 右上角 */}
-        <div className="absolute top-8 right-8 z-20">
-          <span className={cn("text-xs tracking-[0.3em] text-white/50 opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
-            PORTFOLIO 2026
-          </span>
-        </div>
-
-        {/* 右侧身份 */}
-        <div className="absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 text-right">
-          <div className={cn("flex gap-4 justify-end mb-4 opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}>
-            <span className="text-lg lg:text-xl text-white/80" style={{ writingMode: "vertical-rl" }}>视觉</span>
-            <span className="text-lg lg:text-xl text-white/80" style={{ writingMode: "vertical-rl" }}>设计师</span>
-          </div>
-          <p className={cn("text-sm tracking-[0.3em] text-white/60 opacity-0 animate-fade-in-up delay-300", isLoaded && "opacity-100")}>
-            VISUAL DESIGNER
-          </p>
-        </div>
-
-        {/* 右下角理念 */}
-        <div className="absolute bottom-12 right-8 lg:right-16 z-20 text-right max-w-sm">
-          <p className={cn("text-xs lg:text-sm text-white/40 leading-relaxed opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
-            用黑白灰秩序讲述视觉故事
-          </p>
+        {/* 右下角装饰 */}
+        <div className="absolute bottom-0 right-0 pointer-events-none z-[1]">
+          <svg width="200" height="200" viewBox="0 0 200 200" className="opacity-10">
+            <path d="M0 200 Q100 100 200 0" fill="none" stroke="white" strokeWidth="1"/>
+          </svg>
         </div>
 
         {/* 滚动提示 */}
