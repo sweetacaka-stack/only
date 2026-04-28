@@ -234,51 +234,56 @@ export default function HomePage() {
           </svg>
         </div>
 
-        {/* 左侧菜单导航 */}
-        <nav className={cn("absolute left-0 top-0 h-full w-44 z-20 flex flex-col px-4 py-6 border-r border-white/10 bg-black/30 backdrop-blur-sm opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
-          <div className="space-y-0 mt-16">
+        {/* 左侧菜单导航 - 占据左侧1/6 */}
+        <nav className={cn("absolute left-0 top-0 bottom-0 w-[16.666%] z-20 flex flex-col px-6 py-8 border-r border-white/10 bg-black/20 backdrop-blur-sm opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
+          {/* 顶部标题 */}
+          <div className="mb-8">
+            <div className="h-[2px] w-8 bg-white/40 mb-3"></div>
+            <span className="text-xs tracking-[0.2em] text-white/30">MENU</span>
+          </div>
+
+          {/* 导航项 */}
+          <div className="flex-1">
             {[
               { id: '01', label: '品牌', sublabel: 'BRAND' },
               { id: '02', label: '包装', sublabel: 'PACKING' },
               { id: '03', label: '标志字体', sublabel: 'LOGO&FONT' },
               { id: '04', label: '版式视觉', sublabel: 'FORMAT' },
             ].map((item) => (
-              <button key={item.id} className="w-full text-left py-3 border-t border-white/10 first:border-t-0 hover:bg-white/5 transition-colors group">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-white/40 text-xs mr-3.5">{item.id}</span>
-                    <span className="text-base text-white/80">{item.label}</span>
-                  </div>
-                </div>
-                <p className="text-[11px] text-white/30 mt-1 ml-8">{item.sublabel}</p>
+              <button key={item.id} className="w-full text-left py-4 border-t border-white/10 first:border-t-0 hover:bg-white/5 transition-colors group">
+                <span className="text-white/40 text-xs mr-3">{item.id}</span>
+                <span className="text-base text-white/80">{item.label}</span>
+                <p className="text-[10px] text-white/30 mt-1 ml-8">{item.sublabel}</p>
               </button>
             ))}
           </div>
-          <div className="mt-auto">
-            <div className="border border-white/10 w-full aspect-square flex items-center justify-center">
-              <div className="w-1/2 h-1/2 border border-white/10 rounded-full"></div>
+
+          {/* 底部装饰 */}
+          <div className="mt-auto pt-4">
+            <div className="border border-white/10 rounded-full aspect-square flex items-center justify-center">
+              <span className="text-white/30 text-xs">N</span>
             </div>
           </div>
         </nav>
 
-        {/* 主内容区域 */}
-        <div className="relative z-10 h-full">
-          {/* 电子流 Z 字母 */}
-          <div className="absolute left-44 lg:left-56 top-1/2 -translate-y-1/2">
-            <div className="w-[18vw] lg:w-[14vw] aspect-[1/1.5]">
+        {/* 中央主体区域 - 等分对称布局 */}
+        <div className="absolute inset-0 z-10 flex items-center justify-center">
+          {/* 左侧 - 电子流Z字母 */}
+          <div className="w-1/3 flex items-center justify-end pr-8">
+            <div className="w-[12vw] aspect-[1/1.5]">
               <ZLetterCanvas />
             </div>
           </div>
 
-          {/* 中间年份大标题 */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          {/* 中间 - 年份标题 */}
+          <div className="flex flex-col items-center justify-center relative">
             <h1
-              className={cn("text-[80px] sm:text-[100px] lg:text-[140px] font-bold tracking-tighter leading-none opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}
+              className={cn("text-[100px] sm:text-[140px] lg:text-[180px] font-bold tracking-tighter leading-none opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}
               style={{
                 fontFamily: 'serif',
                 fontStyle: 'italic',
-                textShadow: '0 0 30px rgba(255,255,255,0.25), 2px 2px 0 rgba(255,255,255,0.4)',
-                background: 'linear-gradient(180deg, #ffffff 0%, #888888 50%, #aaaaaa 100%)',
+                textShadow: '0 0 40px rgba(255,255,255,0.3), 3px 3px 0 rgba(255,255,255,0.5)',
+                background: 'linear-gradient(180deg, #ffffff 0%, #999999 50%, #ffffff 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 letterSpacing: '-0.05em'
@@ -286,21 +291,24 @@ export default function HomePage() {
             >
               2026
             </h1>
-            <span className="absolute top-8 right-0 text-white/60 text-2xl">*</span>
+            <span className="absolute right-0 top-8 text-white/60 text-2xl">*</span>
           </div>
 
-          {/* 手表指针 */}
-          <div className="absolute right-[20%] lg:right-[25%] top-1/2 -translate-y-1/2 w-32 lg:w-48 z-10">
-            <WatchHands />
+          {/* 右侧 - 手表指针 */}
+          <div className="w-1/3 flex items-center justify-start pl-8">
+            <div className="w-32 lg:w-48 aspect-square">
+              <WatchHands />
+            </div>
           </div>
         </div>
 
-        {/* 底部 PORTFOLIO */}
-        <div className={cn("absolute bottom-0 left-0 right-0 z-20 border-t border-white/10 px-6 lg:px-8 py-4 opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
-          <div className="flex items-end justify-between">
+        {/* 底部区域 - 居中对齐 */}
+        <div className="absolute bottom-0 left-0 right-0 z-20 border-t border-white/10 py-6">
+          {/* 底部PORTFOLIO - 居中 */}
+          <div className="flex items-center justify-center">
             <div className="relative">
               <h2
-                className="text-[36px] sm:text-[48px] lg:text-[64px] font-bold leading-none tracking-tighter"
+                className="text-[48px] sm:text-[64px] lg:text-[80px] font-bold leading-none tracking-tighter"
                 style={{
                   fontFamily: 'serif',
                   fontStyle: 'italic',
@@ -313,11 +321,7 @@ export default function HomePage() {
               >
                 PORTFOLIO
               </h2>
-              <span className="absolute top-4 left-[140px] sm:left-[180px] lg:left-[240px] text-white/60 text-xl">*</span>
-            </div>
-            <div className="text-right mb-1">
-              <p className="text-xs lg:text-sm text-white/60">品牌&视觉设计师</p>
-              <p className="text-[11px] text-white/40">BRAND VISION</p>
+              <span className="absolute top-4 left-[160px] sm:left-[220px] lg:left-[280px] text-white/60 text-xl">*</span>
             </div>
           </div>
         </div>
