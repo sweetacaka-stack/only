@@ -20,6 +20,7 @@ const works = [
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const worksContainerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -28,6 +29,8 @@ export default function HomePage() {
   const indicatorRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const orderRef = useRef<number[]>([0, 1, 2, 3, 4, 5]);
+  const isHoveringRef = useRef(false);
+  const carouselTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), 300);
@@ -121,11 +124,27 @@ export default function HomePage() {
 
         const runLoop = async () => {
           if (!isActive) return;
+          if (isHoveringRef.current) {
+            // 悬停时暂停，等待后继续检查
+            await new Promise(resolve => setTimeout(resolve, 500));
+            if (isActive) runLoop();
+            return;
+          }
           gsap.set(indicatorRef.current, { x: -width });
           await new Promise((resolve) => gsap.to(indicatorRef.current, { x: 0, duration: 2, ease: "none", onComplete: resolve }));
           if (!isActive) return;
+          if (isHoveringRef.current) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            if (isActive) runLoop();
+            return;
+          }
           await new Promise((resolve) => gsap.to(indicatorRef.current, { x: width, duration: 0.6, delay: 0.3, ease: "power2.inOut", onComplete: resolve }));
           if (!isActive) return;
+          if (isHoveringRef.current) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            if (isActive) runLoop();
+            return;
+          }
           step();
           if (isActive) runLoop();
         };
@@ -194,6 +213,158 @@ export default function HomePage() {
       clearTimeout(wheelTimeout);
     };
   }, [currentSection]);
+
+  // 处理卡片悬停/点击 - 放大显示
+  const handleCardHover = useCallback((index: number | null) => {
+    setHoveredIndex(index);
+    isHoveringRef.current = index !== null;
+    
+    // 清除现有的轮播定时器
+    if (carouselTimeoutRef.current) {
+      clearTimeout(carouselTimeoutRef.current);
+    }
+    
+    const { innerHeight: height, innerWidth: width } = window;
+    
+    if (index !== null) {
+      // 放大指定卡片
+      works.forEach((_, i) => {
+        if (i === index) {
+          gsap.to(cardsRef.current[i], {
+            x: 0,
+            y: 0,
+            width: width,
+            height: height,
+            borderRadius: 0,
+            zIndex: 100,
+            duration: 0.4,
+            ease: "power2.out"
+          });
+          gsap.to(contentsRef.current[i], {
+            x: 60,
+            y: height / 2 - 50,
+            opacity: 1,
+            zIndex: 101,
+            duration: 0.4,
+            ease: "power2.out"
+          });
+        } else {
+          gsap.to(cardsRef.current[i], {
+            opacity: 0.3,
+            duration: 0.3
+          });
+        }
+      });
+    } else {
+      // 恢复轮播状态
+      works.forEach((_, i) => {
+        gsap.to(cardsRef.current[i], {
+          opacity: 1,
+          duration: 0.3
+        });
+      });
+      
+      // 延迟恢复轮播
+      carouselTimeoutRef.current = setTimeout(() => {
+        isHoveringRef.current = false;
+      }, 500);
+    }
+  }, []);
+
+  // 处理卡片点击
+  const handleCardClick = useCallback((index: number) => {
+    // 放大并保持在放大状态
+    setHoveredIndex(index);
+    isHoveringRef.current = true;
+    
+    const { innerHeight: height, innerWidth: width } = window;
+    
+    works.forEach((_, i) => {
+      if (i === index) {
+        gsap.to(cardsRef.current[i], {
+          x: 0,
+          y: 0,
+          width: width,
+          height: height,
+          borderRadius: 0,
+          zIndex: 100,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+        gsap.to(contentsRef.current[i], {
+          x: 60,
+          y: height / 2 - 50,
+          opacity: 1,
+          zIndex: 101,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+      } else {
+        gsap.to(cardsRef.current[i], {
+          opacity: 0,
+          duration: 0.3
+        });
+      }
+    });
+  }, []);
+
+  // 关闭放大状态
+  const handleCloseExpanded = useCallback(() => {
+    setHoveredIndex(null);
+    isHoveringRef.current = false;
+    
+    const { innerHeight: height, innerWidth: width } = window;
+    const offsetTop = height - 430;
+    const offsetLeft = width - 830;
+    const cardWidth = 200;
+    const cardHeight = 300;
+    const gap = 40;
+    
+    // 恢复所有卡片位置
+    works.forEach((_, i) => {
+      const orderIdx = orderRef.current.indexOf(i);
+      if (orderIdx === 0) {
+        gsap.to(cardsRef.current[i], {
+          x: 0,
+          y: 0,
+          width: width,
+          height: height,
+          borderRadius: 0,
+          opacity: 1,
+          zIndex: 20,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+        gsap.to(contentsRef.current[i], {
+          x: 60,
+          y: 240,
+          opacity: 1,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+      } else {
+        const xNew = offsetLeft + (orderIdx - 1) * (cardWidth + gap);
+        gsap.to(cardsRef.current[i], {
+          x: xNew,
+          y: offsetTop,
+          width: cardWidth,
+          height: cardHeight,
+          borderRadius: 8,
+          opacity: 1,
+          zIndex: 30,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+        gsap.to(contentsRef.current[i], {
+          x: xNew + 20,
+          y: offsetTop + cardHeight - 50,
+          opacity: 1,
+          duration: 0.5,
+          ease: "power2.out"
+        });
+      }
+    });
+  }, []);
 
   const handleNavClick = useCallback((index: number) => {
     if (containerRef.current) {
@@ -357,21 +528,56 @@ export default function HomePage() {
       <section className="relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
         <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: "translateX(-100%)" }} />
         <div ref={titleRef} className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">WORKS</div>
+        
+        {/* 关闭按钮 - 放大状态显示 */}
+        {hoveredIndex !== null && (
+          <button
+            onClick={handleCloseExpanded}
+            className="absolute top-4 right-4 z-[200] w-12 h-12 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-full border border-white/20 hover:bg-black/70 transition-all"
+          >
+            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+        
+        {/* 底部指示器 */}
         <div className="absolute bottom-8 left-8 z-[50] flex gap-2">
           {works.map((_, i) => (
             <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
           ))}
         </div>
+        
+        {/* 作品卡片 - 添加鼠标和点击事件 */}
         {works.map((work, index) => (
-          <div key={`card-${index}`} ref={(el) => { cardsRef.current[index] = el; }} className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]" style={{ backgroundImage: `url(${work.image})` }} />
+          <div
+            key={`card-${index}`}
+            ref={(el) => { cardsRef.current[index] = el; }}
+            className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)] cursor-pointer transition-opacity"
+            style={{ backgroundImage: `url(${work.image})` }}
+            onMouseEnter={() => handleCardHover(index)}
+            onMouseLeave={() => handleCardHover(null)}
+            onClick={() => handleCardClick(index)}
+          />
         ))}
+        
+        {/* 作品内容 */}
         {works.map((work, index) => (
-          <div key={`content-${index}`} ref={(el) => { contentsRef.current[index] = el; }} className="absolute left-0 top-0 text-white z-30">
+          <div
+            key={`content-${index}`}
+            ref={(el) => { contentsRef.current[index] = el; }}
+            className="absolute left-0 top-0 text-white z-30 pointer-events-none"
+          >
             <div className="h-[3px] w-8 bg-white/60 mb-3" />
             <p className="text-sm tracking-wider text-white/60">{work.category}</p>
             <p className="text-4xl lg:text-6xl font-bold tracking-wider mt-1">{work.title}</p>
           </div>
         ))}
+        
+        {/* 悬停提示 */}
+        <div className="absolute bottom-8 right-8 z-[50] text-xs text-white/30">
+          悬停或点击卡片查看大图
+        </div>
       </section>
 
       {/* 第三屏 */}
