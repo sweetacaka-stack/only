@@ -12,6 +12,7 @@ import { personalInfo, works } from "./config";
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const worksContainerRef = useRef<HTMLDivElement>(null);
@@ -457,7 +458,12 @@ export default function HomePage() {
                 <p>e-mail:</p><p>{personalInfo.email}</p>
                 <div className="flex flex-col items-end">
                   <p>wechat:</p>
-                  <img src={personalInfo.wechatQRCode} alt="微信二维码" className="w-12 lg:w-14 rounded border border-white/20 mt-1" />
+                  <img 
+                    src={personalInfo.wechatQRCode} 
+                    alt="微信二维码" 
+                    className="w-12 lg:w-14 rounded border border-white/20 mt-1 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => setIsQRModalOpen(true)}
+                  />
                 </div>
               </div>
             </div>
@@ -604,6 +610,34 @@ export default function HomePage() {
         botId={personalInfo.cozeBotId}
         apiKey={personalInfo.cozeApiKey}
       />
+
+      {/* 微信二维码放大模态框 */}
+      {isQRModalOpen && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in"
+          onClick={() => setIsQRModalOpen(false)}
+        >
+          <div 
+            className="relative max-w-[85vw] max-h-[85vh] animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img 
+              src={personalInfo.wechatQRCode} 
+              alt="微信二维码" 
+              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+            />
+            <p className="text-white/80 text-center mt-4 text-sm">扫码添加我的微信</p>
+            <button 
+              onClick={() => setIsQRModalOpen(false)}
+              className="absolute -top-2 -right-2 w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/80 hover:text-white transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
