@@ -9,7 +9,7 @@ export default function ZLetterCanvas() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     const W = 800;
@@ -69,7 +69,6 @@ export default function ZLetterCanvas() {
     let animationFrameId: number;
 
     function step(time: number) {
-      if (!ctx) return;
       const cycle = 4000;
       const progress = (time % cycle) / cycle;
       const intensity = Math.max(0, Math.pow(Math.sin(progress * Math.PI), 1.5) * 1.2 - 0.2);

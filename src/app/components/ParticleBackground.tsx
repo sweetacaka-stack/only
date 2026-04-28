@@ -21,8 +21,7 @@ export default function ParticleBackground() {
     if (!ctx) return;
 
     let animationId: number;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let particles: any[] = [];
+    let particles: Particle[] = [];
 
     class ParticleClass implements Particle {
       x: number;

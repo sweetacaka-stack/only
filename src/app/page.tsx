@@ -1,24 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
 import CozeChat from "./components/CozeChat";
 import ZLetterCanvas from "./components/ZLetterCanvas";
-import Number2026Canvas from "./components/Number2026Canvas";
-import WatchHands from "./components/WatchHands";
 import ParticleBackground from "./components/ParticleBackground";
+import WatchHands from "./components/WatchHands";
 
 const works = [
   { id: 1, title: "MONOGRAPH", category: "Brand Identity", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2Fb2c17deea19eb100c6291198bb9c92c69235b8092dbe59ccf23c693987dc3e85.png&nonce=e6cdf224-c486-40f0-91c9-bbc87cb4feee&project_id=7628526330237288488&sign=5765c39e540e757ad689716ee1e01a67ed3f8a437cbd3c774a2d18d79734a1b8" },
   { id: 2, title: "AURA", category: "Visual Design", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0a582b534cae1df4174469b487e2c56667967c20fafeea97abc00a586baee02a.png&nonce=0111348a-bb7a-47bf-a5b4-e8e722f19205&project_id=7628526330237288488&sign=514041380476eab1bb10da905f415fa3a349bf0e55b78766c05badd8534d2b04" },
   { id: 3, title: "VOID", category: "Art Direction", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0fc3ec76c63e9c9019bbbafd74fe55acf75d5fa1428fd911391a856c9a707f4b.png&nonce=b289ae8d-88ed-4cc0-8ca9-eb6feeabfe2e&project_id=7628526330237288488&sign=2e8ee79250d9c94eb1d1286469cf68f076a8e89fbd169a89b9befe326e6b8af6" },
   { id: 4, title: "ETHEREAL", category: "Photography", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F3f3bea175ebb1d23a37de7c4805d9d998f5659cd1a272e4601e2ec740b78a904.png&nonce=d6769453-a409-4ba4-bfe0-7d0f65e4ad01&project_id=7628526330237288488&sign=1a2b34db9d831af35a99a7c95ff5602259fa5d394646eed6794a218f46d5cbc0" },
-  { id: 5, title: "METRIC", category: "Data Visualization", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F4cbf9d2d2d36c6f2c2c702885afd68f8ecd66b61884f1c935083d05334cf8b62.png&nonce=ac78c54c-8d7a-4924-9f24-2d6af074ea4d&project_id=7628526330237288488&sign=733958909a9dbe6b6f6f1d243684c2389bd6bb6337e15da5c768f88055b363e8e7" },
+  { id: 5, title: "METRIC", category: "Data Visualization", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F4cbf9d2d2d36c6f2c2c702885afd68f8ecd66b61884f1c935083d05334cf8b62.png&nonce=ac78c54c-8d7a-4924-9f24-2d6af074ea4d&project_id=7628526330237288488&sign=733958909a9dbe6b6f1d243684c2389bd6bb6337e15da5c768f88055b363e8e7" },
   { id: 6, title: "LUMEN", category: "Installation", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2Fsp260415_151645.png&nonce=2b8adfc5-c944-4174-9e22-a1c97de1000e&project_id=7628526330237288488&sign=615824e13095af5cf418d8c43e4961888e0c0467f81453775e97b815dec6bd20" },
 ];
-
-// 粒子效果已移除，使用独立的ZLetterCanvas和Number2026Canvas组件
 
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
@@ -198,7 +195,7 @@ export default function HomePage() {
     };
   }, [currentSection]);
 
-  const handleNavClick = (index: number) => {
+  const handleNavClick = useCallback((index: number) => {
     if (containerRef.current) {
       gsap.to(containerRef.current, {
         scrollTop: index * window.innerHeight,
@@ -206,27 +203,27 @@ export default function HomePage() {
         ease: "power2.inOut",
       });
     }
-  };
+  }, []);
 
   return (
     <div className="smooth-container" ref={containerRef}>
       {/* 第一屏 */}
       <section className="relative h-screen w-full overflow-hidden">
-        {/* 背景 */}
+        {/* 手表背景图片 */}
         <div className="absolute inset-0 z-0">
           <img
             src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F%E6%89%8B%E8%A1%A81.png&nonce=afabf5e0-2696-490a-9a79-6719fdf7089c&project_id=7628526330237288488&sign=ac6637b0dce6aa62ecbd7e53986b5d72c772bd7b4f6b9764023547763eb0f030"
             alt="背景"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/70" />
+          <div className="absolute inset-0 bg-black/60" />
         </div>
 
         {/* 背景装饰 */}
         <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] border border-white/10 rounded-full"></div>
-          <div className="absolute top-1/2 -left-60 w-[700px] h-[700px] border border-white/10 rounded-full"></div>
-          <div className="absolute bottom-0 right-20 w-[400px] h-[400px] border border-white/10 rounded-full"></div>
+          <div className="absolute -top-28 -right-28 w-[460px] h-[460px] border border-white/10 rounded-full"></div>
+          <div className="absolute top-1/3 -left-36 w-[580px] h-[580px] border border-white/10 rounded-full"></div>
+          <div className="absolute bottom-0 right-20 w-[320px] h-[320px] border border-white/10 rounded-full"></div>
           <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="grid" width="96" height="96" patternUnits="userSpaceOnUse">
@@ -237,90 +234,73 @@ export default function HomePage() {
           </svg>
         </div>
 
-        {/* 左侧导航 - 参考图风格 */}
-        <nav className={cn("absolute left-0 top-0 bottom-0 w-[18%] z-20 flex flex-col px-6 py-8 border-r border-white/10 bg-black/30 backdrop-blur-sm opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
-          {/* 顶部标识 */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-[1px] w-8 bg-white/40"></div>
-              <span className="text-sm text-white/80 font-light" style={{ fontFamily: 'serif' }}>Q.</span>
-            </div>
-          </div>
-
-          {/* 导航项 */}
-          <div className="flex-1">
+        {/* 左侧菜单导航 */}
+        <nav className={cn("absolute left-0 top-0 h-full w-44 z-20 flex flex-col px-4 py-6 border-r border-white/10 bg-black/30 backdrop-blur-sm opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
+          <div className="space-y-0 mt-16">
             {[
               { id: '01', label: '品牌', sublabel: 'BRAND' },
               { id: '02', label: '包装', sublabel: 'PACKING' },
-              { id: '03', label: '标志字体', sublabel: 'LOGOTYPE' },
+              { id: '03', label: '标志字体', sublabel: 'LOGO&FONT' },
               { id: '04', label: '版式视觉', sublabel: 'FORMAT' },
             ].map((item) => (
-              <button key={item.id} className="w-full text-left py-4 border-t border-white/10 first:border-t-0 hover:bg-white/5 transition-colors">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="h-[1px] w-4 bg-white/30"></div>
-                  <span className="text-white/40 text-xs">{item.id}</span>
+              <button key={item.id} className="w-full text-left py-3 border-t border-white/10 first:border-t-0 hover:bg-white/5 transition-colors group">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-white/40 text-xs mr-3.5">{item.id}</span>
+                    <span className="text-base text-white/80">{item.label}</span>
+                  </div>
                 </div>
-                <span className="text-sm text-white/70 ml-6">{item.label}</span>
-                <p className="text-[9px] text-white/30 mt-0.5 ml-6">{item.sublabel}</p>
+                <p className="text-[11px] text-white/30 mt-1 ml-8">{item.sublabel}</p>
               </button>
             ))}
           </div>
-
-          {/* 底部信息 */}
-          <div className="pt-4 border-t border-white/10">
-            <p className="text-[9px] text-white/30 leading-relaxed">
-              PORTFOLIO 2026<br />
-              DESIGN WORKS
-            </p>
-            {/* 装饰圆点 */}
-            <div className="flex gap-2 mt-4">
-              <div className="w-2 h-2 rounded-full border border-white/20"></div>
-              <div className="w-2 h-2 rounded-full border border-white/20"></div>
-              <div className="w-2 h-2 rounded-full border border-white/20"></div>
+          <div className="mt-auto">
+            <div className="border border-white/10 w-full aspect-square flex items-center justify-center">
+              <div className="w-1/2 h-1/2 border border-white/10 rounded-full"></div>
             </div>
           </div>
         </nav>
 
-        {/* 中央视觉区域 - 电子流字母 */}
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <div className="relative w-full h-full max-w-[900px] max-h-[600px]">
-            {/* 装饰圆环 */}
-            <div className="absolute inset-0 -m-12 border border-white/10 rounded-full"></div>
-            <div className="absolute inset-0 -m-20 border border-white/5 rounded-full"></div>
-            
-            {/* 左侧电子流 Z 字母 */}
-            <div className="absolute left-[10%] top-1/2 -translate-y-1/2 w-[200px] lg:w-[280px] aspect-square">
+        {/* 主内容区域 */}
+        <div className="relative z-10 h-full">
+          {/* 电子流 Z 字母 */}
+          <div className="absolute left-44 lg:left-56 top-1/2 -translate-y-1/2">
+            <div className="w-[18vw] lg:w-[14vw] aspect-[1/1.5]">
               <ZLetterCanvas />
             </div>
+          </div>
 
-            {/* 中央电子流 2026 */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] lg:w-[560px] aspect-[4/3]">
-              <Number2026Canvas />
-            </div>
+          {/* 中间年份大标题 */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+            <h1
+              className={cn("text-[80px] sm:text-[100px] lg:text-[140px] font-bold tracking-tighter leading-none opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}
+              style={{
+                fontFamily: 'serif',
+                fontStyle: 'italic',
+                textShadow: '0 0 30px rgba(255,255,255,0.25), 2px 2px 0 rgba(255,255,255,0.4)',
+                background: 'linear-gradient(180deg, #ffffff 0%, #888888 50%, #aaaaaa 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                letterSpacing: '-0.05em'
+              }}
+            >
+              2026
+            </h1>
+            <span className="absolute top-8 right-0 text-white/60 text-2xl">*</span>
+          </div>
 
-            {/* 右侧装饰 - 手表指针效果 */}
-            <div className="absolute right-[10%] top-1/2 -translate-y-1/2 w-[200px] lg:w-[280px] aspect-square flex items-center justify-center">
-              <WatchHands />
-            </div>
+          {/* 手表指针 */}
+          <div className="absolute right-[20%] lg:right-[25%] top-1/2 -translate-y-1/2 w-32 lg:w-48 z-10">
+            <WatchHands />
           </div>
         </div>
 
-        {/* 右上角功能按钮 */}
-        <div className={cn("absolute top-6 right-6 z-30 flex items-center gap-4 opacity-0 animate-fade-in-up delay-300", isLoaded && "opacity-100")}>
-          <button className="text-xs text-white/50 hover:text-white/80 tracking-wider transition-colors">ABOUT</button>
-          <div className="w-[1px] h-4 bg-white/20"></div>
-          <button className="w-8 h-8 border border-white/20 rounded-full flex items-center justify-center hover:border-white/40 transition-colors">
-            <span className="text-white/60 text-xs">Z</span>
-          </button>
-        </div>
-
-        {/* 底部区域 */}
-        <div className={cn("absolute bottom-0 left-0 right-0 z-20 border-t border-white/10 py-6 opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
-          <div className="flex items-center justify-center">
-            <div className="text-center">
-              <p className="text-[10px] text-white/30 tracking-widest mb-1">SEASONAL WORK</p>
+        {/* 底部 PORTFOLIO */}
+        <div className={cn("absolute bottom-0 left-0 right-0 z-20 border-t border-white/10 px-6 lg:px-8 py-4 opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
+          <div className="flex items-end justify-between">
+            <div className="relative">
               <h2
-                className="text-[48px] sm:text-[64px] lg:text-[80px] font-bold leading-none tracking-tighter"
+                className="text-[36px] sm:text-[48px] lg:text-[64px] font-bold leading-none tracking-tighter"
                 style={{
                   fontFamily: 'serif',
                   fontStyle: 'italic',
@@ -333,31 +313,36 @@ export default function HomePage() {
               >
                 PORTFOLIO
               </h2>
+              <span className="absolute top-4 left-[140px] sm:left-[180px] lg:left-[240px] text-white/60 text-xl">*</span>
+            </div>
+            <div className="text-right mb-1">
+              <p className="text-xs lg:text-sm text-white/60">品牌&视觉设计师</p>
+              <p className="text-[11px] text-white/40">BRAND VISION</p>
             </div>
           </div>
         </div>
 
-        {/* 底部SCROLL提示 */}
-        <div className={cn("absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 text-white/30 text-xs opacity-0 animate-fade-in-up delay-700", isLoaded && "opacity-100")}>
-          <span>SCROLL</span>
-          <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        {/* 右下角装饰 */}
+        <div className="absolute bottom-0 right-0 pointer-events-none z-[1]">
+          <svg width="200" height="200" viewBox="0 0 200 200" className="opacity-10">
+            <path d="M0 200 Q100 100 200 0" fill="none" stroke="white" strokeWidth="1"/>
           </svg>
         </div>
 
-        {/* 右下角个人信息 */}
-        <div className={cn("absolute bottom-20 right-6 z-30 text-right opacity-0 animate-fade-in-up delay-400", isLoaded && "opacity-100")}>
-          <p className="text-lg text-white/80 font-light" style={{ fontFamily: 'serif' }}>Qin. Tian</p>
-          <p className="text-xs text-white/40">Yang</p>
-          <div className="mt-3 space-y-1 text-[10px] text-white/30">
-            <p>contact: 15697697001</p>
-            <p>e-mail: 2922717190@qq.com</p>
+        {/* 滚动提示 */}
+        <div className={cn("absolute bottom-8 left-1/2 -translate-x-1/2 z-20 opacity-0 animate-fade-in-up delay-700", isLoaded && "opacity-100")}>
+          <div className="flex flex-col items-center gap-2 text-white/30 text-xs">
+            <span>SCROLL</span>
+            <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
           </div>
         </div>
       </section>
 
       {/* 第二屏 - 作品展示 */}
       <section className="relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
+        {/* 背景 - 使用手表背景 */}
         <div className="absolute inset-0 z-0">
           <img
             src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F%E6%89%8B%E8%A1%A81.png&nonce=afabf5e0-2696-490a-9a79-6719fdf7089c&project_id=7628526330237288488&sign=ac6637b0dce6aa62ecbd7e53986b5d72c772bd7b4f6b9764023547763eb0f030"
@@ -367,51 +352,115 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-black/70" />
         </div>
 
+        {/* 背景装饰 */}
+        <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
+          <div className="absolute -top-28 -right-28 w-[460px] h-[460px] border border-white/10 rounded-full"></div>
+          <div className="absolute top-1/3 -left-36 w-[580px] h-[580px] border border-white/10 rounded-full"></div>
+          <div className="absolute bottom-0 right-20 w-[320px] h-[320px] border border-white/10 rounded-full"></div>
+          <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid2" width="96" height="96" patternUnits="userSpaceOnUse">
+                <path d="M96 0 L0 0 0 96" fill="none" stroke="white" strokeWidth="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid2)" />
+          </svg>
+        </div>
+
+        {/* 左侧菜单导航 */}
+        <nav className={cn("absolute left-0 top-0 h-full w-44 z-20 flex flex-col px-4 py-6 border-r border-white/10 bg-black/30 backdrop-blur-sm opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
+          <div className="space-y-0 mt-16">
+            {[
+              { id: '01', label: '品牌', sublabel: 'BRAND' },
+              { id: '02', label: '包装', sublabel: 'PACKING' },
+              { id: '03', label: '标志字体', sublabel: 'LOGO&FONT' },
+              { id: '04', label: '版式视觉', sublabel: 'FORMAT' },
+            ].map((item) => (
+              <button key={item.id} className="w-full text-left py-3 border-t border-white/10 first:border-t-0 hover:bg-white/5 transition-colors group">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-white/40 text-xs mr-3.5">{item.id}</span>
+                    <span className="text-base text-white/80">{item.label}</span>
+                  </div>
+                </div>
+                <p className="text-[11px] text-white/30 mt-1 ml-8">{item.sublabel}</p>
+              </button>
+            ))}
+          </div>
+          <div className="mt-auto">
+            <div className="border border-white/10 w-full aspect-square flex items-center justify-center">
+              <div className="w-1/2 h-1/2 border border-white/10 rounded-full"></div>
+            </div>
+          </div>
+        </nav>
+
+        {/* 进度条 */}
         <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: "translateX(-100%)" }} />
 
-        <div className="absolute left-[18%] top-12 z-[50]">
-          <div className="flex items-center gap-4">
-            <div className="h-[1px] w-8 bg-white/40"></div>
-            <span className="text-xs tracking-[0.3em] text-white/40">WORKS</span>
-          </div>
-        </div>
-
-        <div className="absolute inset-0">
-          {works.map((work, index) => (
-            <div key={`card-${index}`} ref={(el) => { cardsRef.current[index] = el; }} className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]" style={{ backgroundImage: `url(${work.image})` }} />
-          ))}
-          {works.map((work, index) => (
-            <div key={`content-${index}`} ref={(el) => { contentsRef.current[index] = el; }} className="absolute left-0 top-0 text-white z-30">
-              <div className="h-[3px] w-8 bg-white/60 mb-3" />
-              <p className="text-sm tracking-wider text-white/60">{work.category}</p>
-              <p className="text-4xl lg:text-6xl font-bold tracking-wider mt-1" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>{work.title}</p>
+        {/* 主内容区域 */}
+        <div className="relative z-10 h-full flex items-center">
+          {/* 作品标题 */}
+          <div ref={titleRef} className="absolute left-44 lg:left-56 top-12">
+            <div className="flex items-center gap-4">
+              <div className="h-[2px] w-12 bg-white/40"></div>
+              <span className="text-xs tracking-[0.3em] text-white/40">WORKS</span>
             </div>
-          ))}
-        </div>
-
-        <div className="absolute bottom-8 left-[18%] z-[50] flex gap-2">
-          {works.map((_, i) => (
-            <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
-          ))}
-        </div>
-
-        <div className={cn("absolute bottom-0 left-0 right-0 z-20 border-t border-white/10 py-6 opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
-          <div className="flex items-center justify-center">
-            <h2
-              className="text-[48px] sm:text-[64px] lg:text-[80px] font-bold leading-none tracking-tighter"
-              style={{
-                fontFamily: 'serif',
-                fontStyle: 'italic',
-                background: 'linear-gradient(180deg, #ffffff 0%, #666666 40%, #888888 70%, #555555 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 30px rgba(255,255,255,0.2)',
-                letterSpacing: '-0.08em'
-              }}
-            >
-              PORTFOLIO
-            </h2>
           </div>
+
+          {/* GSAP卡片区域 */}
+          <div className="absolute inset-0">
+            {works.map((work, index) => (
+              <div key={`card-${index}`} ref={(el) => { cardsRef.current[index] = el; }} className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]" style={{ backgroundImage: `url(${work.image})` }} />
+            ))}
+            {works.map((work, index) => (
+              <div key={`content-${index}`} ref={(el) => { contentsRef.current[index] = el; }} className="absolute left-0 top-0 text-white z-30">
+                <div className="h-[3px] w-8 bg-white/60 mb-3" />
+                <p className="text-sm tracking-wider text-white/60">{work.category}</p>
+                <p className="text-4xl lg:text-6xl font-bold tracking-wider mt-1" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>{work.title}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* 底部指示器 */}
+          <div className="absolute bottom-8 left-44 lg:left-56 z-[50] flex gap-2">
+            {works.map((_, i) => (
+              <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
+            ))}
+          </div>
+        </div>
+
+        {/* 底部PORTFOLIO */}
+        <div className={cn("absolute bottom-0 left-0 right-0 z-20 border-t border-white/10 px-6 lg:px-8 py-4 opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
+          <div className="flex items-end justify-between">
+            <div className="relative">
+              <h2
+                className="text-[36px] sm:text-[48px] lg:text-[64px] font-bold leading-none tracking-tighter"
+                style={{
+                  fontFamily: 'serif',
+                  fontStyle: 'italic',
+                  background: 'linear-gradient(180deg, #ffffff 0%, #666666 40%, #888888 70%, #555555 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  textShadow: '0 0 30px rgba(255,255,255,0.2)',
+                  letterSpacing: '-0.08em'
+                }}
+              >
+                PORTFOLIO
+              </h2>
+              <span className="absolute top-4 left-[140px] sm:left-[180px] lg:left-[240px] text-white/60 text-xl">*</span>
+            </div>
+            <div className="text-right mb-1">
+              <p className="text-xs lg:text-sm text-white/60">品牌&视觉设计师</p>
+              <p className="text-[11px] text-white/40">BRAND VISION</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 右下角装饰 */}
+        <div className="absolute bottom-0 right-0 pointer-events-none z-[1]">
+          <svg width="200" height="200" viewBox="0 0 200 200" className="opacity-10">
+            <path d="M0 200 Q100 100 200 0" fill="none" stroke="white" strokeWidth="1"/>
+          </svg>
         </div>
       </section>
 
@@ -444,6 +493,7 @@ export default function HomePage() {
         ))}
       </div>
 
+      {/* Coze 智能体对话 */}
       <CozeChat
         botId="7628802117205606446"
         apiKey="pat_ikmYxImr7JjuXoXoSogAYIVVs4ImVvzRTJHCMu0ggEGZasPpsWhEKKN1YGPHmFvS"
