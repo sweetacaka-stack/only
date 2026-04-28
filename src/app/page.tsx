@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
+import React from "react";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
 import CozeChat from "./components/CozeChat";
-import ZLetterCanvas from "./components/ZLetterCanvas";
-import ParticleBackground from "./components/ParticleBackground";
-import WatchHands from "./components/WatchHands";
 
+// 数据配置
 const works = [
   { id: 1, title: "MONOGRAPH", category: "Brand Identity", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2Fb2c17deea19eb100c6291198bb9c92c69235b8092dbe59ccf23c693987dc3e85.png&nonce=e6cdf224-c486-40f0-91c9-bbc87cb4feee&project_id=7628526330237288488&sign=5765c39e540e757ad689716ee1e01a67ed3f8a437cbd3c774a2d18d79734a1b8" },
   { id: 2, title: "AURA", category: "Visual Design", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0a582b534cae1df4174469b487e2c56667967c20fafeea97abc00a586baee02a.png&nonce=0111348a-bb7a-47bf-a5b4-e8e722f19205&project_id=7628526330237288488&sign=514041380476eab1bb10da905f415fa3a349bf0e55b78766c05badd8534d2b04" },
@@ -17,603 +16,405 @@ const works = [
   { id: 6, title: "LUMEN", category: "Installation", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2Fsp260415_151645.png&nonce=2b8adfc5-c944-4174-9e22-a1c97de1000e&project_id=7628526330237288488&sign=615824e13095af5cf418d8c43e4961888e0c0467f81453775e97b815dec6bd20" },
 ];
 
+// 优点数据
+const advantages = [
+  { icon: "palette", title: "独特美学设计", desc: "融合电子流与艺术装饰风格", color: "#22c55e" },
+  { icon: "layers", title: "沉浸式体验", desc: "三屏平滑滚动与GSAP动画", color: "#a855f7" },
+  { icon: "sparkles", title: "交互丰富", desc: "悬停、点击、对话多维交互", color: "#3b82f6" },
+  { icon: "zap", title: "性能优化", desc: "Canvas渲染与懒加载策略", color: "#f59e0b" },
+  { icon: "bot", title: "AI智能助手", desc: "Coze实时对话增强沟通", color: "#06b6d4" },
+];
+
+// 不足与建议数据
+const issues = [
+  { category: "用户体验", problem: "移动端适配不完善", suggestion: "使用响应式布局重构各组件", color: "#22c55e" },
+  { category: "性能优化", problem: "首屏加载较慢", suggestion: "实施图片预加载与骨架屏", color: "#3b82f6" },
+  { category: "内容呈现", problem: "作品描述信息不足", suggestion: "为每件作品添加详细案例", color: "#f59e0b" },
+  { category: "可访问性", problem: "缺少无障碍支持", suggestion: "添加ARIA标签与键盘导航", color: "#f97316" },
+  { category: "SEO优化", problem: "缺乏元信息优化", suggestion: "完善Meta标签与结构化数据", color: "#06b6d4" },
+];
+
+// 快速优化清单
+const quickFixes = [
+  { title: "添加作品详情弹窗", priority: 5 },
+  { title: "优化移动端导航", priority: 4 },
+  { title: "增加加载动画", priority: 4 },
+  { title: "添加页面过渡效果", priority: 3 },
+  { title: "优化深色模式对比度", priority: 3 },
+  { title: "添加滚动指示器", priority: 2 },
+];
+
+// 设计建议
+const designTips = [
+  { icon: "image", title: "视觉升级", desc: "采用报告风格卡片设计，增强专业感与可读性" },
+  { icon: "layout", title: "布局优化", desc: "模块化信息展示，提升用户体验与交互效率" },
+  { icon: "code", title: "技术迭代", desc: "引入Next.js 16新特性，优化性能与SEO" },
+  { icon: "accessibility", title: "无障碍支持", desc: "完善ARIA标签，支持键盘导航与屏幕阅读" },
+];
+
+// 图标组件
+const Icon = ({ name, className, style }: { name: string; className?: string; style?: React.CSSProperties }) => {
+  const icons: Record<string, React.ReactElement> = {
+    palette: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z" /><circle cx="6.5" cy="11.5" r="1.5" /><circle cx="9.5" cy="7.5" r="1.5" /><circle cx="14.5" cy="7.5" r="1.5" /><circle cx="17.5" cy="11.5" r="1.5" /></svg>,
+    layers: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>,
+    sparkles: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" /><path d="M5 19l1 3 3-1-1-3-3 1z" /><path d="M19 13l1 3 3-1-1-3-3 1z" /></svg>,
+    zap: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>,
+    bot: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="11" width="18" height="10" rx="2" /><circle cx="12" cy="5" r="2" /><path d="M12 7v4" /><circle cx="8" cy="16" r="1" /><circle cx="16" cy="16" r="1" /></svg>,
+    image: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>,
+    layout: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /><path d="M9 21V9" /></svg>,
+    code: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="16,18 22,12 16,6" /><polyline points="8,6 2,12 8,18" /></svg>,
+    accessibility: <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="4" r="2" /><path d="M12 6v6m0 6v6" /><path d="M8 14l4-2 4 2" /></svg>,
+    star: <svg className="w-4 h-4 text-yellow-400 fill-yellow-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>,
+    mail: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>,
+    phone: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>,
+  };
+  return icons[name] || null;
+};
+
+// 星级组件
+const Stars = ({ count }: { count: number }) => (
+  <div className="flex gap-0.5">
+    {[...Array(5)].map((_, i) => (
+      <Icon key={i} name="star" className={i < count ? "opacity-100" : "opacity-20"} />
+    ))}
+  </div>
+);
+
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoveredWork, setHoveredWork] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const worksContainerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const contentsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const dotsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const contentRef = useRef<(HTMLDivElement | null)[]>([]);
   const indicatorRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
   const orderRef = useRef<number[]>([0, 1, 2, 3, 4, 5]);
   const isHoveringRef = useRef(false);
-  const carouselTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 300);
+    const timer = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  // GSAP 卡片轮播
+  // GSAP 轮播动画
   useEffect(() => {
     if (currentSection !== 1) return;
-
     let isActive = true;
-    const cardWidth = 200;
-    const cardHeight = 300;
-    const gap = 40;
 
     const initDelay = setTimeout(() => {
       const ctx = gsap.context(() => {
-        const { innerHeight: height, innerWidth: width } = window;
-        const offsetTop = height - 430;
-        const offsetLeft = width - 830;
+        const { innerHeight: h, innerWidth: w } = window;
+        const offsetTop = h - 450;
+        const offsetLeft = w - 880;
+        const cardW = 180;
+        const cardH = 260;
+        const gap = 32;
 
         const initAnimation = () => {
           const [active, ...rest] = orderRef.current;
+          gsap.set(cardsRef.current[active], { x: 0, y: 0, width: w, height: h, zIndex: 20, borderRadius: 0 });
+          gsap.set(contentRef.current[active], { x: 80, y: h / 2 - 40, opacity: 0 });
+          gsap.to(contentRef.current[active], { opacity: 1, duration: 0.5, delay: 0.3 });
 
-          gsap.set(cardsRef.current[active], { x: 0, y: 0, width, height, borderRadius: 0, zIndex: 20 });
-          gsap.set(contentsRef.current[active], { x: 60, y: 240, opacity: 0 });
-          gsap.to(contentsRef.current[active], { opacity: 1, duration: 0.5, delay: 0.3 });
-
-          rest.forEach((i, index) => {
-            gsap.set(cardsRef.current[i], {
-              x: offsetLeft + 400 + index * (cardWidth + gap),
-              y: offsetTop,
-              width: cardWidth,
-              height: cardHeight,
-              zIndex: 30,
-              borderRadius: 8,
-            });
-            gsap.set(contentsRef.current[i], {
-              x: offsetLeft + 400 + index * (cardWidth + gap) + 20,
-              y: offsetTop + cardHeight - 50,
-              zIndex: 40,
-              opacity: 1,
-            });
+          rest.forEach((i, idx) => {
+            gsap.set(cardsRef.current[i], { x: offsetLeft + 420 + idx * (cardW + gap), y: offsetTop, width: cardW, height: cardH, zIndex: 30, borderRadius: 12 });
+            gsap.set(contentRef.current[i], { x: offsetLeft + 420 + idx * (cardW + gap) + 16, y: offsetTop + cardH - 48, zIndex: 40, opacity: 1 });
           });
 
-          gsap.from(titleRef.current, { opacity: 0, y: -20, duration: 0.6, delay: 0.2 });
-
-          dotsRef.current.forEach((dot, i) => {
-            gsap.set(dot, { backgroundColor: i === active ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0.2)" });
-          });
-
-          setTimeout(() => { if (isActive) runLoop(); }, 800);
+          setTimeout(() => { if (isActive) runLoop(); }, 1000);
         };
 
         const step = () => {
           orderRef.current.push(orderRef.current.shift()!);
-          const ease = "sine.inOut";
-
+          const ease = "power2.inOut";
           const [active, ...rest] = orderRef.current;
           const prv = rest[rest.length - 1];
 
-          dotsRef.current.forEach((dot, i) => {
-            gsap.to(dot, { backgroundColor: i === active ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0.2)", duration: 0.3 });
-          });
-
-          gsap.to(contentsRef.current[prv], { opacity: 0, y: 200, duration: 0.4, ease });
-
+          gsap.to(contentRef.current[prv], { opacity: 0, y: 180, duration: 0.3, ease });
           gsap.set(cardsRef.current[prv], { zIndex: 10 });
-          gsap.to(cardsRef.current[prv], { scale: 0.8, ease, duration: 0.4 });
-
+          gsap.to(cardsRef.current[prv], { scale: 0.85, ease, duration: 0.4 });
           gsap.set(cardsRef.current[active], { zIndex: 20 });
-          gsap.to(cardsRef.current[active], { x: 0, y: 0, width, height, borderRadius: 0, ease, duration: 0.5 });
+          gsap.to(cardsRef.current[active], { x: 0, y: 0, width: w, height: h, borderRadius: 0, ease, duration: 0.5 });
+          gsap.set(contentRef.current[active], { x: 80, y: h / 2 - 40 });
+          gsap.to(contentRef.current[active], { opacity: 1, y: h / 2 - 40, duration: 0.4, delay: 0.3, ease });
 
-          gsap.set(contentsRef.current[active], { x: 60, y: 240 });
-          gsap.to(contentsRef.current[active], { opacity: 1, y: 240, duration: 0.4, delay: 0.3, ease });
-
-          rest.forEach((i, index) => {
+          rest.forEach((i, idx) => {
             if (i !== prv) {
-              const xNew = offsetLeft + index * (cardWidth + gap);
-              gsap.to(cardsRef.current[i], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, ease, duration: 0.5, delay: 0.1 });
-              gsap.to(contentsRef.current[i], { x: xNew + 20, y: offsetTop + cardHeight - 50, opacity: 1, ease, duration: 0.5, delay: 0.1 });
+              const xNew = offsetLeft + idx * (cardW + gap);
+              gsap.to(cardsRef.current[i], { x: xNew, y: offsetTop, width: cardW, height: cardH, ease, duration: 0.5, delay: 0.1 });
+              gsap.to(contentRef.current[i], { x: xNew + 16, y: offsetTop + cardH - 48, opacity: 1, ease, duration: 0.5, delay: 0.1 });
             }
           });
 
           setTimeout(() => {
-            const xNew = offsetLeft + (rest.length - 1) * (cardWidth + gap);
-            gsap.set(cardsRef.current[prv], { x: xNew, y: offsetTop, width: cardWidth, height: cardHeight, zIndex: 30, borderRadius: 8, scale: 1 });
-            gsap.set(contentsRef.current[prv], { x: xNew + 20, y: offsetTop + cardHeight - 50, opacity: 1, zIndex: 40 });
+            const xNew = offsetLeft + (rest.length - 1) * (cardW + gap);
+            gsap.set(cardsRef.current[prv], { x: xNew, y: offsetTop, width: cardW, height: cardH, zIndex: 30, borderRadius: 12, scale: 1 });
+            gsap.set(contentRef.current[prv], { x: xNew + 16, y: offsetTop + cardH - 48, opacity: 1, zIndex: 40 });
           }, 600);
         };
 
         const runLoop = async () => {
-          if (!isActive) return;
-          if (isHoveringRef.current) {
-            // 悬停时暂停，等待后继续检查
-            await new Promise(resolve => setTimeout(resolve, 500));
-            if (isActive) runLoop();
-            return;
-          }
-          gsap.set(indicatorRef.current, { x: -width });
-          await new Promise((resolve) => gsap.to(indicatorRef.current, { x: 0, duration: 2, ease: "none", onComplete: resolve }));
-          if (!isActive) return;
-          if (isHoveringRef.current) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            if (isActive) runLoop();
-            return;
-          }
-          await new Promise((resolve) => gsap.to(indicatorRef.current, { x: width, duration: 0.6, delay: 0.3, ease: "power2.inOut", onComplete: resolve }));
-          if (!isActive) return;
-          if (isHoveringRef.current) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            if (isActive) runLoop();
-            return;
-          }
+          if (!isActive || isHoveringRef.current) { await new Promise(r => setTimeout(r, 500)); if (isActive) runLoop(); return; }
+          gsap.set(indicatorRef.current, { x: -w });
+          await new Promise(r => gsap.to(indicatorRef.current, { x: 0, duration: 2, ease: "none", onComplete: r }));
+          if (!isActive || isHoveringRef.current) { if (isActive) runLoop(); return; }
+          await new Promise(r => gsap.to(indicatorRef.current, { x: w, duration: 0.6, delay: 0.3, ease: "power2.inOut", onComplete: r }));
+          if (!isActive || isHoveringRef.current) { if (isActive) runLoop(); return; }
           step();
           if (isActive) runLoop();
         };
 
         initAnimation();
-      }, worksContainerRef);
-
-      return () => { ctx.revert(); };
+      }, containerRef);
+      return () => ctx.revert();
     }, 100);
 
-    return () => {
-      isActive = false;
-      clearTimeout(initDelay);
-    };
+    return () => { isActive = false; clearTimeout(initDelay); };
   }, [currentSection]);
 
-  // 平滑滚动
+  // 滚动处理
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
     let isScrolling = false;
     let wheelTimeout: NodeJS.Timeout;
 
-    const scrollToSection = (index: number) => {
-      if (isScrolling || index < 0 || index > 2) return;
+    const scrollToSection = (idx: number) => {
+      if (isScrolling || idx < 0 || idx > 2) return;
       isScrolling = true;
-      gsap.to(container, {
-        scrollTop: index * window.innerHeight,
-        duration: 0.6,
-        ease: "power2.inOut",
-        onComplete: () => {
-          setCurrentSection(index);
-          isScrolling = false;
-        },
-      });
+      gsap.to(container, { scrollTop: idx * window.innerHeight, duration: 0.7, ease: "power2.inOut", onComplete: () => { setCurrentSection(idx); isScrolling = false; } });
     };
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       clearTimeout(wheelTimeout);
-      wheelTimeout = setTimeout(() => {
-        if (e.deltaY > 30) scrollToSection(currentSection + 1);
-        else if (e.deltaY < -30) scrollToSection(currentSection - 1);
-      }, 10);
+      wheelTimeout = setTimeout(() => { if (e.deltaY > 30) scrollToSection(currentSection + 1); else if (e.deltaY < -30) scrollToSection(currentSection - 1); }, 10);
     };
 
     let touchStartY = 0;
     const handleTouchStart = (e: TouchEvent) => { touchStartY = e.touches[0].clientY; };
     const handleTouchEnd = (e: TouchEvent) => {
       const diff = touchStartY - e.changedTouches[0].clientY;
-      if (Math.abs(diff) > 50) {
-        if (diff > 0) scrollToSection(currentSection + 1);
-        else scrollToSection(currentSection - 1);
-      }
+      if (Math.abs(diff) > 50) { if (diff > 0) scrollToSection(currentSection + 1); else scrollToSection(currentSection - 1); }
     };
 
     container.addEventListener("wheel", handleWheel, { passive: false });
     container.addEventListener("touchstart", handleTouchStart, { passive: true });
     container.addEventListener("touchend", handleTouchEnd, { passive: true });
 
-    return () => {
-      container.removeEventListener("wheel", handleWheel);
-      container.removeEventListener("touchstart", handleTouchStart);
-      container.removeEventListener("touchend", handleTouchEnd);
-      clearTimeout(wheelTimeout);
-    };
+    return () => { container.removeEventListener("wheel", handleWheel); container.removeEventListener("touchstart", handleTouchStart); container.removeEventListener("touchend", handleTouchEnd); clearTimeout(wheelTimeout); };
   }, [currentSection]);
 
-  // 处理卡片悬停/点击 - 放大显示
-  const handleCardHover = useCallback((index: number | null) => {
-    setHoveredIndex(index);
-    isHoveringRef.current = index !== null;
-    
-    // 清除现有的轮播定时器
-    if (carouselTimeoutRef.current) {
-      clearTimeout(carouselTimeoutRef.current);
-    }
-    
-    const { innerHeight: height, innerWidth: width } = window;
-    
-    if (index !== null) {
-      // 放大指定卡片
-      works.forEach((_, i) => {
-        if (i === index) {
-          gsap.to(cardsRef.current[i], {
-            x: 0,
-            y: 0,
-            width: width,
-            height: height,
-            borderRadius: 0,
-            zIndex: 100,
-            duration: 0.4,
-            ease: "power2.out"
-          });
-          gsap.to(contentsRef.current[i], {
-            x: 60,
-            y: height / 2 - 50,
-            opacity: 1,
-            zIndex: 101,
-            duration: 0.4,
-            ease: "power2.out"
-          });
-        } else {
-          gsap.to(cardsRef.current[i], {
-            opacity: 0.3,
-            duration: 0.3
-          });
-        }
-      });
-    } else {
-      // 恢复轮播状态
-      works.forEach((_, i) => {
-        gsap.to(cardsRef.current[i], {
-          opacity: 1,
-          duration: 0.3
-        });
-      });
-      
-      // 延迟恢复轮播
-      carouselTimeoutRef.current = setTimeout(() => {
-        isHoveringRef.current = false;
-      }, 500);
-    }
-  }, []);
-
-  // 处理卡片点击
-  const handleCardClick = useCallback((index: number) => {
-    // 放大并保持在放大状态
-    setHoveredIndex(index);
-    isHoveringRef.current = true;
-    
-    const { innerHeight: height, innerWidth: width } = window;
-    
-    works.forEach((_, i) => {
-      if (i === index) {
-        gsap.to(cardsRef.current[i], {
-          x: 0,
-          y: 0,
-          width: width,
-          height: height,
-          borderRadius: 0,
-          zIndex: 100,
-          duration: 0.5,
-          ease: "power2.out"
-        });
-        gsap.to(contentsRef.current[i], {
-          x: 60,
-          y: height / 2 - 50,
-          opacity: 1,
-          zIndex: 101,
-          duration: 0.5,
-          ease: "power2.out"
-        });
-      } else {
-        gsap.to(cardsRef.current[i], {
-          opacity: 0,
-          duration: 0.3
-        });
-      }
-    });
-  }, []);
-
-  // 关闭放大状态
-  const handleCloseExpanded = useCallback(() => {
-    setHoveredIndex(null);
-    isHoveringRef.current = false;
-    
-    const { innerHeight: height, innerWidth: width } = window;
-    const offsetTop = height - 430;
-    const offsetLeft = width - 830;
-    const cardWidth = 200;
-    const cardHeight = 300;
-    const gap = 40;
-    
-    // 恢复所有卡片位置
-    works.forEach((_, i) => {
-      const orderIdx = orderRef.current.indexOf(i);
-      if (orderIdx === 0) {
-        gsap.to(cardsRef.current[i], {
-          x: 0,
-          y: 0,
-          width: width,
-          height: height,
-          borderRadius: 0,
-          opacity: 1,
-          zIndex: 20,
-          duration: 0.5,
-          ease: "power2.out"
-        });
-        gsap.to(contentsRef.current[i], {
-          x: 60,
-          y: 240,
-          opacity: 1,
-          duration: 0.5,
-          ease: "power2.out"
-        });
-      } else {
-        const xNew = offsetLeft + (orderIdx - 1) * (cardWidth + gap);
-        gsap.to(cardsRef.current[i], {
-          x: xNew,
-          y: offsetTop,
-          width: cardWidth,
-          height: cardHeight,
-          borderRadius: 8,
-          opacity: 1,
-          zIndex: 30,
-          duration: 0.5,
-          ease: "power2.out"
-        });
-        gsap.to(contentsRef.current[i], {
-          x: xNew + 20,
-          y: offsetTop + cardHeight - 50,
-          opacity: 1,
-          duration: 0.5,
-          ease: "power2.out"
-        });
-      }
-    });
-  }, []);
-
-  const handleNavClick = useCallback((index: number) => {
-    if (containerRef.current) {
-      gsap.to(containerRef.current, {
-        scrollTop: index * window.innerHeight,
-        duration: 0.6,
-        ease: "power2.inOut",
-      });
-    }
-  }, []);
+  const handleNavClick = (idx: number) => {
+    if (containerRef.current) gsap.to(containerRef.current, { scrollTop: idx * window.innerHeight, duration: 0.7, ease: "power2.inOut" });
+  };
 
   return (
-    <div className="smooth-container" ref={containerRef}>
-      {/* 第一屏 */}
-      <section className="relative h-screen w-full overflow-hidden">
-        {/* 手表背景图片 */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F%E6%89%8B%E8%A1%A81.png&nonce=afabf5e0-2696-490a-9a79-6719fdf7089c&project_id=7628526330237288488&sign=ac6637b0dce6aa62ecbd7e53986b5d72c772bd7b4f6b9764023547763eb0f030"
-            alt="背景"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/60" />
-        </div>
+    <div ref={containerRef} className="h-[300vh] overflow-y-auto snap-y snap-mandatory scroll-smooth">
+      {/* 第一屏 - 个人介绍报告风格 */}
+      <section className="h-screen w-full overflow-hidden" style={{ background: "#121212" }}>
+        <div className={cn("h-full max-w-6xl mx-auto px-8 py-16 flex flex-col transition-all duration-700", isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4")}>
+          {/* 标题区 */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">个人数字名片</h1>
+            <p className="text-base text-gray-400 max-w-2xl mx-auto">品牌&视觉设计师 | 专注于创新设计与用户体验优化</p>
+          </div>
 
-        {/* 背景装饰 */}
-        <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
-          <div className="absolute -top-28 -right-28 w-[460px] h-[460px] border border-white/10 rounded-full"></div>
-          <div className="absolute top-1/3 -left-36 w-[580px] h-[580px] border border-white/10 rounded-full"></div>
-          <div className="absolute bottom-0 right-20 w-[320px] h-[320px] border border-white/10 rounded-full"></div>
-          <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="grid" width="96" height="96" patternUnits="userSpaceOnUse">
-                <path d="M96 0 L0 0 0 96" fill="none" stroke="white" strokeWidth="0.5"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        </div>
+          {/* 01 优点总结 */}
+          <div className="mb-12">
+            <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-3">
+              <span className="text-gray-500">01</span>
+              <span className="w-8 h-px bg-gray-700"></span>
+              <span>优点总结</span>
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {advantages.map((item, idx) => (
+                <div key={idx} className="group bg-[#1E1E1E] rounded-xl p-5 hover:bg-[#262626] transition-all duration-300 cursor-default">
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: `${item.color}20` }}>
+                    <Icon name={item.icon} className="w-6 h-6" style={{ color: item.color }} />
+                  </div>
+                  <h3 className="text-white font-medium text-sm mb-1">{item.title}</h3>
+                  <p className="text-gray-500 text-xs leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
 
-        {/* 左侧菜单导航 */}
-        <nav className={cn("absolute left-0 top-0 h-full w-44 z-20 flex flex-col px-4 py-6 border-r border-white/10 bg-black/30 backdrop-blur-sm opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
-          <div className="space-y-0 mt-16">
-            {[
-              { id: '01', label: '品牌', sublabel: 'BRAND' },
-              { id: '02', label: '包装', sublabel: 'PACKING' },
-              { id: '03', label: '标志字体', sublabel: 'LOGO&FONT' },
-              { id: '04', label: '版式视觉', sublabel: 'FORMAT' },
-            ].map((item) => (
-              <button key={item.id} className="w-full text-left py-3 border-t border-white/10 first:border-t-0 hover:bg-white/5 transition-colors group">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-white/40 text-xs mr-3.5">{item.id}</span>
-                    <span className="text-base text-white/80">{item.label}</span>
+          {/* 02 主要不足与优化建议 */}
+          <div className="mb-12 flex-1">
+            <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-3">
+              <span className="text-gray-500">02</span>
+              <span className="w-8 h-px bg-gray-700"></span>
+              <span>主要不足与优化建议</span>
+            </h2>
+            <div className="bg-[#1E1E1E] rounded-xl overflow-hidden">
+              <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-[#161616] border-b border-gray-800 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <div className="col-span-3">维度分类</div>
+                <div className="col-span-4">现存问题</div>
+                <div className="col-span-5">优化建议</div>
+              </div>
+              {issues.map((item, idx) => (
+                <div key={idx} className="grid grid-cols-12 gap-4 px-6 py-5 border-b border-gray-800/50 hover:bg-[#242424]/50 transition-colors">
+                  <div className="col-span-3 flex items-center gap-3">
+                    <div className="w-1 h-8 rounded-full" style={{ backgroundColor: item.color }}></div>
+                    <span className="text-white text-sm font-medium">{item.category}</span>
+                  </div>
+                  <div className="col-span-4 flex items-center">
+                    <span className="text-gray-400 text-sm">{item.problem}</span>
+                  </div>
+                  <div className="col-span-5 flex items-center">
+                    <span className="text-gray-300 text-sm">{item.suggestion}</span>
                   </div>
                 </div>
-                <p className="text-[11px] text-white/30 mt-1 ml-8">{item.sublabel}</p>
-              </button>
-            ))}
-          </div>
-          <div className="mt-auto">
-            <div className="border border-white/10 w-full aspect-square flex items-center justify-center">
-              <div className="w-1/2 h-1/2 border border-white/10 rounded-full"></div>
-            </div>
-          </div>
-        </nav>
-
-        {/* 主内容区域 */}
-        <div className="relative z-10 h-full">
-          {/* 电子流 Z 字母 */}
-          <div className="absolute left-44 lg:left-56 top-1/2 -translate-y-1/2">
-            <div className="w-[18vw] lg:w-[14vw] aspect-[1/1.5]">
-              <ZLetterCanvas />
+              ))}
             </div>
           </div>
 
-          {/* 中间年份大标题 */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-            <h1
-              className={cn("text-[80px] sm:text-[100px] lg:text-[140px] font-bold tracking-tighter leading-none opacity-0 animate-fade-in-up delay-200", isLoaded && "opacity-100")}
-              style={{
-                fontFamily: 'serif',
-                fontStyle: 'italic',
-                textShadow: '0 0 30px rgba(255,255,255,0.25), 2px 2px 0 rgba(255,255,255,0.4)',
-                background: 'linear-gradient(180deg, #ffffff 0%, #888888 50%, #aaaaaa 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                letterSpacing: '-0.05em'
-              }}
-            >
-              2026
-            </h1>
-            <span className="absolute top-8 right-0 text-white/60 text-2xl">*</span>
-          </div>
-
-          {/* 右侧个人信息 */}
-          <div className={cn("absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 text-right opacity-0 animate-fade-in-up delay-300", isLoaded && "opacity-100")}>
-            <div>
-              <p className="text-2xl lg:text-3xl font-light tracking-wide text-white/90" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>Qin. Tian</p>
-              <p className="text-lg lg:text-xl text-white/60" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>Yang</p>
-              <div className="mt-3 text-[10px] lg:text-[11px] text-white/40 space-y-1">
-                <p>contact number:</p><p>15697697001</p>
-                <p>e-mail:</p><p>2922717190@qq.com</p>
-                <p>wechat:</p><p>2922717190@qq.com</p>
+          {/* 底部信息区 */}
+          <div className="flex items-center justify-between pt-6 border-t border-gray-800">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500/80"></div>
+              <span className="text-gray-500 text-sm">在线状态</span>
+            </div>
+            <div className="flex items-center gap-8">
+              <div className="flex items-center gap-2 text-gray-400">
+                <Icon name="mail" />
+                <span className="text-sm">2922717190@qq.com</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-400">
+                <Icon name="phone" />
+                <span className="text-sm">15697697001</span>
               </div>
             </div>
           </div>
-
-          {/* 手表指针 */}
-          <div className="absolute right-[20%] lg:right-[25%] top-1/2 -translate-y-1/2 w-32 lg:w-48 z-10">
-            <WatchHands />
-          </div>
-        </div>
-
-        {/* 底部 PORTFOLIO */}
-        <div className={cn("absolute bottom-0 left-0 right-0 z-20 border-t border-white/10 px-6 lg:px-8 py-4 opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
-          <div className="flex items-end justify-between">
-            <div className="relative">
-              <h2
-                className="text-[36px] sm:text-[48px] lg:text-[64px] font-bold leading-none tracking-tighter"
-                style={{
-                  fontFamily: 'serif',
-                  fontStyle: 'italic',
-                  background: 'linear-gradient(180deg, #ffffff 0%, #666666 40%, #888888 70%, #555555 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  textShadow: '0 0 30px rgba(255,255,255,0.2)',
-                  letterSpacing: '-0.08em'
-                }}
-              >
-                PORTFOLIO
-              </h2>
-              <span className="absolute top-4 left-[140px] sm:left-[180px] lg:left-[240px] text-white/60 text-xl">*</span>
-            </div>
-            <div className="text-right mb-1">
-              <p className="text-xs lg:text-sm text-white/60">品牌&视觉设计师</p>
-              <p className="text-[11px] text-white/40">BRAND VISION</p>
-            </div>
-          </div>
-        </div>
-
-        {/* 右下角装饰 */}
-        <div className="absolute bottom-0 right-0 pointer-events-none z-[1]">
-          <svg width="200" height="200" viewBox="0 0 200 200" className="opacity-10">
-            <path d="M0 200 Q100 100 200 0" fill="none" stroke="white" strokeWidth="1"/>
-          </svg>
-        </div>
-
-        {/* 滚动提示 */}
-        <div className={cn("absolute bottom-8 left-1/2 -translate-x-1/2 z-20 opacity-0 animate-fade-in-up delay-700", isLoaded && "opacity-100")}>
-          <div className="flex flex-col items-center gap-2 text-white/30 text-xs">
-            <span>SCROLL</span>
-            <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </div>
         </div>
       </section>
 
-      {/* 第二屏 - GSAP卡片轮播 */}
-      <section className="relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
-        <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: "translateX(-100%)" }} />
-        <div ref={titleRef} className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">WORKS</div>
-        
-        {/* 关闭按钮 - 放大状态显示 */}
-        {hoveredIndex !== null && (
-          <button
-            onClick={handleCloseExpanded}
-            className="absolute top-4 right-4 z-[200] w-12 h-12 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-full border border-white/20 hover:bg-black/70 transition-all"
-          >
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+      {/* 第二屏 - 作品集轮播 */}
+      <section className="relative h-screen w-full overflow-hidden" ref={containerRef} style={{ background: "#121212" }}>
+        <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] bg-white/60" style={{ width: "100%", transform: "translateX(-100%)" }} />
+
+        {/* 标题 */}
+        <div className="absolute left-8 top-8 z-50">
+          <h2 className="text-lg font-semibold text-white flex items-center gap-3">
+            <span className="text-gray-500">03</span>
+            <span className="w-8 h-px bg-gray-700"></span>
+            <span>作品集</span>
+          </h2>
+        </div>
+
+        {/* 关闭按钮 */}
+        {hoveredWork !== null && (
+          <button onClick={() => setHoveredWork(null)} className="absolute top-8 right-8 z-[200] w-12 h-12 flex items-center justify-center bg-[#1E1E1E] backdrop-blur-sm rounded-full border border-gray-700 hover:bg-[#262626] transition-all">
+            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         )}
-        
+
         {/* 底部指示器 */}
-        <div className="absolute bottom-8 left-8 z-[50] flex gap-2">
+        <div className="absolute bottom-8 left-8 z-50 flex gap-2">
           {works.map((_, i) => (
-            <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
+            <div key={i} className={cn("h-0.5 rounded-full transition-all duration-300", i === 0 ? "w-8 bg-white" : "w-4 bg-white/30")} />
           ))}
         </div>
-        
-        {/* 作品卡片 - 添加鼠标和点击事件 */}
-        {works.map((work, index) => (
-          <div
-            key={`card-${index}`}
-            ref={(el) => { cardsRef.current[index] = el; }}
-            className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)] cursor-pointer transition-opacity"
+
+        {/* 提示文字 */}
+        <div className="absolute bottom-8 right-8 z-50 text-xs text-gray-500">悬停或点击查看大图</div>
+
+        {/* 作品卡片 */}
+        {works.map((work, idx) => (
+          <div key={`card-${idx}`} ref={el => { cardsRef.current[idx] = el; }}
+            className="absolute left-0 top-0 bg-cover bg-center shadow-2xl cursor-pointer transition-shadow hover:shadow-3xl"
             style={{ backgroundImage: `url(${work.image})` }}
-            onMouseEnter={() => handleCardHover(index)}
-            onMouseLeave={() => handleCardHover(null)}
-            onClick={() => handleCardClick(index)}
+            onMouseEnter={() => { setHoveredWork(idx); isHoveringRef.current = true; }}
+            onMouseLeave={() => { setHoveredWork(null); isHoveringRef.current = false; }}
+            onClick={() => setHoveredWork(idx)}
           />
         ))}
-        
+
         {/* 作品内容 */}
-        {works.map((work, index) => (
-          <div
-            key={`content-${index}`}
-            ref={(el) => { contentsRef.current[index] = el; }}
-            className="absolute left-0 top-0 text-white z-30 pointer-events-none"
-          >
-            <div className="h-[3px] w-8 bg-white/60 mb-3" />
-            <p className="text-sm tracking-wider text-white/60">{work.category}</p>
-            <p className="text-4xl lg:text-6xl font-bold tracking-wider mt-1">{work.title}</p>
+        {works.map((work, idx) => (
+          <div key={`content-${idx}`} ref={el => { contentRef.current[idx] = el; }} className="absolute left-0 top-0 text-white z-30 pointer-events-none">
+            <div className="h-[3px] w-10 bg-white/60 mb-4"></div>
+            <p className="text-sm tracking-wider text-white/60 mb-2">{work.category}</p>
+            <p className="text-4xl md:text-5xl font-bold tracking-wider">{work.title}</p>
           </div>
         ))}
-        
-        {/* 悬停提示 */}
-        <div className="absolute bottom-8 right-8 z-[50] text-xs text-white/30">
-          悬停或点击卡片查看大图
-        </div>
       </section>
 
-      {/* 第三屏 */}
-      <section className="relative h-screen w-full overflow-hidden">
-        <ParticleBackground />
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          <div className="flex items-center gap-16">
-            <a href="mailto:2922717190@qq.com" className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              <span className="text-sm tracking-wide">2922717190@qq.com</span>
-            </a>
-            <div className="w-px h-8 bg-white/20" />
-            <div className="flex items-center gap-3 text-white/70">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              <span className="text-sm tracking-wide">15098039595</span>
+      {/* 第三屏 - 快速优化清单 & 设计建议 */}
+      <section className="h-screen w-full overflow-hidden" style={{ background: "#121212" }}>
+        <div className="h-full max-w-6xl mx-auto px-8 py-16 flex flex-col">
+          {/* 03 快速优化清单 */}
+          <div className="mb-12">
+            <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-3">
+              <span className="text-gray-500">03</span>
+              <span className="w-8 h-px bg-gray-700"></span>
+              <span>快速优化清单</span>
+            </h2>
+            <div className="bg-[#1E1E1E] rounded-xl p-6">
+              {quickFixes.map((item, idx) => (
+                <div key={idx} className={cn("flex items-center justify-between py-4", idx < quickFixes.length - 1 && "border-b border-gray-800/50")}>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-[#262626] flex items-center justify-center">
+                      <span className="text-white/60 text-sm font-medium">{String(idx + 1).padStart(2, '0')}</span>
+                    </div>
+                    <span className="text-white text-sm">{item.title}</span>
+                  </div>
+                  <Stars count={item.priority} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 04 设计与内容建议 */}
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-3">
+              <span className="text-gray-500">04</span>
+              <span className="w-8 h-px bg-gray-700"></span>
+              <span>设计与内容建议</span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {designTips.map((item, idx) => (
+                <div key={idx} className="group bg-[#1E1E1E] rounded-xl p-6 hover:bg-[#262626] transition-all duration-300 cursor-default">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-[#262626] flex items-center justify-center group-hover:bg-[#303030] transition-colors">
+                      <Icon name={item.icon} className="w-6 h-6 text-gray-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-white font-medium mb-2">{item.title}</h3>
+                      <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 底部总结 */}
+          <div className="mt-auto pt-8 border-t border-gray-800">
+            <div className="bg-gradient-to-r from-[#1E1E1E] to-[#161616] rounded-xl p-6 flex items-center justify-between">
+              <div>
+                <h3 className="text-white font-medium mb-1">持续迭代优化中</h3>
+                <p className="text-gray-500 text-sm">定期更新设计与功能，欢迎提出宝贵建议</p>
+              </div>
+              <button className="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm font-medium transition-colors">
+                联系我们
+              </button>
             </div>
           </div>
         </div>
       </section>
 
       {/* 导航点 */}
-      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
-        {[0, 1, 2].map((index) => (
-          <button key={index} onClick={() => handleNavClick(index)} className={cn("w-1.5 h-1.5 rounded-full transition-all duration-300", currentSection === index ? "bg-white/80" : "bg-white/20 hover:bg-white/40")} />
+      <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-3">
+        {[0, 1, 2].map(idx => (
+          <button key={idx} onClick={() => handleNavClick(idx)}
+            className={cn("w-2 h-2 rounded-full transition-all duration-300", currentSection === idx ? "bg-white h-6" : "bg-white/30 hover:bg-white/50")} />
         ))}
       </div>
 
-      {/* Coze 智能体对话 */}
-      <CozeChat
-        botId="7628802117205606446"
-        apiKey="pat_ikmYxImr7JjuXoXoSogAYIVVs4ImVvzRTJHCMu0ggEGZasPpsWhEKKN1YGPHmFvS"
-      />
+      {/* Coze 智能体 */}
+      <CozeChat botId="7628802117205606446" apiKey="pat_ikmYxImr7JjuXoXoSogAYIVVs4ImVvzRTJHCMu0ggEGZasPpsWhEKKN1YGPHmFvS" />
     </div>
   );
 }
