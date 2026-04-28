@@ -353,25 +353,128 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 第二屏 - GSAP卡片轮播 */}
+      {/* 第二屏 - 作品展示 */}
       <section className="relative h-screen w-full overflow-hidden" ref={worksContainerRef}>
-        <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: "translateX(-100%)" }} />
-        <div ref={titleRef} className="absolute left-8 top-8 z-[50] text-xs tracking-[0.3em] text-white/40">WORKS</div>
-        <div className="absolute bottom-8 left-8 z-[50] flex gap-2">
-          {works.map((_, i) => (
-            <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
-          ))}
+        {/* 背景 - 使用手表背景 */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F%E6%89%8B%E8%A1%A81.png&nonce=afabf5e0-2696-490a-9a79-6719fdf7089c&project_id=7628526330237288488&sign=ac6637b0dce6aa62ecbd7e53986b5d72c772bd7b4f6b9764023547763eb0f030"
+            alt="背景"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/70" />
         </div>
-        {works.map((work, index) => (
-          <div key={`card-${index}`} ref={(el) => { cardsRef.current[index] = el; }} className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]" style={{ backgroundImage: `url(${work.image})` }} />
-        ))}
-        {works.map((work, index) => (
-          <div key={`content-${index}`} ref={(el) => { contentsRef.current[index] = el; }} className="absolute left-0 top-0 text-white z-30">
-            <div className="h-[3px] w-8 bg-white/60 mb-3" />
-            <p className="text-sm tracking-wider text-white/60">{work.category}</p>
-            <p className="text-4xl lg:text-6xl font-bold tracking-wider mt-1">{work.title}</p>
+
+        {/* 背景装饰 */}
+        <div className="absolute inset-0 pointer-events-none z-[1] overflow-hidden">
+          <div className="absolute -top-28 -right-28 w-[460px] h-[460px] border border-white/10 rounded-full"></div>
+          <div className="absolute top-1/3 -left-36 w-[580px] h-[580px] border border-white/10 rounded-full"></div>
+          <div className="absolute bottom-0 right-20 w-[320px] h-[320px] border border-white/10 rounded-full"></div>
+          <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid2" width="96" height="96" patternUnits="userSpaceOnUse">
+                <path d="M96 0 L0 0 0 96" fill="none" stroke="white" strokeWidth="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid2)" />
+          </svg>
+        </div>
+
+        {/* 左侧菜单导航 */}
+        <nav className={cn("absolute left-0 top-0 h-full w-44 z-20 flex flex-col px-4 py-6 border-r border-white/10 bg-black/30 backdrop-blur-sm opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
+          <div className="space-y-0 mt-16">
+            {[
+              { id: '01', label: '品牌', sublabel: 'BRAND' },
+              { id: '02', label: '包装', sublabel: 'PACKING' },
+              { id: '03', label: '标志字体', sublabel: 'LOGO&FONT' },
+              { id: '04', label: '版式视觉', sublabel: 'FORMAT' },
+            ].map((item) => (
+              <button key={item.id} className="w-full text-left py-3 border-t border-white/10 first:border-t-0 hover:bg-white/5 transition-colors group">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-white/40 text-xs mr-3.5">{item.id}</span>
+                    <span className="text-base text-white/80">{item.label}</span>
+                  </div>
+                </div>
+                <p className="text-[11px] text-white/30 mt-1 ml-8">{item.sublabel}</p>
+              </button>
+            ))}
           </div>
-        ))}
+          <div className="mt-auto">
+            <div className="border border-white/10 w-full aspect-square flex items-center justify-center">
+              <div className="w-1/2 h-1/2 border border-white/10 rounded-full"></div>
+            </div>
+          </div>
+        </nav>
+
+        {/* 进度条 */}
+        <div ref={indicatorRef} className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/80" style={{ transform: "translateX(-100%)" }} />
+
+        {/* 主内容区域 */}
+        <div className="relative z-10 h-full flex items-center">
+          {/* 作品标题 */}
+          <div ref={titleRef} className="absolute left-44 lg:left-56 top-12">
+            <div className="flex items-center gap-4">
+              <div className="h-[2px] w-12 bg-white/40"></div>
+              <span className="text-xs tracking-[0.3em] text-white/40">WORKS</span>
+            </div>
+          </div>
+
+          {/* GSAP卡片区域 */}
+          <div className="absolute inset-0">
+            {works.map((work, index) => (
+              <div key={`card-${index}`} ref={(el) => { cardsRef.current[index] = el; }} className="absolute left-0 top-0 bg-cover bg-center shadow-[6px_6px_10px_2px_rgba(0,0,0,0.6)]" style={{ backgroundImage: `url(${work.image})` }} />
+            ))}
+            {works.map((work, index) => (
+              <div key={`content-${index}`} ref={(el) => { contentsRef.current[index] = el; }} className="absolute left-0 top-0 text-white z-30">
+                <div className="h-[3px] w-8 bg-white/60 mb-3" />
+                <p className="text-sm tracking-wider text-white/60">{work.category}</p>
+                <p className="text-4xl lg:text-6xl font-bold tracking-wider mt-1" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>{work.title}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* 底部指示器 */}
+          <div className="absolute bottom-8 left-44 lg:left-56 z-[50] flex gap-2">
+            {works.map((_, i) => (
+              <div key={i} ref={(el) => { dotsRef.current[i] = el; }} className="h-0.5 w-8 rounded-full bg-white/20" />
+            ))}
+          </div>
+        </div>
+
+        {/* 底部PORTFOLIO */}
+        <div className={cn("absolute bottom-0 left-0 right-0 z-20 border-t border-white/10 px-6 lg:px-8 py-4 opacity-0 animate-fade-in-up delay-500", isLoaded && "opacity-100")}>
+          <div className="flex items-end justify-between">
+            <div className="relative">
+              <h2
+                className="text-[36px] sm:text-[48px] lg:text-[64px] font-bold leading-none tracking-tighter"
+                style={{
+                  fontFamily: 'serif',
+                  fontStyle: 'italic',
+                  background: 'linear-gradient(180deg, #ffffff 0%, #666666 40%, #888888 70%, #555555 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  textShadow: '0 0 30px rgba(255,255,255,0.2)',
+                  letterSpacing: '-0.08em'
+                }}
+              >
+                PORTFOLIO
+              </h2>
+              <span className="absolute top-4 left-[140px] sm:left-[180px] lg:left-[240px] text-white/60 text-xl">*</span>
+            </div>
+            <div className="text-right mb-1">
+              <p className="text-xs lg:text-sm text-white/60">品牌&视觉设计师</p>
+              <p className="text-[11px] text-white/40">BRAND VISION</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 右下角装饰 */}
+        <div className="absolute bottom-0 right-0 pointer-events-none z-[1]">
+          <svg width="200" height="200" viewBox="0 0 200 200" className="opacity-10">
+            <path d="M0 200 Q100 100 200 0" fill="none" stroke="white" strokeWidth="1"/>
+          </svg>
+        </div>
       </section>
 
       {/* 第三屏 */}
