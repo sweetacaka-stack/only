@@ -2,14 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-}
-
 export default function ParticleBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -21,9 +13,10 @@ export default function ParticleBackground() {
     if (!ctx) return;
 
     let animationId: number;
-    let particles: Particle[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let particles: any[] = [];
 
-    class ParticleClass implements Particle {
+    class ParticleClass {
       x: number;
       y: number;
       vx: number;
