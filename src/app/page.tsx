@@ -7,15 +7,7 @@ import CozeChat from "./components/CozeChat";
 import ZLetterCanvas from "./components/ZLetterCanvas";
 import ParticleBackground from "./components/ParticleBackground";
 import WatchHands from "./components/WatchHands";
-
-const works = [
-  { id: 1, title: "MONOGRAPH", category: "Brand Identity", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2Fb2c17deea19eb100c6291198bb9c92c69235b8092dbe59ccf23c693987dc3e85.png&nonce=e6cdf224-c486-40f0-91c9-bbc87cb4feee&project_id=7628526330237288488&sign=5765c39e540e757ad689716ee1e01a67ed3f8a437cbd3c774a2d18d79734a1b8" },
-  { id: 2, title: "AURA", category: "Visual Design", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0a582b534cae1df4174469b487e2c56667967c20fafeea97abc00a586baee02a.png&nonce=0111348a-bb7a-47bf-a5b4-e8e722f19205&project_id=7628526330237288488&sign=514041380476eab1bb10da905f415fa3a349bf0e55b78766c05badd8534d2b04" },
-  { id: 3, title: "VOID", category: "Art Direction", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F0fc3ec76c63e9c9019bbbafd74fe55acf75d5fa1428fd911391a856c9a707f4b.png&nonce=b289ae8d-88ed-4cc0-8ca9-eb6feeabfe2e&project_id=7628526330237288488&sign=2e8ee79250d9c94eb1d1286469cf68f076a8e89fbd169a89b9befe326e6b8af6" },
-  { id: 4, title: "ETHEREAL", category: "Photography", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F3f3bea175ebb1d23a37de7c4805d9d998f5659cd1a272e4601e2ec740b78a904.png&nonce=d6769453-a409-4ba4-bfe0-7d0f65e4ad01&project_id=7628526330237288488&sign=1a2b34db9d831af35a99a7c95ff5602259fa5d394646eed6794a218f46d5cbc0" },
-  { id: 5, title: "METRIC", category: "Data Visualization", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F4cbf9d2d2d36c6f2c2c702885afd68f8ecd66b61884f1c935083d05334cf8b62.png&nonce=ac78c54c-8d7a-4924-9f24-2d6af074ea4d&project_id=7628526330237288488&sign=733958909a9dbe6b6f1d243684c2389bd6bb6337e15da5c768f88055b363e8e7" },
-  { id: 6, title: "LUMEN", category: "Installation", image: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2Fsp260415_151645.png&nonce=2b8adfc5-c944-4174-9e22-a1c97de1000e&project_id=7628526330237288488&sign=615824e13095af5cf418d8c43e4961888e0c0467f81453775e97b815dec6bd20" },
-];
+import { personalInfo, works } from "./config";
 
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
@@ -408,12 +400,7 @@ export default function HomePage() {
         {/* 左侧菜单导航 */}
         <nav className={cn("absolute left-0 top-0 h-full w-44 z-20 flex flex-col px-4 py-6 border-r border-white/10 bg-black/30 backdrop-blur-sm opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
           <div className="space-y-0 mt-16">
-            {[
-              { id: '01', label: '品牌', sublabel: 'BRAND' },
-              { id: '02', label: '包装', sublabel: 'PACKING' },
-              { id: '03', label: '标志字体', sublabel: 'LOGO&FONT' },
-              { id: '04', label: '版式视觉', sublabel: 'FORMAT' },
-            ].map((item) => (
+            {personalInfo.menuItems.map((item) => (
               <button key={item.id} className="w-full text-left py-3 border-t border-white/10 first:border-t-0 hover:bg-white/5 transition-colors group">
                 <div className="flex items-center justify-between">
                   <div>
@@ -463,12 +450,15 @@ export default function HomePage() {
           {/* 右侧个人信息 */}
           <div className={cn("absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 z-20 text-right opacity-0 animate-fade-in-up delay-300", isLoaded && "opacity-100")}>
             <div>
-              <p className="text-2xl lg:text-3xl font-light tracking-wide text-white/90" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>Qin. Tian</p>
-              <p className="text-lg lg:text-xl text-white/60" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>Yang</p>
+              <p className="text-2xl lg:text-3xl font-light tracking-wide text-white/90" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>{personalInfo.firstName}</p>
+              <p className="text-lg lg:text-xl text-white/60" style={{ fontFamily: 'serif', fontStyle: 'italic' }}>{personalInfo.lastName}</p>
               <div className="mt-3 text-[10px] lg:text-[11px] text-white/40 space-y-1">
-                <p>contact number:</p><p>15697697001</p>
-                <p>e-mail:</p><p>2922717190@qq.com</p>
-                <p>wechat:</p><p>2922717190@qq.com</p>
+                <p>contact number:</p><p>{personalInfo.phone}</p>
+                <p>e-mail:</p><p>{personalInfo.email}</p>
+                <p>wechat:</p>
+                <div className="mt-1">
+                  <img src={personalInfo.wechatQRCode} alt="微信二维码" className="w-16 lg:w-20 rounded border border-white/20" />
+                </div>
               </div>
             </div>
           </div>
@@ -500,8 +490,8 @@ export default function HomePage() {
               <span className="absolute top-4 left-[140px] sm:left-[180px] lg:left-[240px] text-white/60 text-xl">*</span>
             </div>
             <div className="text-right mb-1">
-              <p className="text-xs lg:text-sm text-white/60">品牌&视觉设计师</p>
-              <p className="text-[11px] text-white/40">BRAND VISION</p>
+              <p className="text-xs lg:text-sm text-white/60">{personalInfo.title}</p>
+              <p className="text-[11px] text-white/40">{personalInfo.titleEn}</p>
             </div>
           </div>
         </div>
@@ -585,11 +575,11 @@ export default function HomePage() {
         <ParticleBackground />
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <div className="flex items-center gap-16">
-            <a href="mailto:2922717190@qq.com" className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
+            <a href={`mailto:${personalInfo.email}`} className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              <span className="text-sm tracking-wide">2922717190@qq.com</span>
+              <span className="text-sm tracking-wide">{personalInfo.email}</span>
             </a>
             <div className="w-px h-8 bg-white/20" />
             <div className="flex items-center gap-3 text-white/70">
@@ -611,8 +601,8 @@ export default function HomePage() {
 
       {/* Coze 智能体对话 */}
       <CozeChat
-        botId="7628802117205606446"
-        apiKey="pat_ikmYxImr7JjuXoXoSogAYIVVs4ImVvzRTJHCMu0ggEGZasPpsWhEKKN1YGPHmFvS"
+        botId={personalInfo.cozeBotId}
+        apiKey={personalInfo.cozeApiKey}
       />
     </div>
   );
