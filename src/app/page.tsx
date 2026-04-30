@@ -7,7 +7,7 @@ import CozeChat from "./components/CozeChat";
 import ZLetterCanvas from "./components/ZLetterCanvas";
 import ParticleBackground from "./components/ParticleBackground";
 import WatchHands from "./components/WatchHands";
-import { personalInfo, works } from "./config";
+import { personalInfo, works, videos } from "./config";
 
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
@@ -16,6 +16,8 @@ export default function HomePage() {
   const [selectedWorkIndex, setSelectedWorkIndex] = useState(0);
   const [isZooming, setIsZooming] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [selectedVideoIndex, setSelectedVideoIndex] = useState<number | null>(null);
+  const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const worksContainerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -305,9 +307,46 @@ export default function HomePage() {
         <div className="absolute right-8 top-8 z-20 text-xs tracking-[0.3em] text-white/40">WORKS</div>
       </section>
 
-      {/* 第三屏 - 待开发 */}
-      <section className="h-screen w-full bg-gradient-to-b from-[#0a0a0a] to-black flex items-center justify-center">
-        <div className="text-white/30 text-lg tracking-widest">即将推出</div>
+      {/* 第三屏 - 产品视频 */}
+      <section className="relative h-screen w-full overflow-hidden bg-gradient-to-b from-[#0a0a0a] to-black">
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-8">
+          {/* 标题 */}
+          <div className="mb-16 text-center">
+            <h2 className="text-4xl font-bold text-white tracking-wider">PRODUCT VIDEOS</h2>
+            <div className="mt-4 h-[2px] w-24 bg-white/30 mx-auto" />
+          </div>
+          
+          {/* 三个视频模块 */}
+          <div className="flex gap-8 max-w-5xl w-full">
+            {videos.map((video, index) => (
+              <div 
+                key={video.id}
+                onClick={() => setSelectedVideoIndex(index)}
+                className="flex-1 group cursor-pointer"
+              >
+                <div className="relative aspect-video bg-[#1a1a1a] rounded-xl overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-white/10">
+                  <img 
+                    src={video.thumbnail} 
+                    alt={video.title}
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                  />
+                  {/* 播放按钮 */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 text-center">
+                  <p className="text-white font-medium">{video.title}</p>
+                  <p className="text-white/40 text-xs mt-1 tracking-wider">{video.subtitle}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* 第四屏 - 待开发 */}
@@ -374,6 +413,66 @@ export default function HomePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 视频播放模态框 */}
+      {selectedVideoIndex !== null && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-fade-in"
+          onClick={() => setSelectedVideoIndex(null)}
+        >
+          <div 
+            className={cn(
+              "relative transition-all duration-300",
+              isVideoExpanded 
+                ? "w-[95vw] h-[90vh]" 
+                : "w-[60vw] h-[33.75vw]" /* 16:9 ratio, 1/3 screen width */
+            )}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 视频播放器 */}
+            <video
+              src={videos[selectedVideoIndex].url}
+              className="w-full h-full object-contain bg-black rounded-xl"
+              controls
+              autoPlay
+            />
+            
+            {/* 标题 */}
+            <div className="absolute -bottom-12 left-0 right-0 text-center">
+              <p className="text-white font-medium">{videos[selectedVideoIndex].title}</p>
+            </div>
+            
+            {/* 控制按钮 */}
+            <div className="absolute -top-12 right-0 flex items-center gap-3">
+              {/* 放大/缩小按钮 */}
+              <button 
+                onClick={() => setIsVideoExpanded(!isVideoExpanded)}
+                className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/80 hover:text-white transition-colors"
+              >
+                {isVideoExpanded ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                )}
+              </button>
+              
+              {/* 关闭按钮 */}
+              <button 
+                onClick={() => setSelectedVideoIndex(null)}
+                className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/80 hover:text-white transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       )}
