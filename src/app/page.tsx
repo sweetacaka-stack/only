@@ -305,6 +305,16 @@ export default function HomePage() {
         <div className="absolute right-8 top-8 z-20 text-xs tracking-[0.3em] text-white/40">WORKS</div>
       </section>
 
+      {/* 第四屏 - 待开发 */}
+      <section className="h-screen w-full bg-gradient-to-b from-[#0a0a0a] to-black flex items-center justify-center">
+        <div className="text-white/30 text-lg tracking-widest">即将推出</div>
+      </section>
+
+      {/* 第五屏 - 待开发 */}
+      <section className="h-screen w-full bg-black flex items-center justify-center">
+        <div className="text-white/30 text-lg tracking-widest">即将推出</div>
+      </section>
+
       {/* 第三屏 */}
       <section className="relative h-screen w-full overflow-hidden">
         <ParticleBackground />
