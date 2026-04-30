@@ -7,7 +7,7 @@ import CozeChat from "./components/CozeChat";
 import ZLetterCanvas from "./components/ZLetterCanvas";
 import ParticleBackground from "./components/ParticleBackground";
 import WatchHands from "./components/WatchHands";
-import { personalInfo, works, videos } from "./config";
+import { personalInfo, works, videos, gallery } from "./config";
 
 export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
@@ -349,9 +349,35 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 第四屏 - 待开发 */}
-      <section className="h-screen w-full bg-black flex items-center justify-center">
-        <div className="text-white/30 text-lg tracking-widest">即将推出</div>
+      {/* 第四屏 - 图片画廊 */}
+      <section className="h-screen w-full bg-black flex items-center justify-center overflow-hidden">
+        <div className="w-full h-full p-8 overflow-y-auto custom-scrollbar">
+          <h2 className="text-white text-2xl font-light tracking-[0.2em] mb-8 text-center">GALLERY</h2>
+          
+          {/* 自适应网格布局 */}
+          <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+            {gallery.map((item) => (
+              <div 
+                key={item.id}
+                className="break-inside-avoid mb-4 group"
+              >
+                <div className="relative overflow-hidden rounded-lg">
+                  <img 
+                    src={item.url} 
+                    alt={item.title}
+                    className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                    <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm tracking-wider">
+                      {item.title}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* 第五屏 - 联系方式 */}
