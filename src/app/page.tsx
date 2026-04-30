@@ -30,6 +30,14 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, []);
 
+  // 自动轮播（每5秒切换下一张）
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSelectedWorkIndex((prev) => (prev + 1) % works.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [works.length]);
+
   // 平滑滚动
   useEffect(() => {
     const container = containerRef.current;
