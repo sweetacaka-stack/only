@@ -18,6 +18,7 @@ export default function HomePage() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [selectedVideoIndex, setSelectedVideoIndex] = useState<number | null>(null);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
+  const [selectedGalleryImage, setSelectedGalleryImage] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const worksContainerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -356,10 +357,11 @@ export default function HomePage() {
           
           {/* 自适应网格布局 */}
           <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-            {gallery.map((item) => (
+            {gallery.map((item, index) => (
               <div 
                 key={item.id}
-                className="break-inside-avoid mb-4 group"
+                className="break-inside-avoid mb-4 group cursor-pointer"
+                onClick={() => setSelectedGalleryImage(index)}
               >
                 <div className="relative overflow-hidden rounded-lg">
                   <img 
@@ -499,6 +501,40 @@ export default function HomePage() {
                 </svg>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 图片灯箱 */}
+      {selectedGalleryImage !== null && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-fade-in"
+          onClick={() => setSelectedGalleryImage(null)}
+        >
+          <div 
+            className="relative max-w-[90vw] max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img 
+              src={gallery[selectedGalleryImage].url}
+              alt={gallery[selectedGalleryImage].title}
+              className="max-w-full max-h-[90vh] object-contain animate-scale-in"
+            />
+            
+            {/* 标题 */}
+            <div className="absolute -bottom-12 left-0 right-0 text-center">
+              <p className="text-white font-medium">{gallery[selectedGalleryImage].title}</p>
+            </div>
+            
+            {/* 关闭按钮 */}
+            <button 
+              onClick={() => setSelectedGalleryImage(null)}
+              className="absolute -top-12 right-0 w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/80 hover:text-white transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
         </div>
       )}
