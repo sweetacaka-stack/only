@@ -418,6 +418,20 @@ export default function HomePage() {
         ))}
       </div>
 
+      {/* 返回主页按钮 */}
+      <button 
+        onClick={() => scrollToSection(0)}
+        className={cn(
+          "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 text-white/40 hover:text-white transition-all duration-300",
+          currentSection === 0 ? "opacity-0 pointer-events-none" : "opacity-100"
+        )}
+      >
+        <svg className="w-6 h-6 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+        </svg>
+        <span className="text-xs tracking-widest uppercase">返回主页</span>
+      </button>
+
       {/* Coze 智能体对话 */}
       <CozeChat
         botId={personalInfo.cozeBotId}
