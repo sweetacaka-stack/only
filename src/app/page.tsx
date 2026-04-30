@@ -13,7 +13,8 @@ export default function HomePage() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
-  const [selectedWorkIndex, setSelectedWorkIndex] = useState<number | null>(null);
+  const [selectedWorkIndex, setSelectedWorkIndex] = useState(0);
+  const [isZooming, setIsZooming] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const worksContainerRef = useRef<HTMLDivElement>(null);
@@ -245,117 +246,55 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 第二屏 - 作品画廊 */}
-      <section className="relative h-screen w-full overflow-hidden bg-black/40">
-        {/* 标题 */}
-        <div className="absolute left-8 top-8 z-20 text-xs tracking-[0.3em] text-white/40">WORKS</div>
+      {/* 第二屏 - 动态背景幻灯片 */}
+      <section className="relative h-screen w-full overflow-hidden">
+        {/* 动态背景层 */}
+        <div 
+          className={cn(
+            "absolute inset-0 bg-cover bg-center",
+            isZooming ? "animate-instant-zoom" : ""
+          )}
+          style={{ backgroundImage: `url(${works[selectedWorkIndex].image})` }}
+        />
+        {/* 黑色遮罩渐变 */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/0 to-black/60" />
         
-        {/* 画廊网格 */}
-        <div className="absolute inset-0 overflow-auto p-8 lg:p-16">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[200px]">
-            {works.map((work, index) => (
-              <div
-                key={index}
-                onClick={() => setSelectedWorkIndex(index)}
-                className={cn(
-                  "relative overflow-hidden rounded-lg cursor-pointer group",
-                  index === 0 || index === 5 ? "col-span-2 row-span-2" : ""
-                )}
-              >
-                <img
-                  src={work.image}
-                  alt={work.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                {/* 悬停遮罩 */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-300 flex items-end">
-                  <div className="p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <p className="text-xs text-white/60">{work.category}</p>
-                    <p className="text-lg font-bold text-white">{work.title}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* 左侧大标题 */}
+        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-20">
+          <h2 className="text-5xl lg:text-7xl font-bold text-white tracking-wider animate-title-fade">
+            {works[selectedWorkIndex].title}
+          </h2>
+          <div className="mt-4 h-[2px] w-16 bg-white/60" />
+          <p className="mt-3 text-sm text-white/60 tracking-wider">
+            {works[selectedWorkIndex].category}
+          </p>
         </div>
         
-        {/* 灯箱 */}
-        {selectedWorkIndex !== null && (
-          <div 
-            className="fixed inset-0 z-[100] bg-black/95 animate-fade-in flex items-center justify-center"
-            onClick={() => setSelectedWorkIndex(null)}
-          >
-            {/* 关闭按钮 */}
-            <button
-              onClick={() => setSelectedWorkIndex(null)}
-              className="absolute top-4 right-4 z-10 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-            >
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            
-            {/* 上一张 */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedWorkIndex((selectedWorkIndex - 1 + works.length) % works.length);
+        {/* 右下角缩略图容器 */}
+        <div className="absolute bottom-8 right-8 lg:right-16 flex gap-4 z-20">
+          {works.map((work, index) => (
+            <div
+              key={index}
+              onClick={() => {
+                setSelectedWorkIndex(index);
+                setIsZooming(true);
+                setTimeout(() => setIsZooming(false), 800);
               }}
-              className="absolute left-4 z-10 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-            >
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            
-            {/* 下一张 */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedWorkIndex((selectedWorkIndex + 1) % works.length);
-              }}
-              className="absolute right-4 z-10 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-            >
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-            
-            {/* 大图 */}
-            <div 
-              className="relative max-w-[90vw] max-h-[85vh] animate-scale-in"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={works[selectedWorkIndex].image}
-                alt={works[selectedWorkIndex].title}
-                className="max-w-full max-h-[85vh] object-contain rounded-lg"
-              />
-              {/* 图片信息 */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent rounded-b-lg">
-                <p className="text-xs text-white/60">{works[selectedWorkIndex].category}</p>
-                <p className="text-2xl font-bold text-white mt-1">{works[selectedWorkIndex].title}</p>
-              </div>
-            </div>
-            
-            {/* 缩略图导航 */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-              {works.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedWorkIndex(i);
-                  }}
-                  className={cn(
-                    "w-2 h-2 rounded-full transition-all",
-                    i === selectedWorkIndex ? "bg-white scale-125" : "bg-white/30 hover:bg-white/50"
-                  )}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+              className={cn(
+                "w-24 lg:w-32 h-36 lg:h-44 rounded-lg bg-cover bg-center cursor-pointer transition-all duration-300",
+                "border-2",
+                selectedWorkIndex === index 
+                  ? "border-white scale-105 brightness-100 shadow-lg shadow-white/20" 
+                  : "border-transparent brightness-50 hover:brightness-75 hover:scale-105",
+                "hover:-translate-y-2"
+              )}
+              style={{ backgroundImage: `url(${work.image})` }}
+            />
+          ))}
+        </div>
+        
+        {/* 右上角 WORKS 标识 */}
+        <div className="absolute right-8 top-8 z-20 text-xs tracking-[0.3em] text-white/40">WORKS</div>
       </section>
 
       {/* 第三屏 */}
