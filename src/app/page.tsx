@@ -47,7 +47,7 @@ export default function HomePage() {
     let wheelTimeout: NodeJS.Timeout;
 
     const scrollToSection = (index: number) => {
-      if (isScrolling || index < 0 || index > 2) return;
+      if (isScrolling || index < 0 || index > 4) return;
       isScrolling = true;
       gsap.to(container, {
         scrollTop: index * window.innerHeight,

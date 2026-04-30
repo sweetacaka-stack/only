@@ -122,7 +122,7 @@
 
 /* 平滑滚动容器 */
 .smooth-container {
-  height: 500vh;
+  height: 100vh;
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;
