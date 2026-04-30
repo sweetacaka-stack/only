@@ -20,10 +20,10 @@ export const personalInfo = {
 
   // 左侧菜单导航
   menuItems: [
-    { id: '01', label: '品牌', sublabel: 'BRAND' },
-    { id: '02', label: '包装', sublabel: 'PACKING' },
-    { id: '03', label: '标志字体', sublabel: 'LOGO&FONT' },
-    { id: '04', label: '版式视觉', sublabel: 'FORMAT' },
+    { id: '01', label: '品牌', sublabel: 'BRAND', screenIndex: 0 },
+    { id: '02', label: '包装', sublabel: 'PACKING', screenIndex: 1 },
+    { id: '03', label: '标志字体', sublabel: 'LOGO&FONT', screenIndex: 2 },
+    { id: '04', label: '版式视觉', sublabel: 'FORMAT', screenIndex: 3 },
   ],
 
   // Coze智能体配置

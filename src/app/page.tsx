@@ -27,6 +27,24 @@ export default function HomePage() {
   const indicatorRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const orderRef = useRef<number[]>([0, 1, 2, 3, 4, 5]);
+  const isScrollingRef = useRef(false);
+
+  // 滚动到指定屏幕
+  const scrollToSection = (index: number) => {
+    const container = containerRef.current;
+    if (!container || isScrollingRef.current || index < 0 || index > 4) return;
+    
+    isScrollingRef.current = true;
+    gsap.to(container, {
+      scrollTop: index * window.innerHeight,
+      duration: 0.6,
+      ease: "power2.inOut",
+      onComplete: () => {
+        setCurrentSection(index);
+        isScrollingRef.current = false;
+      },
+    });
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), 300);
@@ -46,22 +64,7 @@ export default function HomePage() {
     const container = containerRef.current;
     if (!container) return;
 
-    let isScrolling = false;
     let wheelTimeout: NodeJS.Timeout;
-
-    const scrollToSection = (index: number) => {
-      if (isScrolling || index < 0 || index > 4) return;
-      isScrolling = true;
-      gsap.to(container, {
-        scrollTop: index * window.innerHeight,
-        duration: 0.6,
-        ease: "power2.inOut",
-        onComplete: () => {
-          setCurrentSection(index);
-          isScrolling = false;
-        },
-      });
-    };
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -139,7 +142,11 @@ export default function HomePage() {
         <nav className={cn("absolute left-0 top-0 h-full w-44 z-20 flex flex-col px-4 py-6 border-r border-white/10 bg-black/30 backdrop-blur-sm opacity-0 animate-fade-in-up", isLoaded && "opacity-100")}>
           <div className="space-y-0 mt-16">
             {personalInfo.menuItems.map((item) => (
-              <button key={item.id} className="w-full text-left py-3 border-t border-white/10 first:border-t-0 hover:bg-white/5 transition-colors group">
+              <button 
+                key={item.id} 
+                onClick={() => scrollToSection(item.screenIndex)}
+                className="w-full text-left py-3 border-t border-white/10 first:border-t-0 hover:bg-white/5 transition-colors group cursor-pointer"
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="text-white/40 text-xs mr-3.5">{item.id}</span>
@@ -308,12 +315,12 @@ export default function HomePage() {
         <div className="absolute right-8 top-8 z-20 text-xs tracking-[0.3em] text-white/40">WORKS</div>
       </section>
 
-      {/* 第三屏 - 产品视频 */}
+      {/* 第三屏 - 页面导航 */}
       <section className="relative h-screen w-full overflow-hidden bg-gradient-to-b from-[#0a0a0a] to-black">
         <div className="absolute inset-0 flex flex-col items-center justify-center px-8">
           {/* 标题 */}
           <div className="mb-16 text-center">
-            <h2 className="text-4xl font-bold text-white tracking-wider">PRODUCT VIDEOS</h2>
+            &lt;h2 className="text-4xl font-bold text-white tracking-wider"&gt;PRODUCT VIDEOS&lt;/h2&gt;
             <div className="mt-4 h-[2px] w-24 bg-white/30 mx-auto" />
           </div>
           
