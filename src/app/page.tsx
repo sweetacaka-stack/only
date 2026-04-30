@@ -320,7 +320,7 @@ export default function HomePage() {
         <div className="absolute inset-0 flex flex-col items-center justify-center px-8">
           {/* 标题 */}
           <div className="mb-16 text-center">
-            &lt;h2 className="text-4xl font-bold text-white tracking-wider"&gt;PRODUCT VIDEOS&lt;/h2&gt;
+            <h2 className="text-4xl font-bold text-white tracking-wider">PRODUCT VIDEOS</h2>
             <div className="mt-4 h-[2px] w-24 bg-white/30 mx-auto" />
           </div>
           
