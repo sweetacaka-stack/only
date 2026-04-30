@@ -315,7 +315,7 @@ export default function HomePage() {
         <div className="text-white/30 text-lg tracking-widest">即将推出</div>
       </section>
 
-      {/* 第三屏 */}
+      {/* 第六屏 - 联系方式 */}
       <section className="relative h-screen w-full overflow-hidden">
         <ParticleBackground />
         <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -331,7 +331,7 @@ export default function HomePage() {
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
-              <span className="text-sm tracking-wide">15098039595</span>
+              <span className="text-sm tracking-wide">{personalInfo.phone}</span>
             </div>
           </div>
         </div>
@@ -339,7 +339,7 @@ export default function HomePage() {
 
       {/* 导航点 */}
       <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
-        {[0, 1, 2].map((index) => (
+        {[0, 1, 2, 3, 4].map((index) => (
           <button key={index} onClick={() => handleNavClick(index)} className={cn("w-1.5 h-1.5 rounded-full transition-all duration-300", currentSection === index ? "bg-white/80" : "bg-white/20 hover:bg-white/40")} />
         ))}
       </div>
