@@ -255,54 +255,8 @@ export default function HomePage() {
       </section>
 
       {/* 第二屏 - 动态背景幻灯片 */}
-      <section className="relative h-screen w-full overflow-hidden">
-        {/* 动态背景层 */}
-        <div 
-          className={cn(
-            "absolute inset-0 bg-cover bg-center",
-            isZooming ? "animate-instant-zoom" : ""
-          )}
-          style={{ backgroundImage: `url(${works[selectedWorkIndex].image})` }}
-        />
-        {/* 黑色遮罩渐变 */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/0 to-black/60" />
-        
-        {/* 左侧大标题 */}
-        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 z-20">
-          <h2 className="text-5xl lg:text-7xl font-bold text-white tracking-wider animate-title-fade">
-            {works[selectedWorkIndex].title}
-          </h2>
-          <div className="mt-4 h-[2px] w-16 bg-white/60" />
-          <p className="mt-3 text-sm text-white/60 tracking-wider">
-            {works[selectedWorkIndex].category}
-          </p>
-        </div>
-        
-        {/* 右下角缩略图容器 */}
-        <div className="absolute bottom-8 right-8 lg:right-16 flex gap-4 z-20">
-          {works.map((work, index) => (
-            <div
-              key={index}
-              onClick={() => {
-                setSelectedWorkIndex(index);
-                setIsZooming(true);
-                setTimeout(() => setIsZooming(false), 800);
-              }}
-              className={cn(
-                "w-24 lg:w-32 h-36 lg:h-44 rounded-lg bg-cover bg-center cursor-pointer transition-all duration-300",
-                "border-2",
-                selectedWorkIndex === index 
-                  ? "border-white scale-105 brightness-100 shadow-lg shadow-white/20" 
-                  : "border-transparent brightness-50 hover:brightness-75 hover:scale-105",
-                "hover:-translate-y-2"
-              )}
-              style={{ backgroundImage: `url(${work.image})` }}
-            />
-          ))}
-        </div>
-        
-        {/* 右上角 WORKS 标识 */}
-        <div className="absolute right-8 top-8 z-20 text-xs tracking-[0.3em] text-white/40">WORKS</div>
+      <section className="relative h-screen w-full overflow-hidden bg-gradient-to-br from-purple-900/50 to-black flex items-center justify-center">
+        <div className="text-white/70 text-lg tracking-widest">作品集</div>
       </section>
 
       {/* 第三屏 - 待开发 */}
