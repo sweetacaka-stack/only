@@ -24,6 +24,7 @@ export const personalInfo = {
     { id: '02', label: '包装', sublabel: 'PACKING', screenIndex: 1 },
     { id: '03', label: '标志字体', sublabel: 'LOGO&FONT', screenIndex: 2 },
     { id: '04', label: '版式视觉', sublabel: 'FORMAT', screenIndex: 3 },
+    { id: '05', label: '联系方式', sublabel: 'CONTACT', screenIndex: 4 },
   ],
 
   // Coze智能体配置
