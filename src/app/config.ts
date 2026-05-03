@@ -77,63 +77,48 @@ export const gallery = [
   {
     id: 1,
     title: "作品 01",
-    url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80"
+    url: "/gallery/gallery-01.png"
   },
   {
     id: 2,
     title: "作品 02",
-    url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80"
+    url: "/gallery/gallery-02.png"
   },
   {
     id: 3,
     title: "作品 03",
-    url: "https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&w=1200&q=80"
+    url: "/gallery/gallery-03.png"
   },
   {
     id: 4,
     title: "作品 04",
-    url: "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=1200&q=80"
+    url: "/gallery/gallery-04.png"
   },
   {
     id: 5,
     title: "作品 05",
-    url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1200&q=80"
+    url: "/gallery/gallery-05.png"
   },
   {
     id: 6,
     title: "作品 06",
-    url: "https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1200&q=80"
+    url: "/gallery/gallery-06.png"
   },
   {
     id: 7,
     title: "作品 07",
-    url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1200&q=80"
+    url: "/gallery/gallery-07.png"
   },
   {
     id: 8,
     title: "作品 08",
-    url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80"
+    url: "/gallery/gallery-08.png"
   },
   {
     id: 9,
     title: "作品 09",
-    url: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&w=1200&q=80"
+    url: "/gallery/gallery-09.png"
   },
-  {
-    id: 10,
-    title: "作品 10",
-    url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=1200&q=80"
-  },
-  {
-    id: 11,
-    title: "作品 11",
-    url: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=1200&q=80"
-  },
-  {
-    id: 12,
-    title: "作品 12",
-    url: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80"
-  }
 ];
 
 // 产品视频配置
