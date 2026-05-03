@@ -127,14 +127,14 @@ export const videos = [
     id: 1,
     title: "产品视频 01",
     subtitle: "PRODUCT VIDEO 01",
-    thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=800&q=80",
+    thumbnail: "/videos/video-01-poster.jpg",
     url: "/videos/video-01.mp4"
   },
   {
     id: 2,
     title: "产品视频 02",
     subtitle: "PRODUCT VIDEO 02",
-    thumbnail: "https://images.unsplash.com/photo-1478720568477-152d9b164e63?auto=format&fit=crop&w=800&q=80",
+    thumbnail: "/videos/video-02-poster.jpg",
     url: "/videos/video-02.mp4"
   },
   {

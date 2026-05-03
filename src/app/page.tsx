@@ -487,6 +487,7 @@ export default function HomePage() {
             {/* 视频播放器 */}
             <video
               src={videos[selectedVideoIndex].url}
+              poster={videos[selectedVideoIndex].thumbnail}
               className="w-full h-full object-contain bg-black rounded-xl"
               controls
               autoPlay
