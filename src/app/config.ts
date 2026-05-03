@@ -143,14 +143,14 @@ export const videos = [
     title: "产品视频 01",
     subtitle: "PRODUCT VIDEO 01",
     thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=800&q=80",
-    url: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2FVideo-1777537237341_4_starlight_mini-1777794115196.mp4&nonce=ce033e56-d2b9-48fa-88cf-85b08faf9c72&project_id=7628526330237288488&sign=ed44e69ce6263cc01d3169a1f406fa7d7e809aae2d2a1579c637f221dd01b00d"
+    url: "/videos/video-01.mp4"
   },
   {
     id: 2,
     title: "产品视频 02",
     subtitle: "PRODUCT VIDEO 02",
     thumbnail: "https://images.unsplash.com/photo-1478720568477-152d9b164e63?auto=format&fit=crop&w=800&q=80",
-    url: "https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2FVideo-1777537234813_1_starlight_mini-1777794115074.mp4&nonce=f0e05166-5c9f-4a12-a9de-f407e58cfef2&project_id=7628526330237288488&sign=9207c0c2be690f41cdcd5e2d705ab878c1fc201a2d221fec5128c394763a05b7"
+    url: "/videos/video-02.mp4"
   },
   {
     id: 3,
