@@ -119,6 +119,7 @@ export default function HomePage() {
             src="https://code.coze.cn/api/sandbox/coze_coding/file/proxy?expire_time=-1&file_path=assets%2F%E6%89%8B%E8%A1%A81.png&nonce=afabf5e0-2696-490a-9a79-6719fdf7089c&project_id=7628526330237288488&sign=ac6637b0dce6aa62ecbd7e53986b5d72c772bd7b4f6b9764023547763eb0f030"
             alt="背景"
             className="w-full h-full object-cover"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-black/30" />
         </div>
@@ -207,6 +208,7 @@ export default function HomePage() {
                     alt="微信二维码" 
                     className="w-12 lg:w-14 rounded border border-white/20 mt-1 cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => setIsQRModalOpen(true)}
+                    loading="lazy"
                   />
                 </div>
               </div>
@@ -337,6 +339,7 @@ export default function HomePage() {
                     src={video.thumbnail} 
                     alt={video.title}
                     className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                    loading="lazy"
                   />
                   {/* 播放按钮 */}
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -487,6 +490,8 @@ export default function HomePage() {
               className="w-full h-full object-contain bg-black rounded-xl"
               controls
               autoPlay
+              preload="metadata"
+              playsInline
             />
             
             {/* 标题 */}
