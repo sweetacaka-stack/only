@@ -21,9 +21,9 @@ export const personalInfo = {
   // 左侧菜单导航
   menuItems: [
     { id: '01', label: '主页', sublabel: 'HOME', screenIndex: 0 },
-    { id: '02', label: '画廊', sublabel: 'GALLERY', screenIndex: 1 },
+    { id: '02', label: '作品集', sublabel: 'PORTFOLIO', screenIndex: 1 },
     { id: '03', label: '产品视频', sublabel: 'VIDEOS', screenIndex: 2 },
-    { id: '04', label: '作品集', sublabel: 'PORTFOLIO', screenIndex: 3 },
+    { id: '04', label: '图片画廊', sublabel: 'GALLERY', screenIndex: 3 },
     { id: '05', label: '联系方式', sublabel: 'CONTACT', screenIndex: 4 },
   ],
 
